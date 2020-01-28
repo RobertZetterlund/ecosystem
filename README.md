@@ -1,2 +1,2 @@
 # ecosystem
-Simulating an ecosystem
+### Simulating an ecosystem
