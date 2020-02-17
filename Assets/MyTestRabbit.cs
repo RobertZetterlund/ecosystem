@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MyTestRabbit : MonoBehaviour
+public class MyTestRabbit : MonoBehaviour, Consumer
 {
 
     double Hunger = 1;
