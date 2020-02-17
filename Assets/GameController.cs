@@ -6,9 +6,9 @@ public class GameController
 	{
 	}
 
-    private void consume(IConsumer consumer, IConsumable consumable)
+    private void Consume(Consumer consumer, Consumable consumable)
     {
-
+        // do eating calculations
     }
 
 }
