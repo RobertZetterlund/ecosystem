@@ -9,7 +9,7 @@ public class Animal : MonoBehaviour
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
     double lifespan = 2000;
-    bool isDead;
+    bool dead;
     double energy;
 
     // Start is called before the first frame update
@@ -34,15 +34,15 @@ public class Animal : MonoBehaviour
 
     }
 
-    public void isDead(double hunger, double thirst) 
+    public void isDead() 
     {
         if (hunger >= 1) 
         {
-            Die (CauseOfDeath.Hunger);
+            Die(CauseOfDeath.Hunger);
         } 
         else if (thirst >= 1) 
         {
-            Die (CauseOfDeath.Thirst);
+            Die(CauseOfDeath.Thirst);
         }
         else if (energy <= 0) 
         {
@@ -50,14 +50,15 @@ public class Animal : MonoBehaviour
         }
     }
 
-     public booean Die (CauseOfDeath cause)
+     public void Die(CauseOfDeath cause)
      {
-        if (!isDead) {
-            isDead = true;
+        if (!dead) {
+            dead = true;
             //Something.log(cause);
             //Environment.RegisterDeath (this);
             //Destroy (gameObject);
         }
+        
     }
 
     public void reproduce() 
