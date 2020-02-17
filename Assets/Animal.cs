@@ -8,6 +8,7 @@ public class Animal : MonoBehaviour
     double thirst;
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
+    double lifespan = 2000;
     bool isDead;
     double energy;
 
@@ -24,6 +25,11 @@ public class Animal : MonoBehaviour
         hunger += Time.deltaTime * 1 / timeToDeathByHunger;
         thirst += Time.deltaTime * 1 / timeToDeathByThirst;
 
+        //age the animal
+        energy -= Time.deltaTime * 1/lifespan;
+
+
+        //check if the animal is dead
         isDead();
 
     }
@@ -51,6 +57,17 @@ public class Animal : MonoBehaviour
             //Something.log(cause);
             //Environment.RegisterDeath (this);
             //Destroy (gameObject);
+        }
+    }
+
+    public void reproduce() 
+    {
+        if(hunger < 0.3 && thirst < 0.6) {
+            if(energy > 0.4)
+            {
+                //code here for reproduction
+            }
+            //code here for sex
         }
     }
 }
