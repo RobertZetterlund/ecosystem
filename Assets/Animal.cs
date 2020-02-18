@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Animal : MonoBehaviour
+public class Animal : MonoBehaviour, IConsumable
 {
     double hunger;
     double thirst;
@@ -11,7 +11,10 @@ public class Animal : MonoBehaviour
     double lifespan = 2000;
     bool dead;
     double energy;
+    double health;
+    double maxHealth;
     GameController controller;
+    double size;
 
     public Animal(GameController controller)
     {
@@ -78,8 +81,25 @@ public class Animal : MonoBehaviour
         }
     }
 
-    public void consumeFood(Consumable consumable)
+    public void consumeFood(IConsumable consumable)
     {
         controller.Consume(this, consumable);
     }
+
+    public double GetAmount()
+    {
+        return size * (health / maxHealth); 
+    }
+
+    public double GetSize()
+    {
+        return size;
+    }
+
+    public void DecreaseAmount(double amount)
+    {
+        health -= amount * maxHealth / size;
+    }
+
+
 }
