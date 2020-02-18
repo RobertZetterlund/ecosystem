@@ -22,7 +22,7 @@ public class MyTestRabbit : MonoBehaviour
     void Update()
     {
         // look for enemy
-        transform.Translate(0.000000001f * Time.deltaTime, 0f, 0f);
+        //transform.Translate(0.000000001f * Time.deltaTime, 0f, 0f);
 
 
     }
