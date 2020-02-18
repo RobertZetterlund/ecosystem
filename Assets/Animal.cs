@@ -11,6 +11,12 @@ public class Animal : MonoBehaviour
     double lifespan = 2000;
     bool dead;
     double energy;
+    GameController controller;
+
+    public Animal(GameController controller)
+    {
+        this.controller = controller;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -70,5 +76,10 @@ public class Animal : MonoBehaviour
             }
             //code here for sex
         }
+    }
+
+    public void consumeFood(Consumable consumable)
+    {
+        controller.Consume(this, consumable);
     }
 }
