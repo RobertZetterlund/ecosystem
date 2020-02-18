@@ -11,6 +11,9 @@ public class Animal : MonoBehaviour
     double lifespan = 2000;
     bool dead;
     double energy;
+    private Rigidbody rb;
+    public float speed = 5f;
+    private Vector3 direction = new Vector3(0, 0, 0);
     GameController controller;
 
     public Animal(GameController controller)
@@ -19,13 +22,15 @@ public class Animal : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
+        Debug.Log("Yes");
+        rb = GetComponent<Rigidbody>();
         // use Köres senses to do tings. innit bruv
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
         //increases hunger and thirst over time
         hunger += Time.deltaTime * 1 / timeToDeathByHunger;
@@ -37,6 +42,9 @@ public class Animal : MonoBehaviour
 
         //check if the animal is dead
         isDead();
+
+        //move the animal
+        Move(direction);
 
     }
 
@@ -81,5 +89,26 @@ public class Animal : MonoBehaviour
     public void consumeFood(Consumable consumable)
     {
         controller.Consume(this, consumable);
+    }
+
+    public void Move(Vector3 location)
+    {
+        // The step size is equal to speed times frame time.
+        float singleStep = 8 * Time.deltaTime;
+
+        // Rotate the forward vector towards the target direction by one step
+        Vector3 newDirection = Vector3.RotateTowards(transform.forward, location, singleStep, 0.0f);
+
+        // Draw a ray pointing at our target in
+        Debug.DrawRay(transform.position, newDirection, Color.red);
+
+        // Calculate a rotation a step closer to the target and applies rotation to this object
+        rb.MoveRotation(Quaternion.LookRotation(newDirection));
+        rb.MovePosition(transform.position + direction * speed * Time.deltaTime);
+    }
+
+    public void SetDirection(Vector3 direction)
+    {
+        this.direction = direction;
     }
 }
