@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 17599950}
   - component: {fileID: 17599949}
   - component: {fileID: 17599948}
+  - component: {fileID: 17599947}
   m_Layer: 0
   m_Name: MyTestRabbit
   m_TagString: Untagged
@@ -140,6 +141,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &17599947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 17599946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3af105e184b2a4809923153b0d94d90b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specie: 1
 --- !u!136 &17599948
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -402,6 +416,7 @@ GameObject:
   - component: {fileID: 1131773423}
   - component: {fileID: 1131773422}
   - component: {fileID: 1131773421}
+  - component: {fileID: 1131773419}
   m_Layer: 0
   m_Name: MyTestPlant
   m_TagString: Untagged
@@ -409,6 +424,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1131773419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131773418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 093c12b73662f46fb8289a1482737f9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specie: 2
 --- !u!65 &1131773421
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -495,6 +523,7 @@ GameObject:
   - component: {fileID: 1432602915}
   - component: {fileID: 1432602914}
   - component: {fileID: 1432602913}
+  - component: {fileID: 1432602917}
   m_Layer: 0
   m_Name: WaterPond
   m_TagString: Untagged
@@ -576,6 +605,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1432602917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432602912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 618a9e3aa92002543840750c8ac679a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specie: 3
 --- !u!1 &2010045573
 GameObject:
   m_ObjectHideFlags: 0
