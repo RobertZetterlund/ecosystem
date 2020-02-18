@@ -8,19 +8,20 @@ public class GameController
 	{
 	}
 
-    public double Consume(Animal animal, IConsumable consumable)
+    public (double, ConsumptionType) Consume(Animal animal, IConsumable consumable)
     {
         // do eating calculations
         double biteSize = animal.GetSize() * BITE_FACTOR;
         double availableAmount = consumable.GetAmount();
+        ConsumptionType type = consumable.GetConsumptionType();
         if (biteSize > consumable.GetAmount()) // trying to consume more than available
         {
             consumable.DecreaseAmount(availableAmount);
-            return availableAmount;
+            return (availableAmount, type);
         } else // normal case
         {
             consumable.DecreaseAmount(biteSize);
-            return biteSize;
+            return (biteSize, type);
         }
     }
 

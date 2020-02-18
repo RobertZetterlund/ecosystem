@@ -101,5 +101,10 @@ public class Animal : MonoBehaviour, IConsumable
         health -= amount * maxHealth / size;
     }
 
+    public ConsumptionType GetConsumptionType()
+    {
+        return ConsumptionType.Animal;
+    }
+
 
 }
