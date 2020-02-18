@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MyTestRabbit : MonoBehaviour, Consumer
+public class MyTestRabbit : MonoBehaviour
 {
 
     double Hunger = 1;
@@ -22,7 +22,7 @@ public class MyTestRabbit : MonoBehaviour, Consumer
     void Update()
     {
         // look for enemy
-        transform.Translate(0.000000001f * Time.deltaTime, 0f, 0f);
+        //transform.Translate(0.000000001f * Time.deltaTime, 0f, 0f);
 
 
     }

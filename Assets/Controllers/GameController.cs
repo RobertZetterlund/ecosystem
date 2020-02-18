@@ -6,9 +6,11 @@ public class GameController
 	{
 	}
 
-    private void Consume(Consumer consumer, Consumable consumable)
+    public void Consume(FoodConsumer consumer, Consumable consumable)
     {
         // do eating calculations
     }
+
+
 
 }

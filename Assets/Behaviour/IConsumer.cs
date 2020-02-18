@@ -1,15 +1,16 @@
-﻿using System;
+﻿/*using System;
 
-public abstract class Consumer
+public abstract class foodConsumer
 {
-	public Consumer(GameController controller)
+	public foodConsumer(GameController controller)
 	{
 	}
 
-    GetSize(); // use to calculate "bite size", might just integrate this class into animal superclass
+    foodConsumer(); // use to calculate "bite size", might just integrate this class into animal superclass
 
-    Consume(Consumable consumable) // maybe dumb idk
+    foodConsumer(Consumable consumable) // maybe dumb idk
     {
         controller.Consume(this, consumable);
     }
 }
+*/
