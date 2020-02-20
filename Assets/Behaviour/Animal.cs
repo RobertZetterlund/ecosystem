@@ -4,21 +4,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Animal : MonoBehaviour, IConsumable
+public abstract class Animal : MonoBehaviour, IConsumable
 {
     double hunger;
     double thirst;
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
-    private static double BITE_FACTOR = 0.2;
+    private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
     double energy;
-    double health;
-    double maxHealth;
+    double health; //max health should be 1, health scaling depends on size
     GameController controller;
     EntityAction currentAction;
     double size;
+    double dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
 
     public Animal(GameController controller)
     {
@@ -167,7 +167,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public double GetAmount()
     {
-        return size * (health / maxHealth); 
+        return size * health; 
     }
 
     public double GetSize()
@@ -178,7 +178,7 @@ public class Animal : MonoBehaviour, IConsumable
     // eat this animal
     public void Consume(double amount)
     {
-        health -= amount * maxHealth / size;
+        health -= amount / size;
     }
 
     public ConsumptionType GetConsumptionType()
@@ -189,8 +189,22 @@ public class Animal : MonoBehaviour, IConsumable
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
+        amount /= size; // balance according to size. (note that amount will be higher if youre size is bigger)
         // increment energy / hunger / thirst
+        switch (type)
+        {
+            case ConsumptionType.Water:
+                thirst -= amount;
+                break;
+            case ConsumptionType.Animal:
+                hunger -= amount * dietFactor;
+                break;
+            case ConsumptionType.Plant:
+                hunger -= amount * (1 - dietFactor);
+                break;
+        }
     }
+
     
 
 
