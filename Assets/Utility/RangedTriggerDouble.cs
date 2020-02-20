@@ -37,4 +37,9 @@ public class RangedTriggerDouble
         value += amount;
         return amount; // ok
     }
+
+    public double getValue()
+    {
+        return value;
+    }
 }
