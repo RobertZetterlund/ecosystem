@@ -36,7 +36,7 @@ public class MyTestRabbit : Animal
             if (sensedGameObject.tag == "Plant")
             {
                 Debug.Log("We are setting the direction");
-                SetDirection(sensedGameObject.transform.position - transform.position);
+                SetTargetDestination(sensedGameObject.transform.position);
             } 
         }
             

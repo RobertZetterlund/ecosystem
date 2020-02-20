@@ -10,7 +10,7 @@ public interface IMovement
 
     void Stop();
 
-    void SetDirection(Vector3 direction);
+    //void SetDirection(Vector3 direction);
 
     Vector3 GetDirection();
 
@@ -19,4 +19,7 @@ public interface IMovement
     float GetSpeed();
 
     void SetTargetDestination(Vector3 destination);
+
+    bool HasReachedDestination();
+
 }

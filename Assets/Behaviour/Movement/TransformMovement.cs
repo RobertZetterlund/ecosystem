@@ -7,7 +7,6 @@ using UnityEngine;
  */
 public class TransformMovement : Movement
 {
-    private Transform transform;
 
     public TransformMovement(Transform transform)
     {
@@ -15,6 +14,7 @@ public class TransformMovement : Movement
     }
     public override void Move()
     {
+        base.Move();
         transform.Translate(direction * speed * Time.deltaTime);
     }
 }

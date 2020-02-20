@@ -11,9 +11,11 @@ public class RBMovement : Movement
     public RBMovement(Rigidbody rb)
     {
         this.rb = rb;
+        transform = rb.transform;
     }
     public override void Move()
     {
+        base.Move();
         // The step size is equal to speed times frame time.
         float singleStep = 8 * Time.deltaTime;
 
@@ -25,6 +27,6 @@ public class RBMovement : Movement
 
         // Calculate a rotation a step closer to the target and applies rotation to this object
         //rb.MoveRotation(Quaternion.LookRotation(newDirection));
-        rb.MovePosition(rb.transform.position + direction * speed * Time.deltaTime);
+        rb.MovePosition(transform.position + direction * speed * Time.deltaTime);
     }
 }

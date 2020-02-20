@@ -105,11 +105,6 @@ public class Animal : MonoBehaviour, IMovement
         movement.Stop();
     }
 
-    public void SetDirection(Vector3 direction)
-    {
-        movement.SetDirection(direction);
-    }
-
     public Vector3 GetDirection()
     {
         return movement.GetDirection();
@@ -128,5 +123,10 @@ public class Animal : MonoBehaviour, IMovement
     public void SetTargetDestination(Vector3 destination)
     {
         movement.SetTargetDestination(destination);
+    }
+
+    public bool HasReachedDestination()
+    {
+        return movement.HasReachedDestination();
     }
 }

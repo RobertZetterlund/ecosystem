@@ -8,9 +8,21 @@ public abstract class Movement : IMovement
 
     protected Vector3 targetDestination = new Vector3(0f, 0f, 0f);
 
+    private Vector3 acceptance = new Vector3(0.2f, 0.2f, 0.2f);
+
+    protected Transform transform;
+
     protected float speed = 0f;
 
-    public abstract void Move();
+    protected float baseSpeed = 2;
+
+    public virtual void Move()
+    {
+        if(HasReachedDestination())
+        {
+            speed = 0;
+        }
+    }
 
     public virtual void Stop()
     {
@@ -22,7 +34,7 @@ public abstract class Movement : IMovement
         return direction;
     }
 
-    public void SetDirection(Vector3 direction)
+    private void SetDirection(Vector3 direction)
     {
         //Normalize the direction
         direction = direction.normalized;
@@ -41,7 +53,15 @@ public abstract class Movement : IMovement
 
     public void SetTargetDestination(Vector3 destination)
     {
-        throw new NotImplementedException();
+        this.targetDestination = destination;
+        SetDirection(destination - transform.position);
+        SetSpeed(baseSpeed);
+    }
+
+    public bool HasReachedDestination()
+    {
+        Debug.Log((targetDestination - transform.position).magnitude);
+        return (targetDestination - transform.position).magnitude < acceptance.magnitude;
     }
 }
 
