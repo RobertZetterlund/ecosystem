@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ public class Animal : MonoBehaviour, IConsumable
     double health;
     double maxHealth;
     GameController controller;
+    EntityAction currentAction;
     double size;
 
     public Animal(GameController controller)
@@ -37,11 +39,13 @@ public class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
 
+        chooseNextAction();
 
         //check if the animal is dead
         isDead();
 
     }
+
 
     public void isDead() 
     {
@@ -70,14 +74,76 @@ public class Animal : MonoBehaviour, IConsumable
         
     }
 
-    public void reproduce() 
+    public void chooseNextAction()
     {
-        if(hunger < 0.3 && thirst < 0.6) {
-            if(energy > 0.4)
+
+        // Get info about surroundings 
+            //Köre har något här hoppas jag
+        if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
+        {
+            findMate();
+        }
+
+        // Get current action
+        bool eating = currentAction == EntityAction.Eating;
+        bool drinking = currentAction == EntityAction.Drinking;
+        //bool reproducing = currentAction == EntityAction.Reproducing; //Dont think we should allow animals to stop having sex. Once started they will finish
+
+
+        // More hungry than thirsty
+        if (hunger >= thirst || (eating && !isCriticallyThirsty()))
+        {
+            findFood();
+        }
+        // More thirsty than hungry
+        else if (thirst > hunger || (drinking && !isCriticallyHungry()))
+        {
+            findWater();
+        }
+        
+
+
+        //doAction();
+            // a method that makes the animal eat, drink, or reproduce
+    }
+
+    private void findFood()
+    {
+        //some shit here
+        currentAction = EntityAction.GoingToFood;
+    }
+
+    private void findWater()
+    {
+        //some shit here
+        currentAction = EntityAction.GoingToWater;
+    }
+
+    private void findMate()
+    {
+        //Some shit here
+        currentAction = EntityAction.SearchingForMate;
+    }
+
+    public bool isCriticallyThirsty()
+    {
+        return thirst < 0.1; //change these values when we know more or avoid hardcoded values
+    }
+
+    public bool isCriticallyHungry()
+    {
+        return hunger < 0.1; //change these values when we know more or avoid hardcoded values
+    }
+    public void reproduce()
+    {
+        if (hunger < 0.3 && thirst < 0.6)
+        {
+            if (energy > 0.4)
             {
                 //code here for reproduction
             }
             //code here for sex
+            currentAction = EntityAction.Idle; // Set action to idle when done
         }
     }
 
