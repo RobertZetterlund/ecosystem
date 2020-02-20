@@ -5,8 +5,7 @@ using UnityEngine;
 public class MyTestRabbit : Animal
 {
     public Species specie = Species.Rabbit;
-    private Color spherecolor = new Color(0, 1, 0, 0.2f);
-    public float senseRadius = 5;
+    public float senseRadius = 5f;
     double Hunger = 1;
     bool isMale = true;
 
@@ -16,7 +15,7 @@ public class MyTestRabbit : Animal
     }
 
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
         base.Start();
         // use Köres senses to locate a food source
@@ -26,7 +25,7 @@ public class MyTestRabbit : Animal
     }
 
     // Update is called once per frame
-    void Update()
+    public override void Update()
     {
         base.Update();
         Collider[] colliders = EnvironmentController.CheckSurroundings(transform.position, senseRadius);
@@ -34,19 +33,22 @@ public class MyTestRabbit : Animal
         {
             GameObject sensedGameObject = c.gameObject;
             SenseRegistrator.Register(gameObject, sensedGameObject);
-            if (gameObject.tag == "Plant")
+            if (sensedGameObject.tag == "Plant")
             {
-                Move(sensedGameObject.transform.position);
+                Debug.Log("We are setting the direction");
+                SetDirection(sensedGameObject.transform.position - transform.position);
             } 
         }
             
     }
 
-
+    //Draws a sphere corresponding to its sense radius
     void OnDrawGizmos()
     {
-        Gizmos.color = spherecolor;
+        //I tried to make it so that it uses the same color object all the time, but it glitches big time
+        Gizmos.color = new Color(1,1,0,0.5f);
         Gizmos.DrawSphere(transform.position, senseRadius);
     }
+    
 
 }

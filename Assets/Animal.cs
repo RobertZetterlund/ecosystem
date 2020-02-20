@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Animal : MonoBehaviour
+public class Animal : MonoBehaviour, IMovement
 {
     double hunger;
     double thirst;
@@ -11,10 +11,10 @@ public class Animal : MonoBehaviour
     double lifespan = 2000;
     bool dead;
     double energy;
-    private Rigidbody rb;
     public float speed = 5f;
-    private Vector3 direction = new Vector3(0, 0, 0);
     GameController controller;
+    //Movement implemented through strategy pattern
+    private IMovement movement;
 
     public Animal(GameController controller)
     {
@@ -22,15 +22,16 @@ public class Animal : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    public void Start()
+    public virtual void Start()
     {
-        Debug.Log("Yes");
-        rb = GetComponent<Rigidbody>();
+        //TransformMovement implemented for now, might be better to switch to RBMovement further on
+        movement = new TransformMovement(transform);
+        SetSpeed(speed);
         // use Köres senses to do tings. innit bruv
     }
 
     // Update is called once per frame
-    public void Update()
+    public virtual void Update()
     {
         //increases hunger and thirst over time
         hunger += Time.deltaTime * 1 / timeToDeathByHunger;
@@ -44,9 +45,11 @@ public class Animal : MonoBehaviour
         isDead();
 
         //move the animal
-        Move(direction);
+        Move();
 
     }
+
+
 
     public void isDead() 
     {
@@ -91,24 +94,39 @@ public class Animal : MonoBehaviour
         controller.Consume(this, consumable);
     }
 
-    public void Move(Vector3 location)
+
+    public void Move()
     {
-        // The step size is equal to speed times frame time.
-        float singleStep = 8 * Time.deltaTime;
+        movement.Move();
+    }
 
-        // Rotate the forward vector towards the target direction by one step
-        Vector3 newDirection = Vector3.RotateTowards(transform.forward, location, singleStep, 0.0f);
-
-        // Draw a ray pointing at our target in
-        Debug.DrawRay(transform.position, newDirection, Color.red);
-
-        // Calculate a rotation a step closer to the target and applies rotation to this object
-        rb.MoveRotation(Quaternion.LookRotation(newDirection));
-        rb.MovePosition(transform.position + direction * speed * Time.deltaTime);
+    public void Stop()
+    {
+        movement.Stop();
     }
 
     public void SetDirection(Vector3 direction)
     {
-        this.direction = direction;
+        movement.SetDirection(direction);
+    }
+
+    public Vector3 GetDirection()
+    {
+        return movement.GetDirection();
+    }
+
+    public void SetSpeed(float speed)
+    {
+        movement.SetSpeed(speed);
+    }
+
+    public float GetSpeed()
+    {
+        return movement.GetSpeed();
+    }
+
+    public void SetTargetDestination(Vector3 destination)
+    {
+        movement.SetTargetDestination(destination);
     }
 }
