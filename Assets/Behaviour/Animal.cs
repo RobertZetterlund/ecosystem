@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Animal : MonoBehaviour, IConsumable
 {
@@ -8,6 +9,7 @@ public class Animal : MonoBehaviour, IConsumable
     double thirst;
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
+    private static double BITE_FACTOR = 0.2;
     double lifespan = 2000;
     bool dead;
     double energy;
@@ -81,10 +83,21 @@ public class Animal : MonoBehaviour, IConsumable
         }
     }
 
-    public void consumeFood(IConsumable consumable)
+    // let this animal attempt to take a bite from the given consumable
+    private void Consume(IConsumable consumable)
     {
-        controller.Consume(this, consumable);
+        // do eating calculations
+        double biteSize = size * BITE_FACTOR;
+        double availableAmount = consumable.GetAmount();
+        ConsumptionType type = consumable.GetConsumptionType();
+
+        double amountConsumed = Math.Min(availableAmount, biteSize);
+        consumable.Consume(amountConsumed);
+        swallow(amountConsumed, type);
+
     }
+
+
 
     public double GetAmount()
     {
@@ -96,7 +109,8 @@ public class Animal : MonoBehaviour, IConsumable
         return size;
     }
 
-    public void DecreaseAmount(double amount)
+    // eat this animal
+    public void Consume(double amount)
     {
         health -= amount * maxHealth / size;
     }
@@ -105,6 +119,13 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return ConsumptionType.Animal;
     }
+
+    // swallow the food/water that this animal ate
+    private void swallow(double amount, ConsumptionType type)
+    {
+        // increment energy / hunger / thirst
+    }
+    
 
 
 }

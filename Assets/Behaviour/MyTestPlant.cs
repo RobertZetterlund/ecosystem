@@ -6,8 +6,7 @@ using UnityEngine;
 public class MyTestPlant : MonoBehaviour
 {
 
-    float amountRemaining = 1;
-    const float consumeSpeed = 8;
+    double amountRemaining = 1;
 
 
     // Start is called before the first frame update
@@ -22,22 +21,21 @@ public class MyTestPlant : MonoBehaviour
         
     }
 
-    public float Consume (float amount) {
-        float amountConsumed = Mathf.Max (0, Mathf.Min (amountRemaining, amount));
-        amountRemaining -= amount * consumeSpeed;
-
-        transform.localScale = Vector3.one * amountRemaining;
+    public void Consume(double amount) {
+        amountRemaining -= amount;
 
         if (amountRemaining <= 0) {
             //Die (CauseOfDeath.Eaten);
         }
-
-        return amountConsumed;
     }
 
-    public float AmountRemaining {
-        get {
-            return amountRemaining;
-        }
+    public double GetAmount()
+    {
+        return amountRemaining;
+    }
+
+    public ConsumptionType GetConsumptionType()
+    {
+        return ConsumptionType.Plant;
     }
 }
