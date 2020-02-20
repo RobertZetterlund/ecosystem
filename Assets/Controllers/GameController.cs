@@ -2,7 +2,6 @@
 
 public class GameController
 {
-    private static double BITE_FACTOR = 0.2;
     private static double STD_DEVIATION_FACTOR = 0.2;
     private static double MUTATION_CHANCE = 0.2;
 
@@ -10,22 +9,6 @@ public class GameController
 	{
 	}
 
-    public (double, ConsumptionType) Consume(Animal animal, IConsumable consumable)
-    {
-        // do eating calculations
-        double biteSize = animal.GetSize() * BITE_FACTOR;
-        double availableAmount = consumable.GetAmount();
-        ConsumptionType type = consumable.GetConsumptionType();
-        if (biteSize > consumable.GetAmount()) // trying to consume more than available
-        {
-            consumable.DecreaseAmount(availableAmount);
-            return (availableAmount, type);
-        } else // normal case
-        {
-            consumable.DecreaseAmount(biteSize);
-            return (biteSize, type);
-        }
-    }
 
     // Crossover and mutate
     private static double ReproduceDouble(double geneA, double geneB, bool allowNegative)
