@@ -35,8 +35,7 @@ public class MyTestRabbit : Animal
             SenseRegistrator.Register(gameObject, sensedGameObject);
             if (sensedGameObject.tag == "Plant")
             {
-                Debug.Log("We are setting the direction");
-                SetTargetDestination(sensedGameObject.transform.position);
+                SetDestination(sensedGameObject.transform.position);
             } 
         }
             

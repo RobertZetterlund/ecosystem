@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class Animal : MonoBehaviour, IMovement
+public class Animal : MonoBehaviour
 {
     double hunger;
     double thirst;
@@ -13,8 +14,7 @@ public class Animal : MonoBehaviour, IMovement
     double energy;
     public float speed = 5f;
     GameController controller;
-    //Movement implemented through strategy pattern
-    private IMovement movement;
+    private NavMeshAgent navMeshAgent;
 
     public Animal(GameController controller)
     {
@@ -24,10 +24,8 @@ public class Animal : MonoBehaviour, IMovement
     // Start is called before the first frame update
     public virtual void Start()
     {
-        //TransformMovement implemented for now, might be better to switch to RBMovement further on
-        movement = new TransformMovement(transform);
-        SetSpeed(speed);
-        // use Köres senses to do tings. innit bruv
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.speed = 5;
     }
 
     // Update is called once per frame
@@ -44,8 +42,6 @@ public class Animal : MonoBehaviour, IMovement
         //check if the animal is dead
         isDead();
 
-        //move the animal
-        Move();
 
     }
 
@@ -94,39 +90,8 @@ public class Animal : MonoBehaviour, IMovement
         controller.Consume(this, consumable);
     }
 
-
-    public void Move()
+    public void SetDestination(Vector3 destination)
     {
-        movement.Move();
-    }
-
-    public void Stop()
-    {
-        movement.Stop();
-    }
-
-    public Vector3 GetDirection()
-    {
-        return movement.GetDirection();
-    }
-
-    public void SetSpeed(float speed)
-    {
-        movement.SetSpeed(speed);
-    }
-
-    public float GetSpeed()
-    {
-        return movement.GetSpeed();
-    }
-
-    public void SetTargetDestination(Vector3 destination)
-    {
-        movement.SetTargetDestination(destination);
-    }
-
-    public bool HasReachedDestination()
-    {
-        return movement.HasReachedDestination();
+        navMeshAgent.SetDestination(destination);
     }
 }
