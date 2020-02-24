@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class MyTestPlant : MonoBehaviour
 {
-
-    public Species specie = Species.Plant;
+    double amountRemaining = 1;
 
     // Start is called before the first frame update
     void Start()
@@ -17,5 +17,23 @@ public class MyTestPlant : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void Consume(double amount) {
+        amountRemaining -= amount;
+
+        if (amountRemaining <= 0) {
+            //Die (CauseOfDeath.Eaten);
+        }
+    }
+
+    public double GetAmount()
+    {
+        return amountRemaining;
+    }
+
+    public ConsumptionType GetConsumptionType()
+    {
+        return ConsumptionType.Plant;
     }
 }
