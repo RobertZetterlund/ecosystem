@@ -12,10 +12,13 @@ namespace Tests
         [Test]
         public void FCMTest()
         {
-            FCM fcm = new FCM();
-            fcm.SetWeight(FCM.Field.FoodClose, FCM.Field.GoToFood, 1);
-            fcm.ImpactState(FCM.Field.FoodClose, 1);
-            fcm.ImpactState(FCM.Field.Idle, 0.5);
+            EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.Idle };
+            EntityInput[] inputs = new EntityInput[] {EntityInput.FoodClose};
+
+            FCM fcm = new FCM(inputs, actions);
+            fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
+            fcm.ImpactState(EntityField.FoodClose, 1);
+            fcm.ImpactState(EntityField.Idle, 0.5);
 
             fcm.Calculate();
             foreach(double d in fcm.GetStates()) 
@@ -38,15 +41,18 @@ namespace Tests
         [Test]
         public void DefuzzificationTest()
         {
-            FCM fcm = new FCM();
-            fcm.SetWeight(FCM.Field.FoodClose, FCM.Field.GoToFood, 1);
-            fcm.ImpactState(FCM.Field.GoToFood, 1);
-            fcm.ImpactState(FCM.Field.Idle, 0.5);
+            EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.Idle };
+            EntityInput[] inputs = new EntityInput[] { EntityInput.FoodClose };
 
-            Dictionary<FCM.Action, int> dict = new Dictionary<FCM.Action, int>();
+            FCM fcm = new FCM(inputs, actions);
+            fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
+            fcm.ImpactState(EntityField.GoingToFood, 1);
+            fcm.ImpactState(EntityField.Idle, 0.5);
+
+            Dictionary<EntityAction, int> dict = new Dictionary<EntityAction, int>();
             for(int i = 0; i < 1000; i++)
             {
-                FCM.Action action = fcm.GetAction();
+                EntityAction action = fcm.GetAction();
                 if (dict.ContainsKey(action)) {
                     dict[action] += 1;
                 }

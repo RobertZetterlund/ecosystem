@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.AI;
 
 public abstract class Animal : MonoBehaviour, IConsumable
 {
@@ -20,6 +21,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     double size;
     double dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
 	private NavMeshAgent navMeshAgent;
+    private FCM fcm;
 
     public Animal(GameController controller)
     {
@@ -27,14 +29,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
     }
 
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         navMeshAgent.speed = 5;
     }
 
     // Update is called once per frame
-    void Update()
+    public virtual void Update()
     {
         //increases hunger and thirst over time
         hunger += Time.deltaTime * 1 / timeToDeathByHunger;
@@ -81,7 +83,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
     public void chooseNextAction()
     {
 
-        // Get info about surroundings 
+
+        currentAction = fcm.GetAction();
             //Köre har något här hoppas jag
         if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
         {

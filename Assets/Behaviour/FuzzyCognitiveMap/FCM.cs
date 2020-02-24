@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -8,25 +10,10 @@ public class FCM
     double[] states;
     int NOFields;
     int NOActions;
+    int NOInputs;
     System.Random r = new System.Random();
+    TwoWayMap<int, int> translation = new TwoWayMap<int, int>();
 
-    public enum Field
-    {
-        FoodClose,
-        GoToFood,
-        Idle
-    }
-
-    public enum Action
-    {
-        GoToFood = Field.GoToFood,
-        Idle = Field.Idle
-    }
-
-    public enum Input
-    {
-        FoodClose = Field.FoodClose
-    }
 
     // This is for fields such as "fear"
     public enum Intermediates
@@ -34,15 +21,33 @@ public class FCM
 
     }
 
-    public FCM()
+    public FCM(EntityInput[] inputs, EntityAction[] actions)
     {
-        NOFields = Enum.GetNames(typeof(Field)).Length;
-        NOActions = Enum.GetNames(typeof(Action)).Length;
+        NOInputs = inputs.Length;
+        NOActions = actions.Length;
+        NOFields = NOInputs + NOActions;
+
         weights = new double[NOFields, NOFields];
         states = new double[NOFields];
-        Debug.developerConsoleVisible = true;
+
+
+        EntityField[] fields = new EntityField[NOFields];
+        inputs.CopyTo(fields, 0);
+        actions.CopyTo(fields, NOInputs);
+
+
+        MapStates(fields);
     }
 
+    private void MapStates(EntityField[] fields)
+    {
+        int i = 0;
+        foreach (EntityField field in fields)
+        {
+            translation.Add((int)field, i);
+            i++;
+        }
+    }
 
     public void Calculate()
     {
@@ -61,35 +66,35 @@ public class FCM
     }
 
     
-    public Action GetAction()
+    public EntityAction GetAction()
     {
-        Action a = Action.GoToFood;
+
 
         double sum = 0;
-        for (int i = (int)a; i < NOFields; i++)
+        for (int i = NOInputs; i < NOFields; i++)
         {
             sum += states[i];
         }
 
         if (sum > 0)
         {
-            for (int i = (int)a; i < NOFields; i++)
+            for (int i = NOInputs; i < NOFields; i++)
             {
                 double prob = states[i] / sum;
                 double roll = r.NextDouble();
                 if (roll < prob)
                 {
-                    return (Action)i;
+                    return (EntityAction)translation.Reverse[i];
                 }
             }
         }
-        return Action.Idle;
+        return EntityAction.Idle;
     }
 
 
-    public void ImpactState(Field state, double impact)
+    public void ImpactState(EntityField state, double impact)
     {
-        states[(int)state] += impact;
+        states[translation.Forward[(int)state]] += impact;
     }
 
     public double[] GetStates()
@@ -97,9 +102,9 @@ public class FCM
         return states;
     }
 
-    public void SetWeight(Field _from, Field _to, double weight)
+    public void SetWeight(EntityField _from, EntityField _to, double weight)
     {
-        weights[(int)_from, (int)_to] = weight;
+        weights[translation.Forward[(int)_from], translation.Forward[(int)_to]] = weight;
     }
 
 }

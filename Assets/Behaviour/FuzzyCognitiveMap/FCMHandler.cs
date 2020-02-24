@@ -18,6 +18,4 @@ public class FCMHandler
             fcm.Calculate();
         } 
     }
-
-    public 
 }
