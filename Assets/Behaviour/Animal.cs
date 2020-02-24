@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.AI;
+using UnityEditor;
 
 public abstract class Animal : MonoBehaviour, IConsumable
 {
@@ -17,11 +18,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
     double energy;
     double health; //max health should be 1, health scaling depends on size
     GameController controller;
-    EntityAction currentAction;
+    protected EntityAction currentAction = EntityAction.Idle;
     double size;
     double dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
 	private NavMeshAgent navMeshAgent;
-    private FCM fcm;
+    protected FCM fcm;
+    protected SenseRegistrator senseRegistrator;
+    protected float senseRadius;
 
     public Animal(GameController controller)
     {
@@ -45,12 +48,16 @@ public abstract class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
 
+
+        CheckSurroundings();
+        fcm.Calculate();
         chooseNextAction();
 
         //check if the animal is dead
         isDead();
 
     }
+
 
 
     public void isDead() 
@@ -82,9 +89,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public void chooseNextAction()
     {
-
-
         currentAction = fcm.GetAction();
+        Debug.Log(currentAction);
             //Köre har något här hoppas jag
         if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
         {
@@ -117,19 +123,19 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private void findFood()
     {
         //some shit here
-        currentAction = EntityAction.GoingToFood;
+        //currentAction = EntityAction.GoingToFood;
     }
 
     private void findWater()
     {
         //some shit here
-        currentAction = EntityAction.GoingToWater;
+        //currentAction = EntityAction.GoingToWater;
     }
 
     private void findMate()
     {
         //Some shit here
-        currentAction = EntityAction.SearchingForMate;
+        //currentAction = EntityAction.SearchingForMate;
     }
 
     public bool isCriticallyThirsty()
@@ -215,6 +221,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
         navMeshAgent.SetDestination(destination);
     }
 
+    /**
+     * Checks the surroundings and sends all registered colliders to the senseRigstrator to process
+     */
+    private void CheckSurroundings()
+    {
+        senseRegistrator.Register(EnvironmentController.CheckSurroundings(transform.position, senseRadius));
+    }
     
 
 

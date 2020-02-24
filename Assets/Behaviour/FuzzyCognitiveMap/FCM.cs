@@ -15,12 +15,6 @@ public class FCM
     TwoWayMap<int, int> translation = new TwoWayMap<int, int>();
 
 
-    // This is for fields such as "fear"
-    public enum Intermediates
-    {
-
-    }
-
     public FCM(EntityInput[] inputs, EntityAction[] actions)
     {
         NOInputs = inputs.Length;
@@ -39,6 +33,15 @@ public class FCM
         MapStates(fields);
     }
 
+    /**
+     * Maps each EntityField value to a unique index in the fcm.
+     * 
+     * For instance, say that GoingToFood has the value 7, as defined
+     * in EntityFields. The translator will map GoingToFood to a new index specific to the
+     * instance of the fcm. This is done beacuse it makes it very easy to use EntityFields in order to adress
+     * states in the fcm, and the total number of indexes varies depending on what fcm is implemented.
+     * 
+     */
     private void MapStates(EntityField[] fields)
     {
         int i = 0;
@@ -49,6 +52,13 @@ public class FCM
         }
     }
 
+    /**
+     * Updates the FCM one time. This new value of each new state is the sum of all
+     * states multiplied with the weight from that state to the new state. The new values are not being used in
+     * the calculation of the remaining states, as this would create a bias to what states are calculated first vs last.
+     * The new values replaces the old values at the end of the function.
+     * 
+     */
     public void Calculate()
     {
         double[] new_states = (double[])states.Clone();
@@ -65,11 +75,17 @@ public class FCM
         states = new_states;
     }
 
-    
+    /**
+     * Returns an action from the fcm (currently done through Roulette Wheel Selection) where
+     * actions are selected based on the value that the action has in the state array.
+     * 
+     * For instance if GoingToFood = 0.5 and Idle = 1, Idle will have a twice as big chance at
+     * being selected as the returned action. If an action is equal to zero, it does not have any chance
+     * of being selected, and if all actions are equal to zero, the idle action is returned (for now) 
+     * 
+     */
     public EntityAction GetAction()
     {
-
-
         double sum = 0;
         for (int i = NOInputs; i < NOFields; i++)
         {
@@ -91,7 +107,11 @@ public class FCM
         return EntityAction.Idle;
     }
 
-
+    /**
+     * Impact a selected state with a value. Commonly used for
+     * sending input to the fcm such as Hunger or FoodClose, but it can be used for all states
+     * 
+     */
     public void ImpactState(EntityField state, double impact)
     {
         states[translation.Forward[(int)state]] += impact;

@@ -2,10 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SenseRegistrator
+public abstract class SenseRegistrator
 {
-    public static void Register(GameObject sensor, GameObject sensedObject)
+    protected FCM fcm;
+
+    public SenseRegistrator(FCM fcm)
     {
-        
+        this.fcm = fcm;
+    }
+    public abstract void Register(GameObject sensedObject);
+
+
+    //Register senses by using multiple colliders at once
+    public void Register(Collider[] colliders)
+    {
+        foreach (Collider c in colliders)
+        {
+            GameObject sensedGameObject = c.gameObject;
+            Register(sensedGameObject);
+        }
     }
 }
