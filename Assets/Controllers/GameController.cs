@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 public class GameController
 {
@@ -15,7 +16,7 @@ public class GameController
     {
         double crossedGene = Crossover(geneA, geneB);
 
-        Random random = new Random();
+        System.Random random = new System.Random();
         if (random.NextDouble() < MUTATION_CHANCE)
         {
             return MutateDouble(crossedGene, allowNegative);
@@ -28,7 +29,7 @@ public class GameController
     {
         bool crossedGene = Crossover(geneA, geneB);
 
-        Random random = new Random();
+        System.Random random = new System.Random();
         if (random.NextDouble() < MUTATION_CHANCE)
         {
             return MutateBool(crossedGene);
@@ -39,7 +40,7 @@ public class GameController
     // Crossover help function
     private static T Crossover<T>(T geneA, T geneB)
     {
-        Random rand = new Random();
+        System.Random rand = new System.Random();
         if (rand.Next(2) == 1)
         {
             return geneA;
@@ -69,13 +70,13 @@ public class GameController
     {
         double size = ReproduceDouble(a.GetSize(), b.GetSize(), false);
         double dietFactor = ReproduceDouble(a.GetDiet(), b.GetDiet(), false);
-        spawn(new Animal(this, size, dietFactor));
+
+        GameObject gameObject = new GameObject();
+        Animal child = gameObject.AddComponent<Animal>();
+        child.init(this, size, dietFactor);
+        UnityEngine.Object.Instantiate(child);
     }
 
-    private static void spawn(Animal animal)
-    {
-        //todo
-    }
 
 
 

@@ -20,7 +20,7 @@ public class Animal : MonoBehaviour, IConsumable
     RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
 
-    public Animal(GameController controller, double size, double dietFactor)
+    public void init(GameController controller, double size, double dietFactor)
     {
         this.controller = controller;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
