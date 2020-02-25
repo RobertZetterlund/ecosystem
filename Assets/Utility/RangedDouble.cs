@@ -3,7 +3,7 @@
 public class RangedDouble
 {
 
-    public double value;
+    private double value;
     private double lower;
     private double upper;
 
@@ -21,7 +21,7 @@ public class RangedDouble
         upper = double.MaxValue;
     }
 
-    public double add(double amount)
+    public double Add(double amount)
     {
         double newValue = value + amount;
         double oldValue = value;
@@ -38,8 +38,23 @@ public class RangedDouble
         return amount; // ok
     }
 
-    public double getValue()
+    public double GetValue()
     {
         return value;
+    }
+
+    public double GetLower()
+    {
+        return lower;
+    }
+
+    public double GetUpper()
+    {
+        return upper;
+    }
+
+    public RangedDouble Duplicate()
+    {
+        return new RangedDouble(value, lower, upper);
     }
 }

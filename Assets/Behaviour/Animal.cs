@@ -37,8 +37,8 @@ public class Animal : MonoBehaviour, IConsumable
     void Update()
     {
         //increases hunger and thirst over time
-        hunger.add(Time.deltaTime * 1 / timeToDeathByHunger);
-        thirst.add(Time.deltaTime * 1 / timeToDeathByThirst);
+        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
+        thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
 
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
@@ -53,11 +53,11 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void isDead() 
     {
-        if (hunger.value >= 1) 
+        if (hunger.GetValue() >= 1) 
         {
             Die(CauseOfDeath.Hunger);
         } 
-        else if (thirst.value >= 1) 
+        else if (thirst.GetValue() >= 1) 
         {
             Die(CauseOfDeath.Thirst);
         }
@@ -95,12 +95,12 @@ public class Animal : MonoBehaviour, IConsumable
 
 
         // More hungry than thirsty
-        if (hunger.value >= thirst.value || (eating && !isCriticallyThirsty()))
+        if (hunger.GetValue() >= thirst.GetValue() || (eating && !isCriticallyThirsty()))
         {
             findFood();
         }
         // More thirsty than hungry
-        else if (thirst.value > hunger.value || (drinking && !isCriticallyHungry()))
+        else if (thirst.GetValue() > hunger.GetValue() || (drinking && !isCriticallyHungry()))
         {
             findWater();
         }
@@ -131,16 +131,16 @@ public class Animal : MonoBehaviour, IConsumable
 
     public bool isCriticallyThirsty()
     {
-        return thirst.value < 0.1; //change these values when we know more or avoid hardcoded values
+        return thirst.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
     public bool isCriticallyHungry()
     {
-        return hunger.value < 0.1; //change these values when we know more or avoid hardcoded values
+        return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
     public void reproduce(Animal mate)
     {
-        if (hunger.value < 0.3 && thirst.value < 0.6)
+        if (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6)
         {
             if (energy > 0.4)
             {
@@ -156,7 +156,7 @@ public class Animal : MonoBehaviour, IConsumable
     private void Consume(IConsumable consumable)
     {
         // do eating calculations
-        double biteSize = size.value * BITE_FACTOR;
+        double biteSize = size.GetValue() * BITE_FACTOR;
         ConsumptionType type = consumable.GetConsumptionType();
 
         swallow(consumable.Consume(biteSize), type);
@@ -166,23 +166,23 @@ public class Animal : MonoBehaviour, IConsumable
 
     public double GetAmount()
     {
-        return size.value * health.value; 
+        return size.GetValue() * health.GetValue(); 
     }
 
-    public double GetSize()
+    public RangedDouble GetSize()
     {
-        return size.value;
+        return size.Duplicate();
     }
 
-    public double GetDiet()
+    public RangedDouble GetDiet()
     {
-        return dietFactor.value;
+        return dietFactor.Duplicate();
     }
 
     // eat this animal
     public double Consume(double amount)
     {
-        return health.add(-amount/size.value);
+        return health.Add(-amount/size.GetValue());
     }
 
     public ConsumptionType GetConsumptionType()
@@ -193,18 +193,18 @@ public class Animal : MonoBehaviour, IConsumable
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
-        amount /= size.value; // balance according to size. (note that amount will be higher if youre size is bigger)
+        amount /= size.GetValue(); // balance according to size. (note that amount will be higher if youre size is bigger)
         // increment energy / hunger / thirst
         switch (type)
         {
             case ConsumptionType.Water:
-                thirst.add(-amount);
+                thirst.Add(-amount);
                 break;
             case ConsumptionType.Animal:
-                hunger.add(-amount*dietFactor.value);
+                hunger.Add(-amount*dietFactor.GetValue());
                 break;
             case ConsumptionType.Plant:
-                hunger.add(-amount*(1-dietFactor.value));
+                hunger.Add(-amount*(1-dietFactor.GetValue()));
                 break;
         }
     }

@@ -23,16 +23,16 @@ public class MyTestPlant : MonoBehaviour
 
     public double Consume(double amount) {
 
-        return amountRemaining.add(-amount);
+        return amountRemaining.Add(-amount);
 
-        if (amountRemaining.value <= 0) {
+        if (amountRemaining.GetValue() <= 0) {
             //Die (CauseOfDeath.Eaten);
         }
     }
 
     public double GetAmount()
     {
-        return amountRemaining.value;
+        return amountRemaining.GetValue();
     }
 
     public ConsumptionType GetConsumptionType()

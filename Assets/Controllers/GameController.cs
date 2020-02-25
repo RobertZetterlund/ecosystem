@@ -12,20 +12,20 @@ public class GameController
 
 
     // Crossover and mutate
-    private static double ReproduceDouble(double geneA, double geneB, bool allowNegative)
+    private static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
     {
-        double crossedGene = Crossover(geneA, geneB);
+        RangedDouble crossedGene = Crossover(geneA, geneB);
 
         System.Random random = new System.Random();
         if (random.NextDouble() < MUTATION_CHANCE)
         {
-            return MutateDouble(crossedGene, allowNegative);
+            return MutateRangedDouble(crossedGene);
         }
         return crossedGene;
     }
 
     // Crossover and mutate
-    private static bool ReproduceBool(bool geneA, bool geneB, bool allowNegative)
+    private static bool ReproduceBool(bool geneA, bool geneB)
     {
         bool crossedGene = Crossover(geneA, geneB);
 
@@ -49,15 +49,20 @@ public class GameController
     }
 
     // Mutation help function
-    private static double MutateDouble(double gene, bool allowNegative)
+    private static RangedDouble MutateRangedDouble(RangedDouble gene)
     {
-        double mutated = MathUtility.RandomGaussian(gene, gene * STD_DEVIATION_FACTOR);
-        if (!allowNegative)
+        double value = gene.GetValue();
+        double mutation;
+        double difference;
+        double amountInsideRange;
+        do // randomize new value until it is within the allowed range
         {
-            mutated = Math.Abs(mutated);
-        }
-        // if gene == 0 we will cant mutate, but it's very unlikely to happen.
-        return mutated;
+            mutation = MathUtility.RandomGaussian(value, value * STD_DEVIATION_FACTOR);
+            difference = mutation - gene.GetValue();
+            amountInsideRange = gene.Add(difference);
+        } while (amountInsideRange != difference);
+
+        return new RangedDouble(mutation, gene.GetLower(), gene.GetUpper());
     }
 
     // Mutation help function
@@ -68,8 +73,8 @@ public class GameController
 
     public void Reproduce(Animal a, Animal b)
     {
-        double size = ReproduceDouble(a.GetSize(), b.GetSize(), false);
-        double dietFactor = ReproduceDouble(a.GetDiet(), b.GetDiet(), false);
+        double size = ReproduceRangedDouble(a.GetSize(), b.GetSize()).GetValue();
+        double dietFactor = ReproduceRangedDouble(a.GetDiet(), b.GetDiet()).GetValue();
 
         GameObject gameObject = new GameObject();
         Animal child = gameObject.AddComponent<Animal>();
