@@ -65,6 +65,17 @@ public class GameController
         return !gene;
     }
 
+    public void Reproduce(Animal a, Animal b)
+    {
+        double size = ReproduceDouble(a.GetSize(), b.GetSize(), false);
+        double dietFactor = ReproduceDouble(a.GetDiet(), b.GetDiet(), false);
+        spawn(new Animal(this, size, dietFactor));
+    }
+
+    private static void spawn(Animal animal)
+    {
+        //todo
+    }
 
 
 

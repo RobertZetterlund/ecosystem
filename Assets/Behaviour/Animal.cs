@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public abstract class Animal : MonoBehaviour, IConsumable
+public class Animal : MonoBehaviour, IConsumable
 {
     RangedDouble hunger = new RangedDouble(0, 0, 1);
     RangedDouble thirst = new RangedDouble(0, 0, 1);
@@ -17,13 +17,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
     RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
     GameController controller;
     EntityAction currentAction;
-    double size;
+    RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
 
-    public Animal(GameController controller)
+    public Animal(GameController controller, double size, double dietFactor)
     {
         this.controller = controller;
-        dietFactor = new RangedDouble(0.5, 0, 1);
+        this.dietFactor = new RangedDouble(dietFactor, 0, 1);
+        this.size = new RangedDouble(size, 0);
     }
 
     // Start is called before the first frame update
@@ -137,13 +138,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         return hunger.value < 0.1; //change these values when we know more or avoid hardcoded values
     }
-    public void reproduce()
+    public void reproduce(Animal mate)
     {
         if (hunger.value < 0.3 && thirst.value < 0.6)
         {
             if (energy > 0.4)
             {
                 //code here for reproduction
+                controller.Reproduce(this, mate);
             }
             //code here for sex
             currentAction = EntityAction.Idle; // Set action to idle when done
@@ -154,7 +156,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private void Consume(IConsumable consumable)
     {
         // do eating calculations
-        double biteSize = size * BITE_FACTOR;
+        double biteSize = size.value * BITE_FACTOR;
         ConsumptionType type = consumable.GetConsumptionType();
 
         swallow(consumable.Consume(biteSize), type);
@@ -164,18 +166,23 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public double GetAmount()
     {
-        return size * health.value; 
+        return size.value * health.value; 
     }
 
     public double GetSize()
     {
-        return size;
+        return size.value;
+    }
+
+    public double GetDiet()
+    {
+        return dietFactor.value;
     }
 
     // eat this animal
     public double Consume(double amount)
     {
-        return health.add(-amount/size);
+        return health.add(-amount/size.value);
     }
 
     public ConsumptionType GetConsumptionType()
@@ -186,7 +193,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
-        amount /= size; // balance according to size. (note that amount will be higher if youre size is bigger)
+        amount /= size.value; // balance according to size. (note that amount will be higher if youre size is bigger)
         // increment energy / hunger / thirst
         switch (type)
         {
@@ -201,6 +208,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 break;
         }
     }
+
+
 
     
 
