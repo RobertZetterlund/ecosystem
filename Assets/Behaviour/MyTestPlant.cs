@@ -6,7 +6,7 @@ using UnityEngine;
 public class MyTestPlant : MonoBehaviour
 {
 
-    double amountRemaining = 1;
+    RangedDouble amountRemaining = new RangedDouble(1, 0, 1);
 
 
     // Start is called before the first frame update
@@ -21,17 +21,18 @@ public class MyTestPlant : MonoBehaviour
         
     }
 
-    public void Consume(double amount) {
-        amountRemaining -= amount;
+    public double Consume(double amount) {
 
-        if (amountRemaining <= 0) {
+        return amountRemaining.add(-amount);
+
+        if (amountRemaining.value <= 0) {
             //Die (CauseOfDeath.Eaten);
         }
     }
 
     public double GetAmount()
     {
-        return amountRemaining;
+        return amountRemaining.value;
     }
 
     public ConsumptionType GetConsumptionType()

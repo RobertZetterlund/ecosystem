@@ -1,20 +1,20 @@
 ﻿using System;
 
-public class RangedTriggerDouble
+public class RangedDouble
 {
 
-    private double value;
+    public double value;
     private double lower;
     private double upper;
 
-	public RangedTriggerDouble(double value, double lower, double upper)
+	public RangedDouble(double value, double lower, double upper)
 	{
         this.value = value;
         this.lower = lower;
         this.upper = upper;
 	}
 
-    public RangedTriggerDouble(double value, double lower)
+    public RangedDouble(double value, double lower)
     {
         this.value = value;
         this.lower = lower;

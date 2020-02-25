@@ -6,23 +6,24 @@ using System;
 
 public abstract class Animal : MonoBehaviour, IConsumable
 {
-    double hunger;
-    double thirst;
+    RangedDouble hunger = new RangedDouble(0, 0, 1);
+    RangedDouble thirst = new RangedDouble(0, 0, 1);
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
     private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
     double energy;
-    double health; //max health should be 1, health scaling depends on size
+    RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
     GameController controller;
     EntityAction currentAction;
     double size;
-    double dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
+    RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
 
     public Animal(GameController controller)
     {
         this.controller = controller;
+        dietFactor = new RangedDouble(0.5, 0, 1);
     }
 
     // Start is called before the first frame update
@@ -35,8 +36,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
     void Update()
     {
         //increases hunger and thirst over time
-        hunger += Time.deltaTime * 1 / timeToDeathByHunger;
-        thirst += Time.deltaTime * 1 / timeToDeathByThirst;
+        hunger.add(Time.deltaTime * 1 / timeToDeathByHunger);
+        thirst.add(Time.deltaTime * 1 / timeToDeathByThirst);
 
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
@@ -51,11 +52,11 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public void isDead() 
     {
-        if (hunger >= 1) 
+        if (hunger.value >= 1) 
         {
             Die(CauseOfDeath.Hunger);
         } 
-        else if (thirst >= 1) 
+        else if (thirst.value >= 1) 
         {
             Die(CauseOfDeath.Thirst);
         }
@@ -93,12 +94,12 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
 
         // More hungry than thirsty
-        if (hunger >= thirst || (eating && !isCriticallyThirsty()))
+        if (hunger.value >= thirst.value || (eating && !isCriticallyThirsty()))
         {
             findFood();
         }
         // More thirsty than hungry
-        else if (thirst > hunger || (drinking && !isCriticallyHungry()))
+        else if (thirst.value > hunger.value || (drinking && !isCriticallyHungry()))
         {
             findWater();
         }
@@ -129,16 +130,16 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public bool isCriticallyThirsty()
     {
-        return thirst < 0.1; //change these values when we know more or avoid hardcoded values
+        return thirst.value < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
     public bool isCriticallyHungry()
     {
-        return hunger < 0.1; //change these values when we know more or avoid hardcoded values
+        return hunger.value < 0.1; //change these values when we know more or avoid hardcoded values
     }
     public void reproduce()
     {
-        if (hunger < 0.3 && thirst < 0.6)
+        if (hunger.value < 0.3 && thirst.value < 0.6)
         {
             if (energy > 0.4)
             {
@@ -154,20 +155,16 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         // do eating calculations
         double biteSize = size * BITE_FACTOR;
-        double availableAmount = consumable.GetAmount();
         ConsumptionType type = consumable.GetConsumptionType();
 
-        double amountConsumed = Math.Min(availableAmount, biteSize);
-        consumable.Consume(amountConsumed);
-        swallow(amountConsumed, type);
-
+        swallow(consumable.Consume(biteSize), type);
     }
 
 
 
     public double GetAmount()
     {
-        return size * health; 
+        return size * health.value; 
     }
 
     public double GetSize()
@@ -176,9 +173,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
     }
 
     // eat this animal
-    public void Consume(double amount)
+    public double Consume(double amount)
     {
-        health -= amount / size;
+        return health.add(-amount/size);
     }
 
     public ConsumptionType GetConsumptionType()
@@ -194,13 +191,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
         switch (type)
         {
             case ConsumptionType.Water:
-                thirst -= amount;
+                thirst.add(-amount);
                 break;
             case ConsumptionType.Animal:
-                hunger -= amount * dietFactor;
+                hunger.add(-amount*dietFactor.value);
                 break;
             case ConsumptionType.Plant:
-                hunger -= amount * (1 - dietFactor);
+                hunger.add(-amount*(1-dietFactor.value));
                 break;
         }
     }

@@ -5,7 +5,7 @@ public interface IConsumable
 
     double GetAmount();
 
-    void Consume(double amount);
+    double Consume(double amount);
 
     ConsumptionType GetConsumptionType();
 }
