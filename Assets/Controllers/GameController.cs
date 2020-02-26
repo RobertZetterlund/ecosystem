@@ -52,17 +52,21 @@ public class GameController
     private static RangedDouble MutateRangedDouble(RangedDouble gene)
     {
         double value = gene.GetValue();
+        double lower = gene.GetLower();
+        double upper = gene.GetUpper();
         double mutation;
         double difference;
         double amountInsideRange;
         do // randomize new value until it is within the allowed range
         {
-            mutation = MathUtility.RandomGaussian(value, value * STD_DEVIATION_FACTOR);
+            double deviation = Math.Min(Math.Abs(value - lower), Math.Abs(value - upper)) 
+                * STD_DEVIATION_FACTOR;
+            mutation = MathUtility.RandomGaussian(value, deviation);
             difference = mutation - gene.GetValue();
             amountInsideRange = gene.Add(difference);
         } while (amountInsideRange != difference);
 
-        return new RangedDouble(mutation, gene.GetLower(), gene.GetUpper());
+        return new RangedDouble(mutation, lower, upper);
     }
 
     // Mutation help function
