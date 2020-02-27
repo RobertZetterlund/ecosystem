@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -20,28 +21,37 @@ public class Animal : MonoBehaviour, IConsumable
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
 	private NavMeshAgent navMeshAgent;
-    protected FCM fcm;
-    protected SenseRegistrator senseRegistrator;
-    protected float senseRadius;
-    protected ISensor sensor;
+    private FCM fcm;
+    private SenseRegistrator senseRegistrator;
+    private float senseRadius;
+    private ISensor sensor;
     private float lastFCMUpdate = 0;
-	
-    public void init(GameController controller, double size, double dietFactor)
+
+    //Debugging
+    Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
+    public bool showFCMGizmo, showSenseRadiusGizmo = false;
+
+    public void Init(GameController controller, double size, double dietFactor)
     {
         this.controller = controller;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
         this.size = new RangedDouble(size, 0);
+
     }
 
     // Start is called before the first frame update
-    public virtual void Start()
+    void Start()
     {
-        navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = 5;
+        senseRadius = 15;
+        fcm = FCMFactory.RabbitFCM();
+        senseRegistrator = new SenseRegistrator(this);
+        sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
     }
 
     // Update is called once per frame
-    public virtual void Update()
+    void Update()
     {
         //increases hunger and thirst over time
         hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
@@ -97,7 +107,6 @@ public class Animal : MonoBehaviour, IConsumable
     public void chooseNextAction()
     {
         currentAction = fcm.GetAction();
-        Debug.Log(currentAction);
             //Köre har något här hoppas jag
         if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
         {
@@ -239,5 +248,26 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return senseRadius;
     }
-   
+
+    //Draws a sphere corresponding to its sense radius
+    void OnDrawGizmos()
+    {
+        if(showFCMGizmo)
+        {
+            Vector3 textOffset = new Vector3(-3, 2, 0);
+            Handles.Label(transform.position + textOffset, currentAction.ToString());
+            textOffset = new Vector3(1, 2, 0);
+            if (fcm != null)
+                Handles.Label(transform.position + textOffset, fcm.ToString());
+        }
+
+        if(showSenseRadiusGizmo)
+        {
+            Gizmos.color = SphereGizmoColor;
+            Gizmos.DrawSphere(transform.position, senseRadius);
+        }
+        
+        
+    }
+
 }

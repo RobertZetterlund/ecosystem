@@ -82,7 +82,7 @@ public class GameController
 
         GameObject gameObject = new GameObject();
         Animal child = gameObject.AddComponent<Animal>();
-        child.init(this, size, dietFactor);
+        child.Init(this, size, dietFactor);
         UnityEngine.Object.Instantiate(child);
     }
 
