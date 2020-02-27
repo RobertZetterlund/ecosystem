@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
+using System;
 
 
 public class TerrainKernal : MonoBehaviour
 {
 
-
+    
     public int side;
     public int resolution;
     [Range(1, 10)]
@@ -18,6 +18,7 @@ public class TerrainKernal : MonoBehaviour
     public bool autoUpdate;
     public float amplifier;
     public AnimationCurve animCurve;
+    public int seed;
 
     Texture2D texture;
     Color[] colors;
@@ -40,7 +41,7 @@ public class TerrainKernal : MonoBehaviour
         if(lacunarity > 30) { lacunarity = 30; } else if(lacunarity < 1) { lacunarity = 1; }
         
 
-        heightMap = PerlinNoise.GeneratePerlinNoise(side, side, resolution, octaves, lacunarity, persistance);
+        heightMap = PerlinNoise.GeneratePerlinNoise(side, side, resolution, octaves, lacunarity, persistance, seed);
         colorIndex = gameObject.GetComponent<ColorIndexer>();
         colors = new Color[resolution*resolution];
         texture = new Texture2D(resolution, resolution);
