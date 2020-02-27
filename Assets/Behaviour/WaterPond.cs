@@ -17,4 +17,19 @@ public class WaterPond : MonoBehaviour
     {
         
     }
+
+    double GetAmount()
+    {
+        return double.MaxValue;
+    }
+
+    double Consume(double amount)
+    {
+        return amount; // don't need to do anything if we assume there's infinite amount of water
+    }
+
+    public ConsumptionType GetConsumptionType()
+    {
+        return ConsumptionType.Water;
+    }
 }
