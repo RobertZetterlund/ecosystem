@@ -2,9 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using UnityEngine.AI;
-using UnityEditor;
 
 public abstract class Animal : MonoBehaviour, IConsumable
 {
@@ -25,6 +23,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
     protected FCM fcm;
     protected SenseRegistrator senseRegistrator;
     protected float senseRadius;
+    protected ISensor sensor;
+    private float lastFCMUpdate = 0;
 
     public Animal(GameController controller)
     {
@@ -49,8 +49,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
         energy -= Time.deltaTime * 1/lifespan;
 
 
-        CheckSurroundings();
-        fcm.Calculate();
+        sensor.Sense();
+        if((Time.time - lastFCMUpdate) > 1)
+        {
+            lastFCMUpdate = Time.time;
+            fcm.Calculate();
+        }
+        
         chooseNextAction();
 
         //check if the animal is dead
@@ -221,14 +226,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
         navMeshAgent.SetDestination(destination);
     }
 
-    /**
-     * Checks the surroundings and sends all registered colliders to the senseRigstrator to process
-     */
-    private void CheckSurroundings()
+    public FCM GetFCM()
     {
-        senseRegistrator.Register(EnvironmentController.CheckSurroundings(transform.position, senseRadius));
+        return fcm;
     }
-    
 
-
+    public float GetSenseRadius()
+    {
+        return senseRadius;
+    }
+   
 }

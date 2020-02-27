@@ -18,9 +18,10 @@ public class MyTestRabbit : Animal
     public override void Start()
     {
         base.Start();
-        senseRadius = 5;
+        senseRadius = 15;
         fcm = FCMFactory.RabbitFCM();
-        senseRegistrator = new RabbitSenseRegistrator(fcm);
+        senseRegistrator = new SenseRegistrator(this);
+        sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
     }
 
     // Update is called once per frame
@@ -35,8 +36,11 @@ public class MyTestRabbit : Animal
         //I tried to make it so that it uses the same color object all the time, but it glitches big time
         Gizmos.color = new Color(1,1,0,0.5f);
         Gizmos.DrawSphere(transform.position, senseRadius);
-        Vector3 textOffset = new Vector3(0, 2, 0);
+        Vector3 textOffset = new Vector3(-3, 2, 0);
         Handles.Label(transform.position + textOffset, currentAction.ToString());
+        textOffset = new Vector3(1, 2, 0);
+        if(fcm != null)
+            Handles.Label(transform.position + textOffset, fcm.ToString());
     }
     
 

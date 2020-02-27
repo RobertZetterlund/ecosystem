@@ -8,5 +8,8 @@
     Drinking,
     SearchingForMate,
     Reproducing,
-    FoodClose
+    FoodClose,
+    FoodFar,
+    WaterClose,
+    WaterFar
 }

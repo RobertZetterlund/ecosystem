@@ -112,9 +112,18 @@ public class FCM
      * sending input to the fcm such as Hunger or FoodClose, but it can be used for all states
      * 
      */
-    public void ImpactState(EntityField state, double impact)
+    public void ImpactState(EntityField state, double value)
     {
-        states[translation.Forward[(int)state]] += impact;
+        int i = translation.Forward[(int)state];
+        states[i] += value;
+        states[i] = Mathf.Clamp((float)states[i], 0, 1);
+    }
+
+    public void SetState(EntityField state, double value)
+    {
+        int i = translation.Forward[(int)state];
+        states[i] = value;
+        states[i] = Mathf.Clamp((float)states[i], 0, 1);
     }
 
     public double[] GetStates()
@@ -124,7 +133,20 @@ public class FCM
 
     public void SetWeight(EntityField _from, EntityField _to, double weight)
     {
-        weights[translation.Forward[(int)_from], translation.Forward[(int)_to]] = weight;
+        int i_from = translation.Forward[(int)_from];
+        int i_to = translation.Forward[(int)_to];
+        weights[i_from, i_to] = weight;
+    }
+
+    public override string ToString()
+    {
+        string s = "";
+        for (int i = 0; i < NOFields; i++)
+        {
+            s += (EntityField)translation.Reverse[i] + ": " + states[i] + "\n";
+        }
+
+        return s;
     }
 
 }

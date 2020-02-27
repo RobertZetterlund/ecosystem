@@ -1,4 +1,7 @@
 ﻿public enum EntityInput
 {
-    FoodClose = EntityField.FoodClose
+    FoodClose = EntityField.FoodClose,
+    FoodFar = EntityField.FoodFar,
+    WaterClose = EntityField.WaterClose,
+    WaterFar = EntityField.WaterFar
 }
