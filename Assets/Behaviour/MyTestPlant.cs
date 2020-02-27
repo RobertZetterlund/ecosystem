@@ -5,14 +5,13 @@ using UnityEngine;
 
 public class MyTestPlant : MonoBehaviour
 {
-
     RangedDouble amountRemaining = new RangedDouble(1, 0, 1);
-
+    double amountRemaining = 1;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        gameObject.tag = "Plant";
     }
 
     // Update is called once per frame

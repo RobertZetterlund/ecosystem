@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using UnityEngine.AI;
 
 public class Animal : MonoBehaviour, IConsumable
 {
@@ -16,10 +16,16 @@ public class Animal : MonoBehaviour, IConsumable
     double energy;
     RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
     GameController controller;
-    EntityAction currentAction;
     RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
-
+    protected EntityAction currentAction = EntityAction.Idle;
+	private NavMeshAgent navMeshAgent;
+    protected FCM fcm;
+    protected SenseRegistrator senseRegistrator;
+    protected float senseRadius;
+    protected ISensor sensor;
+    private float lastFCMUpdate = 0;
+	
     public void init(GameController controller, double size, double dietFactor)
     {
         this.controller = controller;
@@ -28,13 +34,14 @@ public class Animal : MonoBehaviour, IConsumable
     }
 
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
-        // use Köres senses to do tings. innit bruv
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.speed = 5;
     }
 
     // Update is called once per frame
-    void Update()
+    public virtual void Update()
     {
         //increases hunger and thirst over time
         hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
@@ -43,12 +50,21 @@ public class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
 
+
+        sensor.Sense();
+        if((Time.time - lastFCMUpdate) > 1)
+        {
+            lastFCMUpdate = Time.time;
+            fcm.Calculate();
+        }
+        
         chooseNextAction();
 
         //check if the animal is dead
         isDead();
 
     }
+
 
 
     public void isDead() 
@@ -80,8 +96,8 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void chooseNextAction()
     {
-
-        // Get info about surroundings 
+        currentAction = fcm.GetAction();
+        Debug.Log(currentAction);
             //Köre har något här hoppas jag
         if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
         {
@@ -114,19 +130,19 @@ public class Animal : MonoBehaviour, IConsumable
     private void findFood()
     {
         //some shit here
-        currentAction = EntityAction.GoingToFood;
+        //currentAction = EntityAction.GoingToFood;
     }
 
     private void findWater()
     {
         //some shit here
-        currentAction = EntityAction.GoingToWater;
+        //currentAction = EntityAction.GoingToWater;
     }
 
     private void findMate()
     {
         //Some shit here
-        currentAction = EntityAction.SearchingForMate;
+        //currentAction = EntityAction.SearchingForMate;
     }
 
     public bool isCriticallyThirsty()
@@ -208,10 +224,20 @@ public class Animal : MonoBehaviour, IConsumable
                 break;
         }
     }
+	
+	public void SetDestination(Vector3 destination)
+    {
+        navMeshAgent.SetDestination(destination);
+    }
 
+    public FCM GetFCM()
+    {
+        return fcm;
+    }
 
-
-    
-
-
+    public float GetSenseRadius()
+    {
+        return senseRadius;
+    }
+   
 }
