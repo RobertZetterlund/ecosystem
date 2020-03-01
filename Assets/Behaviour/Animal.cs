@@ -14,7 +14,7 @@ public class Animal : MonoBehaviour, IConsumable
     private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
-    double energy;
+    double energy = 1;
     RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
     GameController controller;
     RangedDouble size;
@@ -26,6 +26,8 @@ public class Animal : MonoBehaviour, IConsumable
     private float senseRadius;
     private ISensor sensor;
     private float lastFCMUpdate = 0;
+    private bool isMale;
+    private AnimalType type;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
@@ -37,6 +39,8 @@ public class Animal : MonoBehaviour, IConsumable
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
         this.size = new RangedDouble(size, 0);
 
+        System.Random rand = new System.Random();
+        isMale = rand.NextDouble() >= 0.5;
     }
 
     // Start is called before the first frame update
@@ -48,11 +52,20 @@ public class Animal : MonoBehaviour, IConsumable
         fcm = FCMFactory.RabbitFCM();
         senseRegistrator = new SenseRegistrator(this);
         sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
+
     }
 
+    // TODO remove, hard coded reproduction
+    int counter = 0;
     // Update is called once per frame
     void Update()
     {
+        // TODO remove, hard coded reproduction
+        counter++;
+        if (counter == 300)
+        {
+            reproduce(this);
+        }
         //increases hunger and thirst over time
         hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
@@ -270,4 +283,18 @@ public class Animal : MonoBehaviour, IConsumable
         
     }
 
+    public bool GetIsMale()
+    {
+        return isMale;
+    }
+
+    public void SetType(AnimalType type)
+    {
+        this.type = type;
+    }
+
+    public AnimalType GetType()
+    {
+        return type;
+    }
 }

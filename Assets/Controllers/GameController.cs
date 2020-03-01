@@ -1,14 +1,16 @@
 ﻿using System;
 using UnityEngine;
 
-public class GameController
+public class GameController : MonoBehaviour
 {
     private static double STD_DEVIATION_FACTOR = 0.2;
     private static double MUTATION_CHANCE = 0.2;
 
-	public GameController()
-	{
-	}
+    void Start()
+    {
+        // spawn first rabbit
+        SpawnAnimal(AnimalType.Rabbit, 1, 1, new Vector3(5.83f, 1f, 14.36f));
+    }
 
 
     // Crossover and mutate
@@ -77,15 +79,37 @@ public class GameController
 
     public void Reproduce(Animal a, Animal b)
     {
+        // TODO enable, hard coded reproduction
+        /* 
+        if (!(a.GetIsMale()^b.GetIsMale()))
+        {
+            // if same sex
+            return;
+        }
+        */
+
         double size = ReproduceRangedDouble(a.GetSize(), b.GetSize()).GetValue();
         double dietFactor = ReproduceRangedDouble(a.GetDiet(), b.GetDiet()).GetValue();
 
-        GameObject gameObject = new GameObject();
-        Animal child = gameObject.AddComponent<Animal>();
-        child.Init(this, size, dietFactor);
-        UnityEngine.Object.Instantiate(child);
+        Vector3 mother;
+        if (a.GetIsMale())
+        {
+            mother = b.transform.position;
+        } else
+        {
+            mother = a.transform.position;
+        }
+
+        SpawnAnimal(a.GetType(), size, dietFactor, mother + new Vector3(0,0,-2));
     }
 
+    private void SpawnAnimal(AnimalType type, double size, double dietFactor, Vector3 location)
+    {
+        Animal child = AnimalFactory.CreateAnimal(type);
+        child.Init(this, size, dietFactor);
+        child.transform.position = location;
+        UnityEngine.Object.Instantiate(child);
+    }
 
 
 
