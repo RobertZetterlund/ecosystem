@@ -8,8 +8,9 @@ public class GenerateMesh : MonoBehaviour
 	Vector3[] vectorMap;
 	int[] triangleMap;
 	Mesh meshMap;
-	GameObject meshObject;
 	Vector2[] uvs;
+	public GameObject meshObject;
+	public Material terrainMaterial;
 
 	void Start() {
 		
@@ -19,18 +20,13 @@ public class GenerateMesh : MonoBehaviour
 	{
 
 		meshMap = new Mesh();
-		GameObject.DestroyImmediate(meshObject);
-		meshObject = new GameObject();
-		meshObject.AddComponent<MeshFilter>();
-		meshObject.AddComponent<MeshRenderer>();
 
 
 		vectorMap = new Vector3[x * z];
 		triangleMap = new int[ 6 * (x-1) * (z-1) ];
 		uvs = new Vector2[x*z];
 
-		Material mat = new Material(Shader.Find("Standard"));
-		mat.SetFloat("_Glossiness", 0f);
+		
 
 
 
@@ -58,7 +54,7 @@ public class GenerateMesh : MonoBehaviour
 			}
 		}
 
-		mat.SetTexture("_MainTex", texture);
+		terrainMaterial.SetTexture("_MainTex", texture);
 
 
 		meshMap.vertices = vectorMap;
@@ -66,8 +62,11 @@ public class GenerateMesh : MonoBehaviour
 		meshMap.uv = uvs;
 		meshMap.RecalculateNormals();
 
+
+
 		meshObject.GetComponent<MeshFilter>().mesh = meshMap;
-		meshObject.GetComponent<MeshRenderer>().material = mat;
+		meshObject.GetComponent<MeshRenderer>().material = terrainMaterial;
+		meshObject.GetComponent<MeshCollider>().sharedMesh = meshMap;
 
 		
 	}
