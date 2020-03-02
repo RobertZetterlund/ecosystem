@@ -16,7 +16,6 @@ public class Animal : MonoBehaviour, IConsumable
     bool dead;
     double energy = 1;
     RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
-    GameController controller;
     RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
@@ -28,16 +27,18 @@ public class Animal : MonoBehaviour, IConsumable
     private float lastFCMUpdate = 0;
     private bool isMale;
     private AnimalType type;
+    private RangedInt nChildren;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
     public bool showFCMGizmo, showSenseRadiusGizmo = false;
 
-    public void Init(GameController controller, double size, double dietFactor)
+    public void Init(AnimalType type, double size, double dietFactor, int nChildren)
     {
-        this.controller = controller;
+        this.type = type;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
         this.size = new RangedDouble(size, 0);
+        this.nChildren = new RangedInt(nChildren, 1);
 
         System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
@@ -55,17 +56,9 @@ public class Animal : MonoBehaviour, IConsumable
 
     }
 
-    // TODO remove, hard coded reproduction
-    int counter = 0;
     // Update is called once per frame
     void Update()
     {
-        // TODO remove, hard coded reproduction
-        counter++;
-        if (counter == 300)
-        {
-            Reproduce(this);
-        }
         //increases hunger and thirst over time
         hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
@@ -178,12 +171,36 @@ public class Animal : MonoBehaviour, IConsumable
     }
     public void Reproduce(Animal mate)
     {
+        if (!(isMale ^ mate.isMale))
+        {
+            // if same sex
+            return;
+        }
+
         if (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6)
         {
             if (energy > 0.4)
             {
-                //code here for reproduction
-                controller.Reproduce(this, mate);
+
+                //make #nChildren children
+                for (int i = 0; i < nChildren.GetValue(); i++)
+                {
+                    double size = ReproductionUtility.ReproduceRangedDouble(this.size.Duplicate(), mate.size.Duplicate()).GetValue();
+                    double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
+                    int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
+
+                    Vector3 mother;
+                    if (isMale)
+                    {
+                        mother = mate.transform.position;
+                    }
+                    else
+                    {
+                        mother = transform.position;
+                    }
+
+                    AnimalFactory.CreateAnimal(type, size, dietFactor, nChildren, mother);
+                }
             }
             //code here for sex
             currentAction = EntityAction.Idle; // Set action to idle when done
@@ -202,31 +219,12 @@ public class Animal : MonoBehaviour, IConsumable
 
 
 
-    public double GetAmount()
-    {
-        return size.GetValue() * health.GetValue(); 
-    }
-
-    public RangedDouble GetSize()
-    {
-        return size.Duplicate();
-    }
-
-    public RangedDouble GetDiet()
-    {
-        return dietFactor.Duplicate();
-    }
-
     // eat this animal
     public double Consume(double amount)
     {
         return health.Add(-amount/size.GetValue());
     }
 
-    public ConsumptionType GetConsumptionType()
-    {
-        return ConsumptionType.Animal;
-    }
 
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
@@ -283,18 +281,14 @@ public class Animal : MonoBehaviour, IConsumable
         
     }
 
-    public bool GetIsMale()
+    public double GetAmount()
     {
-        return isMale;
+        return health.GetValue() * size.GetValue();
     }
 
-    public void SetType(AnimalType type)
+    public ConsumptionType GetConsumptionType()
     {
-        this.type = type;
+        return ConsumptionType.Animal; 
     }
 
-    public AnimalType GetType()
-    {
-        return type;
-    }
 }

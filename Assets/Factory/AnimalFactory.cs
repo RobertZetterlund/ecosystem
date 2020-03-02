@@ -1,24 +1,33 @@
 ﻿using System;
 using UnityEngine;
 
+/*
+ * Class for creating animals
+ */
 public static class AnimalFactory
 {
-    public static Animal CreateAnimal(AnimalType type)
+    public static Animal CreateAnimal(AnimalType type, double size, double dietFactor, int nChildren, Vector3 location)
     {
+        GameObject gameObject;
         switch (type)
         {
             case AnimalType.Rabbit:
-                return CreateRabbit();
+                gameObject = CreateRabbit();
+                break;
             default:
-                return null;
+                gameObject = null;
+                break;
         }
+
+        Animal animal = gameObject.AddComponent<Animal>();
+        animal.Init(type, size, dietFactor, nChildren);
+        animal.transform.position = location;
+        //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
+        return animal;
     }
 
-    private static Animal CreateRabbit()
+    private static GameObject CreateRabbit()
     {
-        GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        Animal rabbit = gameObject.AddComponent<Animal>();
-        rabbit.SetType(AnimalType.Rabbit);
-        return rabbit;
+        return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
     }
 }
