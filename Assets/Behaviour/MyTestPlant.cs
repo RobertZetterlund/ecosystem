@@ -5,7 +5,16 @@ using UnityEngine;
 
 public class MyTestPlant : MonoBehaviour
 {
-    RangedDouble amountRemaining = new RangedDouble(1, 0, 1);
+    private RangedDouble amountRemaining;
+    private RangedDouble size;
+    private int regenTime = 1200; // 20 seconds
+    private int regenTimer = 0;
+
+    public void Init(double size)
+    {
+        this.size = new RangedDouble(size, 0);
+        amountRemaining = new RangedDouble(size, 0, size);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -16,7 +25,11 @@ public class MyTestPlant : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        regenTimer++;
+        if (regenTimer == regenTime)
+        {
+            amountRemaining.Add(size.GetValue());
+        }
     }
 
     public double Consume(double amount) {

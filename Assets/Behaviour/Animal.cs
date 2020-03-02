@@ -199,7 +199,7 @@ public class Animal : MonoBehaviour, IConsumable
                         mother = transform.position;
                     }
 
-                    AnimalFactory.CreateAnimal(type, size, dietFactor, nChildren, mother);
+                    OrganismFactory.CreateAnimal(type, size, dietFactor, nChildren, mother);
                 }
             }
             //code here for sex
