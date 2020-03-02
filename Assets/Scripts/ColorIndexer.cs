@@ -3,13 +3,13 @@
 public class ColorIndexer : MonoBehaviour
 {
 
-    public Material blueMaterial;
-    public Material greenMaterial;
-    public Material greyMaterial;
-    public Material whiteMaterial;
+    public Gradient blueMaterial;
+    public Gradient greenMaterial;
+    public Gradient greyMaterial;
+    public Gradient whiteMaterial;
 
 
-    public Material GetMat(float height){
+    public Gradient GetMat(float height){
         
         if(height <= 0.25f) {
             //color = new Color(0.12f, 0.56f, 1f);
@@ -29,8 +29,8 @@ public class ColorIndexer : MonoBehaviour
     }
 
     public Color GetColor(float height) {
-        
-        return GetMat(height).color;
+
+        return GetMat(height).Evaluate(height);
 
         
          
