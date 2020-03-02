@@ -64,7 +64,7 @@ public class Animal : MonoBehaviour, IConsumable
         counter++;
         if (counter == 300)
         {
-            reproduce(this);
+            Reproduce(this);
         }
         //increases hunger and thirst over time
         hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
@@ -176,7 +176,7 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
-    public void reproduce(Animal mate)
+    public void Reproduce(Animal mate)
     {
         if (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6)
         {

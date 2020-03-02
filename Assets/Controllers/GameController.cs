@@ -108,10 +108,7 @@ public class GameController : MonoBehaviour
         Animal child = AnimalFactory.CreateAnimal(type);
         child.Init(this, size, dietFactor);
         child.transform.position = location;
-        UnityEngine.Object.Instantiate(child);
+        //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
     }
-
-
-
 
 }
