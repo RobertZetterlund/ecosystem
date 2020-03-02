@@ -3,36 +3,30 @@
 public class ColorIndexer : MonoBehaviour
 {
 
-    public Material blueMaterial;
-    public Material greenMaterial;
-    public Material greyMaterial;
-    public Material whiteMaterial;
+    public Gradient blueMaterial;
+    public Gradient greenMaterial;
+    public Gradient greyMaterial;
+    public Gradient whiteMaterial;
 
 
-    public Material GetMat(float height){
-        
-        if(height <= 0.25f) {
-            //color = new Color(0.12f, 0.56f, 1f);
-            return blueMaterial;
 
-        } else if(height <= 0.80f) {
-            //color = new Color(0.13f, 0.55f, 0.13f);
-            return greenMaterial;
-        } else if(height <= 0.95f) {
-            //color = new Color(0.66f, 0.66f, 0.66f);
-            return greyMaterial;
-        } else {
-            //color = new Color(1f, 1f, 1f);
-            return whiteMaterial;
-        }
-
-    }
 
     public Color GetColor(float height) {
         
-        return GetMat(height).color;
-
         
-         
+
+        if(height <= 0.25f) {
+            return blueMaterial.Evaluate(4*height);
+
+        } else if(height <= 0.80f) {
+            return greenMaterial.Evaluate(1f/0.55f * (height-0.25f));
+        } else if(height <= 0.95f) {
+
+            return greyMaterial.Evaluate(1f/0.15f * (height - 0.85f));
+        } else {
+
+            return whiteMaterial.Evaluate(1f/0.05f * (height - 0.95f));
+        }
+
     }
 }
