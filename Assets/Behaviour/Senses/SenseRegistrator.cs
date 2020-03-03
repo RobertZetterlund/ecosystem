@@ -1,39 +1,48 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SenseRegistrator
+public class SenseRegistrator : IObservable<GameObject>
 {
-    private Animal animal;
-    private FCM fcm; 
-    private IFuzzifier fuzzifier;
 
-    public SenseRegistrator(Animal animal)
+    private List<IObserver<GameObject>> observers;
+
+    public SenseRegistrator()
     {
-        this.animal = animal;
-        fcm = animal.GetFCM();
-        fuzzifier = new DistanceFuzzifier();
+        observers = new List<IObserver<GameObject>>();
     }
 
     public void Register(GameObject sensedObject)
     {
-        if(sensedObject.CompareTag("Plant"))
+        foreach (var observer in observers)
         {
-            SetInverseDistanceInputFields(EntityInput.FoodClose, EntityInput.FoodFar, sensedObject);
-        }
-
-        if (sensedObject.CompareTag("Water"))
-        {
-            SetInverseDistanceInputFields(EntityInput.WaterClose, EntityInput.WaterFar, sensedObject);
+            observer.OnNext(sensedObject);
         }
     }
 
-    private void SetInverseDistanceInputFields(EntityInput close, EntityInput far, GameObject gameObject)
+    public IDisposable Subscribe(IObserver<GameObject> observer)
     {
-        float dist = (gameObject.transform.position - animal.transform.position).magnitude;
-        float standard = fuzzifier.Fuzzify(0, animal.GetSenseRadius(), dist);
-        float inverse = 1 - standard;
-        fcm.SetState((EntityField)close, standard);
-        fcm.SetState((EntityField)far, inverse);
+        if (!observers.Contains(observer))
+            observers.Add(observer);
+        return new Unsubscriber(observers, observer);
+    }
+
+    private class Unsubscriber : IDisposable
+    {
+        private List<IObserver<GameObject>> _observers;
+        private IObserver<GameObject> _observer;
+
+        public Unsubscriber(List<IObserver<GameObject>> observers, IObserver<GameObject> observer)
+        {
+            this._observers = observers;
+            this._observer = observer;
+        }
+
+        public void Dispose()
+        {
+            if (_observer != null && _observers.Contains(_observer))
+                _observers.Remove(_observer);
+        }
     }
 }

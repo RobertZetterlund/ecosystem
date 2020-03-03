@@ -20,12 +20,13 @@ public class Animal : MonoBehaviour, IConsumable
     RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
-	private NavMeshAgent navMeshAgent;
-    private FCM fcm;
+	public NavMeshAgent navMeshAgent;
+    private FCMHandler fcmHandler;
     private SenseRegistrator senseRegistrator;
     private float senseRadius;
     private ISensor sensor;
     private float lastFCMUpdate = 0;
+    private ActionController actionController;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
@@ -45,9 +46,13 @@ public class Animal : MonoBehaviour, IConsumable
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = 5;
         senseRadius = 15;
-        fcm = FCMFactory.RabbitFCM();
-        senseRegistrator = new SenseRegistrator(this);
+        fcmHandler = new RabbitFCMHandler(this);
+        senseRegistrator = new SenseRegistrator();
+        senseRegistrator.Subscribe(fcmHandler);
         sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
+        actionController = new ActionController(this);
+        StartCoroutine(actionController.GoToFood());
+
     }
 
     // Update is called once per frame
@@ -60,18 +65,21 @@ public class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
 
-
         sensor.Sense();
         if((Time.time - lastFCMUpdate) > 1)
         {
             lastFCMUpdate = Time.time;
-            fcm.Calculate();
+            fcmHandler.CalculateFCM();
         }
         
         chooseNextAction();
 
         //check if the animal is dead
         isDead();
+
+        Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 10);
+        Debug.DrawRay(transform.position, actionController.draw1 * 10);
+        Debug.DrawRay(transform.position, actionController.draw2 * 10);
 
     }
 
@@ -106,7 +114,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void chooseNextAction()
     {
-        currentAction = fcm.GetAction();
+        currentAction = fcmHandler.GetAction();
             //Köre har något här hoppas jag
         if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
         {
@@ -239,10 +247,6 @@ public class Animal : MonoBehaviour, IConsumable
         navMeshAgent.SetDestination(destination);
     }
 
-    public FCM GetFCM()
-    {
-        return fcm;
-    }
 
     public float GetSenseRadius()
     {
@@ -257,8 +261,8 @@ public class Animal : MonoBehaviour, IConsumable
             Vector3 textOffset = new Vector3(-3, 2, 0);
             Handles.Label(transform.position + textOffset, currentAction.ToString());
             textOffset = new Vector3(1, 2, 0);
-            if (fcm != null)
-                Handles.Label(transform.position + textOffset, fcm.ToString());
+            if (fcmHandler != null)
+                Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
         }
 
         if(showSenseRadiusGizmo)
@@ -268,6 +272,11 @@ public class Animal : MonoBehaviour, IConsumable
         }
         
         
+    }
+
+    public NavMeshAgent GetNavMeshAgent()
+    {
+        return navMeshAgent;
     }
 
 }
