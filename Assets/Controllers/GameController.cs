@@ -3,12 +3,27 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    private int nPlants = 10;
+    private int nRabbits = 5;
+
 
     void Start()
     {
-        // spawn first rabbit
-        OrganismFactory.CreateAnimal(AnimalType.Rabbit, 1, 1, 3, new Vector3(5.83f, 1f, 14.36f));
-        // spawn first plant
-        OrganismFactory.CreatePlant(1, new Vector3(5.83f, 0.5f, 10.36f));
+        // spawn first rabbits
+        for (int i = 0; i < nRabbits; i++)
+        {
+            OrganismFactory.CreateAnimal(AnimalType.Rabbit, 1, 1, 3, NavMeshUtil.GetRandomLocation());
+        }
+        // spawn first plants
+        for (int i = 0; i < nPlants; i++)
+        {
+            OrganismFactory.CreatePlant(1,NavMeshUtil.GetRandomLocation());
+        }
+
+
+
     }
+
+
+
 }

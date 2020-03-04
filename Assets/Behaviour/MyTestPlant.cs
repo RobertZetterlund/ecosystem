@@ -9,6 +9,7 @@ public class MyTestPlant : MonoBehaviour
     private RangedDouble size;
     private int regenTime = 1200; // 20 seconds
     private int regenTimer = 0;
+    private UnityEngine.AI.NavMeshAgent navMeshAgent;
 
     public void Init(double size)
     {
@@ -20,6 +21,14 @@ public class MyTestPlant : MonoBehaviour
     void Start()
     {
         gameObject.tag = "Plant";
+
+
+        navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
+        navMeshAgent.speed = 0;
+        
+        //senseRadius = 0;
+        //senseRegistrator = new SenseRegistrator(this);
+        //sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
     }
 
     // Update is called once per frame
