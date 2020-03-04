@@ -12,10 +12,9 @@ using UnityEngine;
  * Actions are constructed by these IEnumerator things, and you chan them together to make a series of steps.
  * You start an action by calling StartCoroutine(..some action) on the animal.
  */
-public class ActionController : IObserver<GameObject>
+public class ActionController : IActionController, IObserver<GameObject>
 {
     Animal animal;
-    public Vector3 draw1, draw2 = new Vector3(0, 0, 0);
     public string targetGametag = "";
 
     public ActionController(Animal animal)
@@ -26,6 +25,26 @@ public class ActionController : IObserver<GameObject>
     public IEnumerator GoToFood()
     {
         yield return Search("Plant");
+    }
+
+    public IEnumerator GoToWater()
+    {
+        yield return Search("Water");
+    }
+
+    public IEnumerator GoToPartner()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerator ChaseAnimal(Animal animal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerator EscapeAnimal(Animal animal)
+    {
+        throw new NotImplementedException();
     }
 
     IEnumerator Walk()
@@ -45,6 +64,7 @@ public class ActionController : IObserver<GameObject>
         }
     }
 
+
     /**
      * Makes the animal walk to a position 10 steps in front of the animal in a direction that is in the bounderies of an angle
      * of -40 to +40 of the direction that the animal is facing.
@@ -62,6 +82,19 @@ public class ActionController : IObserver<GameObject>
         return new_pos;
     }
 
+    /**
+     * Now this is obviously trash. Just stops the animal and makes it go to the
+     * object found from the senseregistrator if it happens to be what it is searching for.
+     * 
+     */
+    public void OnNext(GameObject value)
+    {
+        if (!targetGametag.Equals("") && value.CompareTag(targetGametag))
+        {
+            animal.StopAllCoroutines();
+            animal.SetDestination(value.transform.position);
+        }
+    }
 
     public void OnCompleted()
     {
@@ -73,32 +106,4 @@ public class ActionController : IObserver<GameObject>
         throw new NotImplementedException();
     }
 
-    /**
-     * Now this is obviously trash. Just stops the animal and makes it go to the
-     * object found from the senseregistrator if it happens to be what it is searching for.
-     * 
-     */
-    public void OnNext(GameObject value)
-    {
-        if (!targetGametag.Equals("") && value.CompareTag(targetGametag)) 
-        {
-            animal.StopAllCoroutines();
-            animal.SetDestination(value.transform.position);
-        }
-    }
-
-    /*
-   IEnumerator Draw()
-   {
-       Vector3 dir = animal.transform.forward;
-       float angle = Vector3.SignedAngle(dir, Vector3.forward, Vector3.up);
-       float angle1 = angle - 20;
-       float angle2 = angle + 20;
-       Vector3 direction1 = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * angle1), 0, Mathf.Cos(Mathf.Deg2Rad * angle1));
-       draw1 = direction1;
-       Vector3 direction2 = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * angle2), 0, Mathf.Cos(Mathf.Deg2Rad * angle2));
-       draw2 = direction2;
-       yield return new WaitForSeconds(0);
-   }
-   */
 }

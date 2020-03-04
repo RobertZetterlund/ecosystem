@@ -81,10 +81,6 @@ public class Animal : MonoBehaviour, IConsumable
         //check if the animal is dead
         isDead();
 
-        Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 10);
-        Debug.DrawRay(transform.position, actionController.draw1 * 10);
-        Debug.DrawRay(transform.position, actionController.draw2 * 10);
-
     }
 
 
