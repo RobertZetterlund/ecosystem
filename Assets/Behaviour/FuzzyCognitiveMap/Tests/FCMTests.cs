@@ -17,8 +17,8 @@ namespace Tests
 
             FCM fcm = new FCM(inputs, actions);
             fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
-            fcm.ImpactState(EntityField.FoodClose, 1);
-            fcm.ImpactState(EntityField.Idle, 0.5);
+            fcm.SetState(EntityField.FoodClose, 1);
+            fcm.SetState(EntityField.Idle, 0.5);
 
             fcm.Calculate();
             foreach(double d in fcm.GetStates()) 
@@ -46,8 +46,8 @@ namespace Tests
 
             FCM fcm = new FCM(inputs, actions);
             fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
-            fcm.ImpactState(EntityField.GoingToFood, 1);
-            fcm.ImpactState(EntityField.Idle, 0.5);
+            fcm.SetState(EntityField.GoingToFood, 1);
+            fcm.SetState(EntityField.Idle, 0.5);
 
             Dictionary<EntityAction, int> dict = new Dictionary<EntityAction, int>();
             for(int i = 0; i < 1000; i++)

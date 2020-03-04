@@ -10,6 +10,7 @@ class RabbitFCMHandler : FCMHandler
         fuzzifier = new DistanceFuzzifier();
     }
 
+    // Sets the fcm values accordingly when something has been spotted
     public override void OnNext(GameObject value)
     {
         if(value.CompareTag("Plant"))
@@ -23,6 +24,7 @@ class RabbitFCMHandler : FCMHandler
         }
     }
 
+    // Sets the two input fields as "komplement" to eachother in the fcm.
     private void SetInverseDistanceInputFields(EntityInput close, EntityInput far, GameObject gameObject)
     {
         float dist = (gameObject.transform.position - animal.transform.position).magnitude;

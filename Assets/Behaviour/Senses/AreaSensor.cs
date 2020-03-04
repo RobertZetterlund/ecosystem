@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Senses an area around the transform of a radius "senseRadius" and transmits the findings to the senseRegistrator
+ * 
+ */
 public class AreaSensor : ISensor
 {
     private Transform transform;

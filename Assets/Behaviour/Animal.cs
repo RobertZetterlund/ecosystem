@@ -45,12 +45,16 @@ public class Animal : MonoBehaviour, IConsumable
     {
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = 5;
-        senseRadius = 15;
-        fcmHandler = new RabbitFCMHandler(this);
+        senseRadius = 7;
         senseRegistrator = new SenseRegistrator();
+
+        fcmHandler = new RabbitFCMHandler(this);
         senseRegistrator.Subscribe(fcmHandler);
-        sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
+
         actionController = new ActionController(this);
+        senseRegistrator.Subscribe(actionController);
+
+        sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
         StartCoroutine(actionController.GoToFood());
 
     }

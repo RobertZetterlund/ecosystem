@@ -1,6 +1,11 @@
 ﻿using System;
 using UnityEngine;
 
+/**
+ * FCMHandler works as an observer to GameObject so that senses can be passed to the handler
+ * from a SenseRegistrator
+ * 
+ */
 abstract class FCMHandler : IObserver<GameObject>
 {
     protected FCM fcm;
