@@ -6,12 +6,12 @@ using UnityEngine;
  */
 public static class OrganismFactory
 {
-    public static void CreateAnimal(AnimalType type, double size, double dietFactor, int nChildren, Vector3 location)
+    public static void CreateAnimal(Species species, double size, double dietFactor, int nChildren, Vector3 location)
     {
         GameObject gameObject;
-        switch (type)
+        switch (species)
         {
-            case AnimalType.Rabbit:
+            case Species.Rabbit:
                 gameObject = CreateRabbit();
                 break;
             default:
@@ -20,7 +20,7 @@ public static class OrganismFactory
         }
 
         Animal animal = gameObject.AddComponent<Animal>();
-        animal.Init(type, size, dietFactor, nChildren);
+        animal.Init(species, size, dietFactor, nChildren);
         animal.transform.position = location;
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
     }

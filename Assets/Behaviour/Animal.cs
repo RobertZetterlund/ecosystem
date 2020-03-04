@@ -26,16 +26,16 @@ public class Animal : MonoBehaviour, IConsumable
     private ISensor sensor;
     private float lastFCMUpdate = 0;
     private bool isMale;
-    private AnimalType type;
+    private Species species;
     private RangedInt nChildren;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
     public bool showFCMGizmo, showSenseRadiusGizmo = false;
 
-    public void Init(AnimalType type, double size, double dietFactor, int nChildren)
+    public void Init(Species species, double size, double dietFactor, int nChildren)
     {
-        this.type = type;
+        this.species = species;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
         this.size = new RangedDouble(size, 0);
         this.nChildren = new RangedInt(nChildren, 1);
@@ -200,7 +200,7 @@ public class Animal : MonoBehaviour, IConsumable
                         mother = transform.position;
                     }
 
-                    OrganismFactory.CreateAnimal(type, size, dietFactor, nChildren, mother);
+                    OrganismFactory.CreateAnimal(species, size, dietFactor, nChildren, mother);
                 }
             }
             //code here for sex

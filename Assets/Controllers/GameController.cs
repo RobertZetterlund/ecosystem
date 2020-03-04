@@ -12,7 +12,7 @@ public class GameController : MonoBehaviour
         // spawn first rabbits
         for (int i = 0; i < nRabbits; i++)
         {
-            OrganismFactory.CreateAnimal(AnimalType.Rabbit, 1, 1, 3, NavMeshUtil.GetRandomLocation());
+            OrganismFactory.CreateAnimal(Species.Rabbit, 1, 1, 3, NavMeshUtil.GetRandomLocation());
         }
         // spawn first plants
         for (int i = 0; i < nPlants; i++)
