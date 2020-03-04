@@ -25,7 +25,7 @@ public class MyTestPlant : MonoBehaviour
 
         navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
         navMeshAgent.speed = 0;
-        
+        navMeshAgent.baseOffset = 0.1f;
         //senseRadius = 0;
         //senseRegistrator = new SenseRegistrator(this);
         //sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
