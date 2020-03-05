@@ -81,7 +81,7 @@ public class Animal : MonoBehaviour, IConsumable
 
                     currentTargetTransform = gameObject.transform;
 
-                    FollowMyCurrentTarget();
+                    //FollowMyCurrentTarget();
 
 
                     // break;
