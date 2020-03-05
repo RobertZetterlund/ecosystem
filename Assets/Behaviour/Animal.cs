@@ -365,7 +365,7 @@ public class Animal : MonoBehaviour, IConsumable
 
         Vector3 new_pos = transform.position + new_directon * 10;
         return new_pos;
-
+    }
     public double GetAmount()
     {
         return health.GetValue() * size.GetValue();
