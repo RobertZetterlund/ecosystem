@@ -14,29 +14,34 @@ public class Animal : MonoBehaviour, IConsumable
     private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
-    double energy;
+    double energy = 1;
     RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
-    GameController controller;
     RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
-	public NavMeshAgent navMeshAgent;
+	  public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
     private float senseRadius;
     private ISensor[] sensors;
     private float lastFCMUpdate = 0;
     private string targetGametag = "";
+    private bool isMale;
+    private Species species;
+    private RangedInt nChildren;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
     public bool showFCMGizmo, showSenseRadiusGizmo = false;
 
-    public void Init(GameController controller, double size, double dietFactor)
+    public void Init(Species species, double size, double dietFactor, int nChildren)
     {
-        this.controller = controller;
+        this.species = species;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
         this.size = new RangedDouble(size, 0);
+        this.nChildren = new RangedInt(nChildren, 1);
 
+        System.Random rand = new System.Random();
+        isMale = rand.NextDouble() >= 0.5;
     }
 
     // Start is called before the first frame update
@@ -44,6 +49,9 @@ public class Animal : MonoBehaviour, IConsumable
     {
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = 5;
+        // calculate instead if possible
+        navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
+        
         senseRadius = 7;
 
         fcmHandler = new RabbitFCMHandler();
@@ -51,8 +59,6 @@ public class Animal : MonoBehaviour, IConsumable
         sensors = new ISensor[1];
         sensors[0] = new AreaSensor(senseRadius);
         StartCoroutine(GoToFood());
-
-
 
     }
 
@@ -73,8 +79,6 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
         fcmHandler.ProcessSensedObjects(this, sensedGameObjects);
-
-        
 
     }
 
@@ -190,14 +194,38 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
-    public void reproduce(Animal mate)
+    public void Reproduce(Animal mate)
     {
+        if (!(isMale ^ mate.isMale))
+        {
+            // if same sex
+            return;
+        }
+
         if (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6)
         {
             if (energy > 0.4)
             {
-                //code here for reproduction
-                controller.Reproduce(this, mate);
+
+                //make #nChildren children
+                for (int i = 0; i < nChildren.GetValue(); i++)
+                {
+                    double size = ReproductionUtility.ReproduceRangedDouble(this.size.Duplicate(), mate.size.Duplicate()).GetValue();
+                    double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
+                    int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
+
+                    Vector3 mother;
+                    if (isMale)
+                    {
+                        mother = mate.transform.position;
+                    }
+                    else
+                    {
+                        mother = transform.position;
+                    }
+
+                    OrganismFactory.CreateAnimal(species, size, dietFactor, nChildren, mother);
+                }
             }
             //code here for sex
             currentAction = EntityAction.Idle; // Set action to idle when done
@@ -216,31 +244,12 @@ public class Animal : MonoBehaviour, IConsumable
 
 
 
-    public double GetAmount()
-    {
-        return size.GetValue() * health.GetValue(); 
-    }
-
-    public RangedDouble GetSize()
-    {
-        return size.Duplicate();
-    }
-
-    public RangedDouble GetDiet()
-    {
-        return dietFactor.Duplicate();
-    }
-
     // eat this animal
     public double Consume(double amount)
     {
         return health.Add(-amount/size.GetValue());
     }
 
-    public ConsumptionType GetConsumptionType()
-    {
-        return ConsumptionType.Animal;
-    }
 
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
@@ -356,6 +365,16 @@ public class Animal : MonoBehaviour, IConsumable
 
         Vector3 new_pos = transform.position + new_directon * 10;
         return new_pos;
+
+    public double GetAmount()
+    {
+        return health.GetValue() * size.GetValue();
+    }
+
+    public ConsumptionType GetConsumptionType()
+    {
+        return ConsumptionType.Animal; 
+
     }
 
 }
