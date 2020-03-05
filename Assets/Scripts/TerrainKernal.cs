@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System;
-
+using System.Collections.Generic;
 
 public class TerrainKernal : MonoBehaviour
 {
@@ -42,6 +42,10 @@ public class TerrainKernal : MonoBehaviour
         
 
         heightMap = PerlinNoise.GeneratePerlinNoise(side, side, resolution, octaves, lacunarity, persistance, seed);
+        WaterGenerator gen = new WaterGenerator();
+        List<List<Vector2>> wList = gen.GenerateWater(resolution, resolution, heightMap, 0.25f);
+
+
         colorIndex = gameObject.GetComponent<ColorIndexer>();
         colors = new Color[resolution*resolution];
         texture = new Texture2D(resolution, resolution);

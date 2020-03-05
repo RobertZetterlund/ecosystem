@@ -25,7 +25,9 @@ public class GenerateMesh : MonoBehaviour
 		vectorMap = new Vector3[x * z];
 		triangleMap = new int[ 6 * (x-1) * (z-1) ];
 		uvs = new Vector2[x * z];
-
+		//WaterGenerator gen = new WaterGenerator();
+		Debug.Log("ok");
+		//gen.GenerateWater(heightMap, 0.25f);
 		colorIndex = gameObject.GetComponent<ColorIndexer>();
 
 		int index = 0;
