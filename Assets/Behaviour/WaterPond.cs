@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WaterPond : MonoBehaviour
+public class WaterPond : MonoBehaviour, IConsumable
 
 {
     public Species specie = Species.Water;
@@ -20,18 +20,18 @@ public class WaterPond : MonoBehaviour
         
     }
 
-    double GetAmount()
+    public ConsumptionType GetConsumptionType()
+    {
+        return ConsumptionType.Water;
+    }
+
+    double IConsumable.GetAmount()
     {
         return double.MaxValue;
     }
 
-    double Consume(double amount)
+    double IConsumable.Consume(double amount)
     {
         return amount; // don't need to do anything if we assume there's infinite amount of water
-    }
-
-    public ConsumptionType GetConsumptionType()
-    {
-        return ConsumptionType.Water;
     }
 }

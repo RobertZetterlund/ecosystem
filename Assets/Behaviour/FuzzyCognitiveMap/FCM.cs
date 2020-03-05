@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class FCM
@@ -112,13 +109,14 @@ public class FCM
      * sending input to the fcm such as Hunger or FoodClose, but it can be used for all states
      * 
      */
+    /*
     public void ImpactState(EntityField state, double value)
     {
         int i = translation.Forward[(int)state];
         states[i] += value;
         states[i] = Mathf.Clamp((float)states[i], 0, 1);
     }
-
+    */
     public void SetState(EntityField state, double value)
     {
         int i = translation.Forward[(int)state];

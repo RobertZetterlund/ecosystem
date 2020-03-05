@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class MyTestPlant : MonoBehaviour
+public class MyTestPlant : MonoBehaviour, IConsumable
 {
     private RangedDouble amountRemaining;
     private RangedDouble size;
