@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -19,7 +20,7 @@ public class Animal : MonoBehaviour, IConsumable
     RangedDouble size;
     RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
-	  public NavMeshAgent navMeshAgent;
+	public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
     private float senseRadius;
     private ISensor[] sensors;
@@ -28,6 +29,8 @@ public class Animal : MonoBehaviour, IConsumable
     private bool isMale;
     private Species species;
     private RangedInt nChildren;
+
+    private Transform currentTargetTransform;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
@@ -73,6 +76,16 @@ public class Animal : MonoBehaviour, IConsumable
                 if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
                 {
                     StopAllCoroutines();
+
+                    // decide to go towards that gameObject
+
+                    currentTargetTransform = gameObject.transform;
+
+                    FollowMyCurrentTarget();
+
+
+                    // break;
+
                     SetDestination(gameObject.transform.position);
                 }
             }
@@ -81,6 +94,15 @@ public class Animal : MonoBehaviour, IConsumable
         fcmHandler.ProcessSensedObjects(this, sensedGameObjects);
 
     }
+
+    void FollowMyCurrentTarget()
+    {
+        while(currentTargetTransform != null ^ Vector3.Distance(currentTargetTransform.position, this.transform.position) < 5)
+        {
+            // move to that thing lol
+        }
+    }
+
 
     // Update is called once per frame
     void Update()
