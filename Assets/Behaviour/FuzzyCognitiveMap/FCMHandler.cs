@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 /**
@@ -6,41 +7,29 @@ using UnityEngine;
  * from a SenseRegistrator
  * 
  */
-abstract class FCMHandler : IObserver<GameObject>
+abstract class FCMHandler
 {
     protected FCM fcm;
-    protected Animal animal;
 
-    public FCMHandler(Animal animal)
+    public FCMHandler()
     {
-        this.animal = animal;
     }
 
-    public virtual void CalculateFCM()
+    public void CalculateFCM()
     {
         fcm.Calculate();
     }
 
-    public virtual EntityAction GetAction()
+    public EntityAction GetAction()
     {
         return fcm.GetAction();
     }
-
-    public void OnCompleted()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnError(Exception error)
-    {
-        throw new NotImplementedException();
-    }
-
-    public abstract void OnNext(GameObject value);
 
     public string GetFCMData()
     {
         return fcm.ToString();
     }
+
+    public abstract void ProcessSensedObjects(Animal animal, ArrayList gameObjects);
 
 }

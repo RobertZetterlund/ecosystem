@@ -8,25 +8,22 @@ using UnityEngine;
  */
 public class AreaSensor : ISensor
 {
-    private Transform transform;
-    private SenseRegistrator senseRegistrator;
     private float senseRadius;
 
-    public AreaSensor(Transform transform, SenseRegistrator senseRegistrator, float senseRadius)
+    public AreaSensor(float senseRadius)
     {
-        this.transform = transform;
-        this.senseRegistrator = senseRegistrator;
         this.senseRadius = senseRadius;
     }
 
-    public void Sense()
+    public GameObject[] Sense(Transform transform)
     {
         Collider[] colliders = EnvironmentController.CheckSurroundings(transform.position, senseRadius);
-        foreach (Collider c in colliders)
+        GameObject[] sensedGameObjects = new GameObject[colliders.Length];
+        for (int i = 0; i < colliders.Length; i++)
         {
-            GameObject sensedGameObject = c.gameObject;
-            senseRegistrator.Register(sensedGameObject);
+            sensedGameObjects[i] = colliders[i].gameObject;
         }
+        return sensedGameObjects;
     }
     
 }

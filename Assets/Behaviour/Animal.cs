@@ -22,11 +22,10 @@ public class Animal : MonoBehaviour, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
 	public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
-    private SenseRegistrator senseRegistrator;
     private float senseRadius;
-    private ISensor sensor;
+    private ISensor[] sensors;
     private float lastFCMUpdate = 0;
-    private ActionController actionController;
+    private string targetGametag = "";
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
@@ -46,16 +45,36 @@ public class Animal : MonoBehaviour, IConsumable
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = 5;
         senseRadius = 7;
-        senseRegistrator = new SenseRegistrator();
 
-        fcmHandler = new RabbitFCMHandler(this);
-        senseRegistrator.Subscribe(fcmHandler);
+        fcmHandler = new RabbitFCMHandler();
 
-        actionController = new ActionController(this);
-        senseRegistrator.Subscribe(actionController);
+        sensors = new ISensor[1];
+        sensors[0] = new AreaSensor(senseRadius);
+        StartCoroutine(GoToFood());
 
-        sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
-        StartCoroutine(actionController.GoToFood());
+
+
+    }
+
+    void Sense()
+    {
+        ArrayList sensedGameObjects = new ArrayList();
+        foreach(ISensor sensor in sensors)
+        {
+            foreach(GameObject gameObject in sensor.Sense(transform))
+            {
+                sensedGameObjects.Add(gameObject);
+                if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
+                {
+                    StopAllCoroutines();
+                    SetDestination(gameObject.transform.position);
+                }
+            }
+        }
+
+        fcmHandler.ProcessSensedObjects(this, sensedGameObjects);
+
+        
 
     }
 
@@ -69,7 +88,7 @@ public class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1/lifespan;
 
-        sensor.Sense();
+        Sense();
         if((Time.time - lastFCMUpdate) > 1)
         {
             lastFCMUpdate = Time.time;
@@ -277,6 +296,66 @@ public class Animal : MonoBehaviour, IConsumable
     public NavMeshAgent GetNavMeshAgent()
     {
         return navMeshAgent;
+    }
+
+    public IEnumerator GoToFood()
+    {
+        yield return Search("Plant");
+    }
+
+    public IEnumerator GoToWater()
+    {
+        yield return Search("Water");
+    }
+
+    public IEnumerator GoToPartner()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerator ChaseAnimal(Animal animal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerator EscapeAnimal(Animal animal)
+    {
+        throw new NotImplementedException();
+    }
+
+    IEnumerator Walk()
+    {
+        Vector3 pos = ChooseNewDestination();
+        SetDestination(pos);
+        yield return new WaitForSeconds(0);
+    }
+
+    public IEnumerator Search(string gametag)
+    {
+        targetGametag = gametag;
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+            yield return Walk();
+        }
+    }
+
+
+    /**
+     * Makes the animal walk to a position 10 steps in front of the animal in a direction that is in the bounderies of an angle
+     * of -40 to +40 of the direction that the animal is facing.
+     */
+    private Vector3 ChooseNewDestination()
+    {
+        Vector3 dir = transform.forward;
+        float angle = Vector3.SignedAngle(dir, Vector3.forward, Vector3.up);
+        float angle1 = angle - 40;
+        float angle2 = angle + 40;
+        float new_angle = UnityEngine.Random.Range(angle1, angle2);
+        Vector3 new_directon = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * new_angle), 0, Mathf.Cos(Mathf.Deg2Rad * new_angle));
+
+        Vector3 new_pos = transform.position + new_directon * 10;
+        return new_pos;
     }
 
 }
