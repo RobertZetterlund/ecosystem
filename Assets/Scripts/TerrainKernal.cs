@@ -19,10 +19,14 @@ public class TerrainKernal : MonoBehaviour
     public float amplifier;
     public AnimationCurve animCurve;
     public int seed;
+    public GameObject waterPrefab;
 
     Texture2D texture;
     Color[] colors;
-    
+
+    List<List<Vector2>> waterList;
+    List<GameObject> puddleList = new List<GameObject>();
+
     GenerateMesh generator;
     ColorIndexer colorIndex;
 
@@ -42,8 +46,6 @@ public class TerrainKernal : MonoBehaviour
         
 
         heightMap = PerlinNoise.GeneratePerlinNoise(side, side, resolution, octaves, lacunarity, persistance, seed);
-        WaterGenerator gen = new WaterGenerator();
-        List<List<Vector2>> wList = gen.GenerateWater(resolution, resolution, heightMap, 0.25f);
 
 
         colorIndex = gameObject.GetComponent<ColorIndexer>();
@@ -69,7 +71,72 @@ public class TerrainKernal : MonoBehaviour
         
         generator = gameObject.GetComponent<GenerateMesh>();
         generator.MakeMesh(resolution, resolution, heightMap, texture,animCurve, amplifier);
+        WaterGenerator waterGen = new WaterGenerator();
+        waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
+
+        int puddlesNow = 0;
+        int puddlesBefore = puddleList.Count - 1;
+
+        foreach(List<Vector2> cluster in waterList)
+        {
+            if(puddlesNow <= puddlesBefore)
+            {
+                AddWater(cluster, puddleList[puddlesNow]);
+
+            }else{
+
+                puddleList.Add(Instantiate(waterPrefab));
+                AddWater(cluster, puddleList[puddlesNow]);
+
+            }
+            puddlesNow++;
+        }
+
+        for(int i = puddlesBefore; i > puddlesNow; i--)
+        {
+            DestroyImmediate(puddleList[i]);
+            puddleList.RemoveAt(i);
+        }
+
+
+    }
+
+
+    public void AddWater(List<Vector2> cluster, GameObject puddle)
+    {
+        float maxX = float.MinValue;
+        float maxZ = float.MinValue;
+
+        float minX = float.MaxValue;
+        float minZ = float.MaxValue;
+
+        foreach(Vector2 vec in cluster) {
+            if(vec.x > maxX) {
+                maxX = vec.x;
+            } else if(vec.x < minX) {
+                minX = vec.x;
+            }
+
+            if(vec.y > maxZ) {
+                maxZ = vec.y;
+            } else if(vec.y < minZ) {
+                minZ = vec.y;
+            }
+        }
+
+        float meanX = (maxX + minX) / 2.0f;
+        float meanZ = (maxZ + minZ) / 2.0f;
+        float maxR = float.MinValue;
+
+        foreach(Vector2 vec in cluster) {
+            if( Mathf.Sqrt( (vec.x - meanX)* (vec.x - meanX)  + (vec.y - meanZ) * (vec.y - meanZ) ) > maxR ) {
+                maxR = Mathf.Sqrt((vec.x - meanX) * (vec.x - meanX) + (vec.y - meanZ) * (vec.y - meanZ));
+            }
+        }
+
         
+        puddle.transform.position = new Vector3(meanX, amplifier*animCurve.Evaluate(0.25f), meanZ);
+        puddle.transform.localScale =  new Vector3(maxR, 1f, maxR);
 
     }
 

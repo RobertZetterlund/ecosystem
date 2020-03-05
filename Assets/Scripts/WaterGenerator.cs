@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 
 public class WaterGenerator
 {
 
-	
 
-	public List<List<Vector2>> GenerateWater(int x, int z, float[,] heightMap, float waterHeight)
+    public  List<List<Vector2>> GenerateWater(int x, int z, float[,] heightMap, float waterHeight)
 	{
         bool[,] waterMap;
         List<List<Vector2>> clusterList;
@@ -32,6 +30,7 @@ public class WaterGenerator
 		}
 
         clusterList = countIslands(waterMap, x, z);
+
 
         return clusterList;
 
