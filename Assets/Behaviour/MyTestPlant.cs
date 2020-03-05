@@ -10,6 +10,7 @@ public class MyTestPlant : MonoBehaviour
     private int regenTime = 1200; // 20 seconds
     private int regenTimer = 0;
     private UnityEngine.AI.NavMeshAgent navMeshAgent;
+    private Species species = Species.Plant;
 
     public void Init(double size)
     {
@@ -26,7 +27,7 @@ public class MyTestPlant : MonoBehaviour
         navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
         navMeshAgent.speed = 0;
         // calculate properly instead if possible
-        navMeshAgent.baseOffset = 0.1f;
+        navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
         //senseRadius = 0;
         //senseRegistrator = new SenseRegistrator(this);
         //sensor = new AreaSensor(transform, senseRegistrator, senseRadius);

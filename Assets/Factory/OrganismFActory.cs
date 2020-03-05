@@ -43,4 +43,17 @@ public static class OrganismFactory
         plant.transform.position = location;
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
     }
+    // Get offset for the corresponding navmesh agent so it doesn't clip with the ground
+    public static float GetOffset(Species species)
+    {
+        switch (species)
+        {
+            case Species.Rabbit:
+                return 1.9f;
+            case Species.Plant:
+                return 0.1f;
+            default:
+                return 0f;
+        }
+    }
 }

@@ -50,7 +50,7 @@ public class Animal : MonoBehaviour, IConsumable
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = 5;
         // calculate instead if possible
-        navMeshAgent.baseOffset = 1.9f;
+        navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
 
         senseRadius = 15;
         fcm = FCMFactory.RabbitFCM();
