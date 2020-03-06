@@ -1,7 +1,9 @@
-﻿using System;
+﻿
 using UnityEngine;
-
+/**
+* Used for sensing the environment
+*/
 public interface ISensor
 {
-    void Sense();
+    GameObject[] Sense(Transform transform);
 }
