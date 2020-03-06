@@ -22,6 +22,9 @@ public static class OrganismFactory
         Animal animal = gameObject.AddComponent<Animal>();
         animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed);
         animal.transform.position = location;
+
+
+
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
     }
 
