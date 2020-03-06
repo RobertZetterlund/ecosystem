@@ -6,7 +6,7 @@ using UnityEngine;
  */
 public static class OrganismFactory
 {
-    public static void CreateAnimal(Species species, double size, double dietFactor, int nChildren, Vector3 location)
+    public static void CreateAnimal(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, Vector3 location)
     {
         GameObject gameObject;
         switch (species)
@@ -20,7 +20,7 @@ public static class OrganismFactory
         }
 
         Animal animal = gameObject.AddComponent<Animal>();
-        animal.Init(species, size, dietFactor, nChildren);
+        animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed);
         animal.transform.position = location;
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
     }

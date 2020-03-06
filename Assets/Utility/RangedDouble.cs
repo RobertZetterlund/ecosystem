@@ -9,16 +9,24 @@ public class RangedDouble
 
 	public RangedDouble(double value, double lower, double upper)
 	{
+        if (upper < lower)
+        {
+            throw new System.ArgumentException("Bounds overlap");
+        }
+
+        if (value > upper || value < lower)
+        {
+            throw new System.ArgumentException("value outside bounds");
+        }
+
         this.value = value;
         this.lower = lower;
         this.upper = upper;
 	}
 
     public RangedDouble(double value, double lower)
-    {
-        this.value = value;
-        this.lower = lower;
-        upper = double.MaxValue;
+    : this(value, lower, double.MaxValue)
+    { 
     }
 
     public double Add(double amount)

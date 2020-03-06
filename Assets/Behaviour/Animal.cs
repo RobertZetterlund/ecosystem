@@ -7,17 +7,15 @@ using UnityEngine.AI;
 
 public class Animal : MonoBehaviour, IConsumable
 {
-    RangedDouble hunger = new RangedDouble(0, 0, 1);
-    RangedDouble thirst = new RangedDouble(0, 0, 1);
+    private RangedDouble hunger = new RangedDouble(0, 0, 1);
+    private RangedDouble thirst = new RangedDouble(0, 0, 1);
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
     private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
-    double energy = 1;
-    RangedDouble health = new RangedDouble(1, 0, 1); //max health should be 1, health scaling depends on size
-    RangedDouble size;
-    RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
+    private double energy = 1;
+    private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
 	private NavMeshAgent navMeshAgent;
     private FCM fcm;
@@ -27,21 +25,32 @@ public class Animal : MonoBehaviour, IConsumable
     private float lastFCMUpdate = 0;
     private bool isMale;
     private Species species;
-    private RangedInt nChildren;
+    private RangedInt nChildren; // how many kids you will have
+    private RangedDouble size;
+    private RangedDouble maxSize;
+    private RangedDouble infantFactor; // how big the child is in %
+    private RangedDouble growthFactor; // how much you grow each tick
+    private RangedDouble speed;
 
     //Debugging
     Color SphereGizmoColor = new Color(1, 1, 0, 0.3f);
     public bool showFCMGizmo, showSenseRadiusGizmo = false;
 
-    public void Init(Species species, double size, double dietFactor, int nChildren)
+    public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed)
     {
         this.species = species;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
-        this.size = new RangedDouble(size, 0);
+        this.maxSize = new RangedDouble(maxSize, 0);
+        this.size = new RangedDouble(maxSize * infantFactor, 0, maxSize);
         this.nChildren = new RangedInt(nChildren, 1);
+        this.infantFactor = new RangedDouble(infantFactor, 0, 1);
+        this.growthFactor = new RangedDouble(growthFactor, 0, 1);
+        this.speed = new RangedDouble(speed, 0);
 
         System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
+
+        
     }
 
     // Start is called before the first frame update
@@ -62,13 +71,19 @@ public class Animal : MonoBehaviour, IConsumable
     // Update is called once per frame
     void Update()
     {
+        // growth = hunger drain and size gain while growing
+        double growth = 0;
         //increases hunger and thirst over time
-        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger);
+        if (size.GetValue() < maxSize.GetValue()) // if not fully grown
+        {
+            growth = maxSize.GetValue() * growthFactor.GetValue();
+            size.Add(growth);
+        }
+        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius) );
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
 
         //age the animal
-        energy -= Time.deltaTime * 1/lifespan;
-
+        energy -= (Time.deltaTime * 1/lifespan);
 
         sensor.Sense();
         if((Time.time - lastFCMUpdate) > 1)
@@ -174,6 +189,12 @@ public class Animal : MonoBehaviour, IConsumable
     }
     public void Reproduce(Animal mate)
     {
+        if (size.GetValue() < maxSize.GetValue())
+        {
+            // if still a child or wounded
+            return;
+        }
+
         if (!(isMale ^ mate.isMale))
         {
             // if same sex
@@ -185,12 +206,24 @@ public class Animal : MonoBehaviour, IConsumable
             if (energy > 0.4)
             {
 
+
                 //make #nChildren children
                 for (int i = 0; i < nChildren.GetValue(); i++)
                 {
-                    double size = ReproductionUtility.ReproduceRangedDouble(this.size.Duplicate(), mate.size.Duplicate()).GetValue();
+                    double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
+
+                    // deplete hunger for each child born
+                    // stop when your hunger would run out
+                    if (hunger.Add( maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
+                    {
+                        return;
+                    }
+
                     double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
                     int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
+                    double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
+                    double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
+                    double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
 
                     Vector3 mother;
                     if (isMale)
@@ -202,7 +235,7 @@ public class Animal : MonoBehaviour, IConsumable
                         mother = transform.position;
                     }
 
-                    OrganismFactory.CreateAnimal(species, size, dietFactor, nChildren, mother);
+                    OrganismFactory.CreateAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, mother);
                 }
             }
             //code here for sex
@@ -225,14 +258,14 @@ public class Animal : MonoBehaviour, IConsumable
     // eat this animal
     public double Consume(double amount)
     {
-        return health.Add(-amount/size.GetValue());
+        return size.Add(-amount);
     }
 
 
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
-        amount /= size.GetValue(); // balance according to size. (note that amount will be higher if youre size is bigger)
+        amount /= size.GetValue(); // balance according to size. (note that amount will be higher if your size is bigger)
         // increment energy / hunger / thirst
         switch (type)
         {
@@ -286,7 +319,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public double GetAmount()
     {
-        return health.GetValue() * size.GetValue();
+        return size.GetValue();
     }
 
     public ConsumptionType GetConsumptionType()
