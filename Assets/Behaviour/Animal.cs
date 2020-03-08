@@ -18,7 +18,7 @@ public class Animal : MonoBehaviour, IConsumable
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
-	public NavMeshAgent navMeshAgent;
+    public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
     private float senseRadius;
     private ISensor[] sensors;
@@ -53,7 +53,7 @@ public class Animal : MonoBehaviour, IConsumable
         System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
 
-        
+
     }
 
     // Start is called before the first frame update
@@ -87,9 +87,9 @@ public class Animal : MonoBehaviour, IConsumable
     void Sense()
     {
         ArrayList sensedGameObjects = new ArrayList();
-        foreach(ISensor sensor in sensors)
+        foreach (ISensor sensor in sensors)
         {
-            foreach(GameObject gameObject in sensor.Sense(transform))
+            foreach (GameObject gameObject in sensor.Sense(transform))
             {
                 sensedGameObjects.Add(gameObject);
                 if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
@@ -100,7 +100,7 @@ public class Animal : MonoBehaviour, IConsumable
 
                     currentTargetTransform = gameObject.transform;
 
-                    //FollowMyCurrentTarget();
+                    FollowMyCurrentTarget(gameObject);
 
 
                     // break;
@@ -114,14 +114,55 @@ public class Animal : MonoBehaviour, IConsumable
 
     }
 
-    void FollowMyCurrentTarget()
+    void FollowMyCurrentTarget(GameObject gameObject)
     {
-        while(currentTargetTransform != null ^ Vector3.Distance(currentTargetTransform.position, this.transform.position) < 5)
+        while (currentTargetTransform != null ^ Vector3.Distance(currentTargetTransform.position, this.transform.position) < 5)
         {
             // move to that thing lol
+
+            //If they are next to each other or the same position
+            if (CloseEnoughToAct(currentTargetTransform.position, this.transform.position))
+            {
+                IConsumable target = (IConsumable)gameObject.GetType();
+                Act(target);
+            }
         }
     }
 
+    private bool CloseEnoughToAct(Vector3 position1, Vector3 position2)
+    {
+        return Vector3.Distance(currentTargetTransform.position, this.transform.position) < 1; //we probabbly need to update this number later on
+    }
+
+    protected void Act(IConsumable currentTarget)
+    {
+        switch (currentAction)
+        {
+            case EntityAction.GoingToFood:
+                Eat(currentTarget);
+                break;
+            case EntityAction.GoingToWater:
+                Drink(currentTarget);
+                break;
+            case EntityAction.SearchingForMate:
+                Animal mate = (Animal)currentTarget;
+                Reproduce(mate);
+                break;
+        }
+    }
+
+    private void Drink(IConsumable target)
+    {
+        currentAction = EntityAction.Drinking;
+        Consume(target);
+
+    }
+
+    private void Eat(IConsumable target)
+    {
+        currentAction = EntityAction.Eating;
+        Consume(target);
+    }
 
     // Update is called once per frame
     void Update()
@@ -134,19 +175,19 @@ public class Animal : MonoBehaviour, IConsumable
             growth = maxSize.GetValue() * growthFactor.GetValue();
             size.Add(growth);
         }
-        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius) );
+        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius));
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
 
         //age the animal
-        energy -= Time.deltaTime * 1/lifespan;
+        energy -= Time.deltaTime * 1 / lifespan;
 
         Sense();
-        if((Time.time - lastFCMUpdate) > 1)
+        if ((Time.time - lastFCMUpdate) > 1)
         {
             lastFCMUpdate = Time.time;
             fcmHandler.CalculateFCM();
         }
-        
+
         chooseNextAction();
 
         //check if the animal is dead
@@ -156,37 +197,37 @@ public class Animal : MonoBehaviour, IConsumable
 
 
 
-    public void isDead() 
+    public void isDead()
     {
-        if (hunger.GetValue() >= 1) 
+        if (hunger.GetValue() >= 1)
         {
             Die(CauseOfDeath.Hunger);
-        } 
-        else if (thirst.GetValue() >= 1) 
+        }
+        else if (thirst.GetValue() >= 1)
         {
             Die(CauseOfDeath.Thirst);
         }
-        else if (energy <= 0) 
+        else if (energy <= 0)
         {
             Die(CauseOfDeath.Age);
         }
     }
 
-     public void Die(CauseOfDeath cause)
-     {
-        if (!dead) {
+    public void Die(CauseOfDeath cause)
+    {
+        if (!dead)
+        {
             dead = true;
             //Something.log(cause);
             //Environment.RegisterDeath (this);
             //Destroy (gameObject);
         }
-        
+
     }
 
     public void chooseNextAction()
     {
         currentAction = fcmHandler.GetAction();
-            //Köre har något här hoppas jag
         if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
         {
             findMate();
@@ -208,11 +249,11 @@ public class Animal : MonoBehaviour, IConsumable
         {
             findWater();
         }
-        
+
 
 
         //doAction();
-            // a method that makes the animal eat, drink, or reproduce
+        // a method that makes the animal eat, drink, or reproduce
     }
 
     private void findFood()
@@ -242,6 +283,7 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
+
     public void Reproduce(Animal mate)
     {
         if (size.GetValue() < maxSize.GetValue())
@@ -269,7 +311,7 @@ public class Animal : MonoBehaviour, IConsumable
 
                     // deplete hunger for each child born
                     // stop when your hunger would run out
-                    if (hunger.Add( maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
+                    if (hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
                     {
                         return;
                     }
@@ -328,15 +370,15 @@ public class Animal : MonoBehaviour, IConsumable
                 thirst.Add(-amount);
                 break;
             case ConsumptionType.Animal:
-                hunger.Add(-amount*dietFactor.GetValue());
+                hunger.Add(-amount * dietFactor.GetValue());
                 break;
             case ConsumptionType.Plant:
-                hunger.Add(-amount*(1-dietFactor.GetValue()));
+                hunger.Add(-amount * (1 - dietFactor.GetValue()));
                 break;
         }
     }
-	
-	public void SetDestination(Vector3 destination)
+
+    public void SetDestination(Vector3 destination)
     {
         navMeshAgent.SetDestination(destination);
     }
@@ -350,7 +392,7 @@ public class Animal : MonoBehaviour, IConsumable
     //Draws a sphere corresponding to its sense radius
     void OnDrawGizmos()
     {
-        if(showFCMGizmo)
+        if (showFCMGizmo)
         {
             Vector3 textOffset = new Vector3(-3, 2, 0);
             Handles.Label(transform.position + textOffset, currentAction.ToString());
@@ -359,13 +401,13 @@ public class Animal : MonoBehaviour, IConsumable
                 Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
         }
 
-        if(showSenseRadiusGizmo)
+        if (showSenseRadiusGizmo)
         {
             Gizmos.color = SphereGizmoColor;
             Gizmos.DrawSphere(transform.position, senseRadius);
         }
-        
-        
+
+
     }
 
     public NavMeshAgent GetNavMeshAgent()
@@ -439,7 +481,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public ConsumptionType GetConsumptionType()
     {
-        return ConsumptionType.Animal; 
+        return ConsumptionType.Animal;
 
     }
 
