@@ -67,8 +67,8 @@ public class Animal : MonoBehaviour, IConsumable
         CapsuleCollider c = gameObject.AddComponent(typeof(CapsuleCollider)) as CapsuleCollider;
         c.height = 2;
 
-        MeshRenderer r = gameObject.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-        r.material = Resources.Load("unity_builtin_extra/Default-Material", typeof(Material)) as Material; // not working
+        //MeshRenderer r = gameObject.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
+        //r.material = Resources.Load("unity_builtin_extra/Default-Material", typeof(Material)) as Material; // not working
 
         gameObject.layer = 8;
 

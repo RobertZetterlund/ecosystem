@@ -31,7 +31,7 @@ public static class OrganismFactory
     private static GameObject CreateRabbit()
     {
         //return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("Chick"));
+        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("TestC"));
         model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         return model;
     }
