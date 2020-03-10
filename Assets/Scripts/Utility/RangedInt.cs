@@ -9,16 +9,24 @@ public class RangedInt
 
     public RangedInt(int value, int lower, int upper)
     {
+        if (upper < lower)
+        {
+            throw new System.ArgumentException("Bounds overlap");
+        }
+
+        if (value > upper || value < lower)
+        {
+            throw new System.ArgumentException("value outside bounds");
+        }
+
         this.value = value;
         this.lower = lower;
         this.upper = upper;
     }
 
     public RangedInt(int value, int lower)
+    : this(value, lower, int.MaxValue)
     {
-        this.value = value;
-        this.lower = lower;
-        upper = int.MaxValue;
     }
 
     public int Add(int amount)
