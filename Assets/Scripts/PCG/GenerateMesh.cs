@@ -7,27 +7,19 @@ public class GenerateMesh : MonoBehaviour
 	ColorIndexer colorIndex;
 	Vector3[] vectorMap;
 	int[] triangleMap;
-	Mesh meshMap;
+	public Mesh meshMap;
 	Vector2[] uvs;
-	public GameObject meshObject;
-	public Material terrainMaterial;
+	
 
-	void Start() {
-		
-	}
-
-	public void MakeMesh(int x, int z, float[,] heightMap, Texture texture, AnimationCurve animCurve, float amplifier)
+	public Mesh MakeMesh(int x, int z, float[,] heightMap, Texture texture, AnimationCurve animCurve, float amplifier)
 	{
 
-		meshMap = new Mesh();
-
+		
 
 		vectorMap = new Vector3[x * z];
 		triangleMap = new int[ 6 * (x-1) * (z-1) ];
 		uvs = new Vector2[x * z];
-		//WaterGenerator gen = new WaterGenerator();
-		Debug.Log("ok");
-		//gen.GenerateWater(heightMap, 0.25f);
+		
 		colorIndex = gameObject.GetComponent<ColorIndexer>();
 
 		int index = 0;
@@ -52,7 +44,7 @@ public class GenerateMesh : MonoBehaviour
 			}
 		}
 
-		terrainMaterial.SetTexture("_MainTex", texture);
+		
 
 
 		meshMap.vertices = vectorMap;
@@ -61,11 +53,7 @@ public class GenerateMesh : MonoBehaviour
 		meshMap.RecalculateNormals();
 
 
-
-		meshObject.GetComponent<MeshFilter>().mesh = meshMap;
-		meshObject.GetComponent<MeshRenderer>().material = terrainMaterial;
-		meshObject.GetComponent<MeshCollider>().sharedMesh = meshMap;
-
+		return meshMap;
 		
 	}
 

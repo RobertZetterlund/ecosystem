@@ -20,6 +20,8 @@ public class TerrainKernal : MonoBehaviour
     public AnimationCurve animCurve;
     public int seed;
     public GameObject waterPrefab;
+    public GameObject ground;
+    public Material terrainMaterial;
 
     Texture2D texture;
     Color[] colors;
@@ -33,6 +35,11 @@ public class TerrainKernal : MonoBehaviour
     private void Awake() 
     {
         
+        UpdateMap();
+    }
+
+    private void Start()
+    {
         UpdateMap();
     }
 
@@ -61,7 +68,7 @@ public class TerrainKernal : MonoBehaviour
 
             }
         }
-
+        terrainMaterial.SetTexture("_MainTex", texture);
         texture.SetPixels(colors);
         texture.Apply();
     }
@@ -70,9 +77,14 @@ public class TerrainKernal : MonoBehaviour
     public void GenerateMesh(){
         
         generator = gameObject.GetComponent<GenerateMesh>();
-        generator.MakeMesh(resolution, resolution, heightMap, texture,animCurve, amplifier);
+        Mesh mesh = generator.MakeMesh(resolution, resolution, heightMap, texture,animCurve, amplifier);
+
+        ground.GetComponent<MeshCollider>().sharedMesh = mesh;
+        ground.GetComponent<MeshFilter>().sharedMesh = mesh;
+        ground.GetComponent<MeshRenderer>().material = terrainMaterial;
+
         WaterGenerator waterGen = new WaterGenerator();
-        waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
+        /*waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
 
         int puddlesNow = 0;
         int puddlesBefore = puddleList.Count - 1;
@@ -97,7 +109,7 @@ public class TerrainKernal : MonoBehaviour
             DestroyImmediate(puddleList[i]);
             puddleList.RemoveAt(i);
         }
-
+        */
 
     }
 

@@ -63,7 +63,7 @@ public class Animal : MonoBehaviour, IConsumable
         navMeshAgent.speed = 5;
         // calculate instead if possible
         navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
-
+        
         CapsuleCollider c = gameObject.AddComponent(typeof(CapsuleCollider)) as CapsuleCollider;
         c.height = 2;
 
@@ -443,7 +443,19 @@ public class Animal : MonoBehaviour, IConsumable
     IEnumerator Walk()
     {
         Vector3 pos = ChooseNewDestination();
-        SetDestination(pos);
+        NavMeshPath path = new NavMeshPath();
+        bool canPath = navMeshAgent.CalculatePath(pos, path);
+      
+        if (path.status == NavMeshPathStatus.PathComplete && canPath)
+        {
+            SetDestination(pos);
+        }
+        else
+        {
+            transform.Rotate(Vector3.up, 40);
+            Walk();
+        }
+        
         yield return new WaitForSeconds(0);
     }
 
