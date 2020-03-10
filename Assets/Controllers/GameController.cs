@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    private int nPlants = 10;
-    private int nRabbits = 5;
+    private int nPlants = 100;
+    private int nRabbits = 100;
 
 
     void Start()

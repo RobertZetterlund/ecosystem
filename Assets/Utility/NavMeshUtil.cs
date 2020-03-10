@@ -38,4 +38,18 @@ public static class NavMeshUtil
         return point;
     }
 
+    public static Vector3 GetRandomLocationV2()
+    {
+        NavMeshTriangulation navMeshData = NavMesh.CalculateTriangulation();
+
+        // Pick the first indice of a random triangle in the nav mesh
+        int t = UnityEngine.Random.Range(0, navMeshData.indices.Length - 3);
+
+        // Select a random point on it
+        Vector3 point = Vector3.Lerp(navMeshData.vertices[navMeshData.indices[t]], navMeshData.vertices[navMeshData.indices[t + 1]], UnityEngine.Random.value);
+        Vector3.Lerp(point, navMeshData.vertices[navMeshData.indices[t + 2]], UnityEngine.Random.value);
+
+        return point;
+    }
+
 }
