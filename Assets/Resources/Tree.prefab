@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 439000493311392450}
   - component: {fileID: 4249461813539220622}
   - component: {fileID: 6516423034125926808}
-  - component: {fileID: 4984154890957427964}
   m_Layer: 0
   m_Name: Icosphere.008
   m_TagString: Plant
@@ -59,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 571dae4f3d9bd2b44830b8f10c380b21, type: 2}
+  - {fileID: 0}
   - {fileID: -4318571312361772713, guid: ad0e1cdff7021469586c742a797dc808, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -81,20 +80,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!64 &4984154890957427964
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4984154890957427965}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4245423045921417453, guid: 5eab7006de629400b8aac1e7e67a9110, type: 3}
 --- !u!1 &7784483297421020672
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,8 +89,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6508637731288726547}
+  - component: {fileID: 2716607164534956993}
   m_Layer: 0
-  m_Name: Tree3 1
+  m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -126,3 +112,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &2716607164534956993
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7784483297421020672}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}

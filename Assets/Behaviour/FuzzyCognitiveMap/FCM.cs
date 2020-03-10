@@ -83,6 +83,7 @@ public class FCM
      */
     public EntityAction GetAction()
     {
+        /*
         double sum = 0;
         for (int i = NOInputs; i < NOFields; i++)
         {
@@ -102,6 +103,22 @@ public class FCM
             }
         }
         return EntityAction.Idle;
+        */
+
+        double best = 0;
+        int best_action = 0;
+        for (int i = NOInputs; i < NOFields; i++)
+        {
+            if (states[i] >= best)
+            {
+                best = states[i];
+                best_action = i;
+            }
+                
+        }
+
+        return (EntityAction)translation.Reverse[best_action];
+
     }
 
     /**

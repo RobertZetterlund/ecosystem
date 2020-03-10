@@ -32,12 +32,13 @@ public class Animal : MonoBehaviour, IConsumable
     private RangedDouble infantFactor; // how big the child is in %
     private RangedDouble growthFactor; // how much you grow each tick
     private RangedDouble speed;
+    private GameObject targetGameObject;
 
     private Transform currentTargetTransform;
 
     //Debugging
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
-    public bool showFCMGizmo, showSenseRadiusGizmo = false;
+    public bool showFCMGizmo, showSenseRadiusGizmo = true;
 
     public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed)
     {
@@ -52,6 +53,7 @@ public class Animal : MonoBehaviour, IConsumable
 
         System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
+        targetGameObject = null;
 
 
     }
@@ -74,13 +76,13 @@ public class Animal : MonoBehaviour, IConsumable
 
 
 
-        senseRadius = 7;
+        senseRadius = 14;
 
         fcmHandler = new RabbitFCMHandler();
 
         sensors = new ISensor[1];
         sensors[0] = new AreaSensor(senseRadius);
-        StartCoroutine(GoToFood());
+        //StartCoroutine(GoToFood());
 
     }
 
@@ -94,18 +96,19 @@ public class Animal : MonoBehaviour, IConsumable
                 sensedGameObjects.Add(gameObject);
                 if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
                 {
-                    StopAllCoroutines();
+                    targetGameObject = gameObject;
+                    //StopAllCoroutines();
 
                     // decide to go towards that gameObject
 
-                    currentTargetTransform = gameObject.transform;
+                    //currentTargetTransform = gameObject.transform;
 
                     //FollowMyCurrentTarget(gameObject);
 
 
                     // break;
 
-                    SetDestination(gameObject.transform.position);
+                    //SetDestination(gameObject.transform.position);
                 }
             }
         }
@@ -116,7 +119,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     void FollowMyCurrentTarget(GameObject gameObject)
     {
-        while (currentTargetTransform != null ^ Vector3.Distance(currentTargetTransform.position, this.transform.position) < 5)
+        while (currentTargetTransform != null ^ Vector3.Distance(currentTargetTransform.position, this.transform.position) < 15)
         {
             // move to that thing lol
 
@@ -131,7 +134,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     private bool CloseEnoughToAct(Vector3 position1, Vector3 position2)
     {
-        return Vector3.Distance(currentTargetTransform.position, this.transform.position) < 1; //we probabbly need to update this number later on
+        return Vector3.Distance(position1, position2) < 5; //we probabbly need to update this number later on
     }
 
     protected void Act(IConsumable currentTarget)
@@ -153,14 +156,11 @@ public class Animal : MonoBehaviour, IConsumable
 
     private void Drink(IConsumable target)
     {
-        currentAction = EntityAction.Drinking;
         Consume(target);
-
     }
 
     private void Eat(IConsumable target)
     {
-        currentAction = EntityAction.Eating;
         Consume(target);
     }
 
@@ -227,51 +227,32 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void chooseNextAction()
     {
-        currentAction = fcmHandler.GetAction();
-        if (EntityAction.Idle == currentAction || EntityAction.Resting == currentAction) // && Maybe mate nearby or maybe theyre always searching
-        {
-            findMate();
-        }
-
-        // Get current action
-        bool eating = currentAction == EntityAction.Eating;
-        bool drinking = currentAction == EntityAction.Drinking;
-        //bool reproducing = currentAction == EntityAction.Reproducing; //Dont think we should allow animals to stop having sex. Once started they will finish
-
-
-        // More hungry than thirsty
-        if (hunger.GetValue() >= thirst.GetValue() || (eating && !isCriticallyThirsty()))
-        {
-            findFood();
-        }
-        // More thirsty than hungry
-        else if (thirst.GetValue() > hunger.GetValue() || (drinking && !isCriticallyHungry()))
-        {
-            findWater();
-        }
-
+        CheckCurrentAction(fcmHandler.GetAction());
+        //currentAction = fcmHandler.GetAction();
 
 
         //doAction();
         // a method that makes the animal eat, drink, or reproduce
     }
 
-    private void findFood()
+    private void CheckCurrentAction(EntityAction newAction)
     {
-        //some shit here
-        //currentAction = EntityAction.GoingToFood;
-    }
+        if(currentAction != newAction)
+        {
+            StopAllCoroutines();
+            currentAction = fcmHandler.GetAction();
+            switch (currentAction)
+            {
+                case EntityAction.GoingToWater:
+                    StartCoroutine(GoToWater());
+                    break;
 
-    private void findWater()
-    {
-        //some shit here
-        //currentAction = EntityAction.GoingToWater;
-    }
+                case EntityAction.GoingToFood:
+                    StartCoroutine(GoToFood());
+                    break;
+            }
+        }
 
-    private void findMate()
-    {
-        //Some shit here
-        //currentAction = EntityAction.SearchingForMate;
     }
 
     public bool isCriticallyThirsty()
@@ -418,6 +399,27 @@ public class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToFood()
     {
         yield return Search("Plant");
+        IConsumable consumable = targetGameObject.GetComponent<MyTestPlant>();
+        yield return Approach(targetGameObject);
+        for(int i = 0; i < 5; i++)
+        {
+            Eat(consumable); // take one bite
+            new WaitForSeconds(1);
+        }
+        
+        currentAction = EntityAction.Idle;
+        yield return null;
+   
+    }
+
+    public IEnumerator Approach(GameObject targetGameObject)
+    {
+        while(!CloseEnoughToAct(transform.position, targetGameObject.transform.position))
+        {
+            yield return new WaitForSeconds(0.1f);
+            SetDestination(targetGameObject.transform.position);
+        }
+        yield return null;
     }
 
     public IEnumerator GoToWater()
@@ -444,17 +446,19 @@ public class Animal : MonoBehaviour, IConsumable
     {
         Vector3 pos = ChooseNewDestination();
         SetDestination(pos);
-        yield return new WaitForSeconds(0);
+        yield return null;
     }
 
     public IEnumerator Search(string gametag)
     {
         targetGametag = gametag;
-        while (true)
+        while (targetGameObject == null)
         {
             yield return new WaitForSeconds(1);
             yield return Walk();
         }
+        yield return null;
+
     }
 
 
