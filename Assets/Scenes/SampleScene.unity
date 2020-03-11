@@ -38,11 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-<<<<<<< HEAD
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
-=======
   m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
->>>>>>> 06b4d5c261c5ee2c95c35961443c75f460e27e51
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -125,8 +121,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
-<<<<<<< HEAD
-=======
 --- !u!1001 &29506998
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -334,7 +328,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f1ce9bc9e1ecb437b9d7236848f21347, type: 3}
->>>>>>> 06b4d5c261c5ee2c95c35961443c75f460e27e51
 --- !u!1 &622434262
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,11 +386,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-<<<<<<< HEAD
-  m_RootOrder: 3
-=======
   m_RootOrder: 16
->>>>>>> 06b4d5c261c5ee2c95c35961443c75f460e27e51
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
@@ -489,10 +478,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-<<<<<<< HEAD
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
-=======
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1001 &923984550
@@ -564,7 +549,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f1ce9bc9e1ecb437b9d7236848f21347, type: 3}
->>>>>>> 06b4d5c261c5ee2c95c35961443c75f460e27e51
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,8 +645,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eec1e50f7398094dad7f592efc5aba7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< HEAD
-=======
 --- !u!1001 &1313434115
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1230,7 +1212,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f1ce9bc9e1ecb437b9d7236848f21347, type: 3}
->>>>>>> 06b4d5c261c5ee2c95c35961443c75f460e27e51
 --- !u!1 &2010045573
 GameObject:
   m_ObjectHideFlags: 0
@@ -1323,10 +1304,6 @@ Transform:
   m_LocalScale: {x: 20, y: 1, z: 20}
   m_Children: []
   m_Father: {fileID: 0}
-<<<<<<< HEAD
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2036089480
@@ -1398,4 +1375,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 07020b43838f04a868c1480d63c2d104, type: 3}
->>>>>>> 06b4d5c261c5ee2c95c35961443c75f460e27e51
