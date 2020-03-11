@@ -36,8 +36,8 @@ public static class OrganismFactory
     private static GameObject CreateRabbit()
     {
         //return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("TestC"));
-        model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("testR"));
+        //model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         return model;
     }
 
@@ -45,7 +45,7 @@ public static class OrganismFactory
     {
         //GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
         //GameObject model = (GameObject)Resources.Load("bush2");
-        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("bush2"));
+        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("Tree"));
         MyTestPlant plant = model.AddComponent<MyTestPlant>();
         plant.Init(size);
         plant.transform.position = location;
@@ -57,7 +57,7 @@ public static class OrganismFactory
         switch (species)
         {
             case Species.Rabbit:
-                return 1.9f;
+                return 0f;
             case Species.Plant:
                 return 0.1f;
             default:
