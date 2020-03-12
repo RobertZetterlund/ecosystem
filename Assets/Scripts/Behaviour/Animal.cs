@@ -24,6 +24,7 @@ public class Animal : MonoBehaviour, IConsumable
     private ISensor[] sensors;
     private float lastFCMUpdate = 0;
     private string targetGametag = "";
+    private ArrayList sensedGameObjects;
     private bool isMale;
     private Species species;
     private RangedInt nChildren; // how many kids you will have
@@ -88,7 +89,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     void Sense()
     {
-        ArrayList sensedGameObjects = new ArrayList();
+        sensedGameObjects = new ArrayList();
         foreach (ISensor sensor in sensors)
         {
             foreach (GameObject gameObject in sensor.Sense(transform))
@@ -237,6 +238,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     private void CheckCurrentAction(EntityAction newAction)
     {
+        
         if(currentAction != newAction)
         {
             StopAllCoroutines();
@@ -252,7 +254,30 @@ public class Animal : MonoBehaviour, IConsumable
                     break;
             }
         }
+        else
+        {
+            if(!GameObjectExists(targetGameObject))
+            {
+                //Debug.Log("I dont see my target");
+                currentAction = EntityAction.Idle;
+                //Choose the next bestTarget
 
+            }
+
+        }
+
+    }
+
+    private bool GameObjectExists(GameObject target)
+    {
+        foreach(GameObject gameObject in sensedGameObjects)
+        {
+            if (gameObject.Equals(target))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public bool isCriticallyThirsty()

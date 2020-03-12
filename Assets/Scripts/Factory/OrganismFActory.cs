@@ -22,7 +22,7 @@ public static class OrganismFactory
         Animal animal = gameObject.AddComponent<Animal>();
         animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed);
         NavMeshHit myNavHit;
-        if (NavMesh.SamplePosition(animal.transform.position, out myNavHit, 100, -1))
+        if (NavMesh.SamplePosition(location, out myNavHit, 100, -1))
         {
             animal.transform.position = myNavHit.position;
         }
