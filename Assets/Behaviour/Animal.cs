@@ -21,7 +21,7 @@ public class Animal : MonoBehaviour, IConsumable
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
     private float senseRadius;
-    private ISensor[] sensors;
+    private AbstractSensor[] sensors;
     private float lastFCMUpdate = 0;
     private string targetGametag = "";
     private bool isMale;
@@ -32,12 +32,16 @@ public class Animal : MonoBehaviour, IConsumable
     private RangedDouble infantFactor; // how big the child is in %
     private RangedDouble growthFactor; // how much you grow each tick
     private RangedDouble speed;
+    private float sightLength = 25;
+    private float smellRadius = 7;
+    private float horisontalFOV = 90;
+    private float verticalFOV = 45;
 
     private Transform currentTargetTransform;
 
     //Debugging
-    UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
-    public bool showFCMGizmo, showSenseRadiusGizmo = false;
+    //UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
+    public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo = false;
 
     public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed)
     {
@@ -60,7 +64,7 @@ public class Animal : MonoBehaviour, IConsumable
     void Start()
     {
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
-        navMeshAgent.speed = 5;
+        navMeshAgent.speed = (float)speed.GetValue();
         // calculate instead if possible
         navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
 
@@ -74,12 +78,13 @@ public class Animal : MonoBehaviour, IConsumable
 
 
 
-        senseRadius = 7;
+        senseRadius = 20;
 
         fcmHandler = new RabbitFCMHandler();
 
-        sensors = new ISensor[1];
-        sensors[0] = new AreaSensor(senseRadius);
+        sensors = new AbstractSensor[2];
+        sensors[0] = SensorFactory.SightSensor(sightLength, horisontalFOV, verticalFOV);
+        sensors[1] = SensorFactory.SmellSensor(smellRadius);
         StartCoroutine(GoToFood());
 
     }
@@ -87,10 +92,15 @@ public class Animal : MonoBehaviour, IConsumable
     void Sense()
     {
         ArrayList sensedGameObjects = new ArrayList();
-        foreach (ISensor sensor in sensors)
+        // This could be used for a more comfortable way of handling sensed events.
+        // Although I'm not 100% sure thats its working correctly atm. Not sure if we will need it either.
+        //ArrayList sensedObjectEvents = new ArrayList();
+        foreach (AbstractSensor sensor in sensors)
         {
             foreach (GameObject gameObject in sensor.Sense(transform))
             {
+                //SensedObjectEvent sensedObjectEvent = new SensedObjectEvent(this, gameObject, sensor.sensorType);
+                //sensedObjectEvents.Add(sensedObjectEvent);
                 sensedGameObjects.Add(gameObject);
                 if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
                 {
@@ -401,10 +411,45 @@ public class Animal : MonoBehaviour, IConsumable
                 Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
         }
 
-        if (showSenseRadiusGizmo)
+        /*if (showSenseRadiusGizmo)
         {
             Gizmos.color = SphereGizmoColor;
             Gizmos.DrawSphere(transform.position, senseRadius);
+        }*/
+
+        if(showSightGizmo)
+        {
+            float hFOV = horisontalFOV;
+            //float vFOV = verticalFOV;
+            var pos1 = transform.position + Quaternion.AngleAxis(hFOV / 2, transform.up) * transform.forward * sightLength;
+            //var pos2 = transform.position + Quaternion.AngleAxis(vFOV / 2, transform.right) * transform.forward * radius;
+            var pos2 = transform.position + Quaternion.AngleAxis(-hFOV / 2, transform.up) * transform.forward * sightLength;
+            //var pos4 = transform.position + Quaternion.AngleAxis(-vFOV / 2, transform.right) * transform.forward * radius;
+
+            Gizmos.DrawLine(transform.position, pos1);
+            Gizmos.DrawLine(transform.position, pos2);
+
+            var prev = pos2;
+            int start = (int)(-hFOV / 2);
+            int end = (int)(hFOV / 2);
+            for (int i = start; i <= end; i += 10)
+            {
+                var newpos = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * sightLength;
+                Gizmos.DrawLine(prev, newpos);
+                prev = newpos;
+            }
+        }
+        if (showSmellGizmo)
+        {
+            var pos1 = transform.position + Quaternion.AngleAxis(0, transform.up) * transform.forward * smellRadius;
+
+            var prev = pos1;
+            for (int i = 20; i <= 360; i += 20)
+            {
+                var newpos = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * smellRadius;
+                Gizmos.DrawLine(prev, newpos);
+                prev = newpos;
+            }
         }
 
 
