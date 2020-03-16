@@ -601,7 +601,6 @@ public class Animal : MonoBehaviour, IConsumable
     // update position and value of status bars
     private void UpdateStatusBars()
     {
-        Debug.Log(hunger.GetValue());
         statusBars.UpdateStatus((float)hunger.GetValue(), (float)thirst.GetValue(), (float)energy);
 
         Renderer rend = (Renderer)childRenderers[0]; // take the first one

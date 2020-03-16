@@ -24,10 +24,10 @@ public class MyTestPlant : MonoBehaviour, IConsumable
         gameObject.tag = "Plant";
 
 
-        navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
-        navMeshAgent.speed = 0;
+        //navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
+        //navMeshAgent.speed = 0;
         // calculate properly instead if possible
-        navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
+        //navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
         //senseRadius = 0;
         //senseRegistrator = new SenseRegistrator(this);
         //sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
