@@ -5,9 +5,8 @@ using UnityEngine;
 class RabbitFCMHandler : FCMHandler
 {
     private IFuzzifier fuzzifier;
-    public RabbitFCMHandler()
+    public RabbitFCMHandler(FCM fcm) : base(fcm)
     {
-        fcm = FCMFactory.RabbitFCM();
         fuzzifier = new DistanceFuzzifier();
     }
 
@@ -37,5 +36,10 @@ class RabbitFCMHandler : FCMHandler
         float inverse = 1 - standard;
         fcm.SetState((EntityField)close, standard);
         fcm.SetState((EntityField)far, inverse);
+    }
+
+    public override FCMHandler Reproduce(FCMHandler mateHandler)
+    {
+        return new RabbitFCMHandler(fcm.Reproduce(((RabbitFCMHandler)mateHandler).fcm));
     }
 }

@@ -40,12 +40,15 @@ public class Animal : MonoBehaviour, IConsumable
     private float verticalFOV = 45;
     private GameObject targetGameObject;
     private Transform currentTargetTransform;
+    // ui
+    private StatusBars statusBars;
+    private Component[] childRenderers;
 
     //Debugging
     public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
 
-    public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed)
+    public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, FCMHandler fcmHandler)
     {
         this.species = species;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
@@ -60,7 +63,7 @@ public class Animal : MonoBehaviour, IConsumable
         isMale = rand.NextDouble() >= 0.5;
         targetGameObject = null;
 
-
+        this.fcmHandler = fcmHandler;
     }
 
     // Start is called before the first frame update
@@ -82,11 +85,18 @@ public class Animal : MonoBehaviour, IConsumable
         //The concept of senseRadius does not make any sense anymore, but the variable is used still.
         senseRadius = 10;
 
-		fcmHandler = new RabbitFCMHandler();
         sensors = new AbstractSensor[2];
         sensors[0] = SensorFactory.SightSensor(sightLength, horisontalFOV, verticalFOV);
         sensors[1] = SensorFactory.SmellSensor(smellRadius);
-        
+
+        // update ui and visual traits
+        UpdateSize();
+        UnityEngine.Object prefab = Resources.Load("statusCanvas");
+        GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
+        statusBars = canvas.GetComponent(typeof(StatusBars)) as StatusBars;
+        canvas.transform.parent = gameObject.transform;
+        childRenderers = GetComponentsInChildren<Renderer>();
+        UpdateStatusBars();
     }
 
     void Sense()
@@ -182,6 +192,7 @@ public class Animal : MonoBehaviour, IConsumable
         {
             growth = maxSize.GetValue() * growthFactor.GetValue();
             size.Add(growth);
+            UpdateSize();
         }
         hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius));
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
@@ -195,6 +206,8 @@ public class Animal : MonoBehaviour, IConsumable
             lastFCMUpdate = Time.time;
             fcmHandler.CalculateFCM();
         }
+
+        UpdateStatusBars();
 
         chooseNextAction();
 
@@ -305,6 +318,12 @@ public class Animal : MonoBehaviour, IConsumable
             return;
         }
 
+        if (species != mate.species)
+        {
+            // if different species
+            return;
+        }
+
         if (!(isMale ^ mate.isMale))
         {
             // if same sex
@@ -334,6 +353,7 @@ public class Animal : MonoBehaviour, IConsumable
                     double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
                     double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
                     double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
+                    FCMHandler childHandler = fcmHandler.Reproduce(mate.fcmHandler);
 
                     Vector3 mother;
                     if (isMale)
@@ -345,7 +365,7 @@ public class Animal : MonoBehaviour, IConsumable
                         mother = transform.position;
                     }
 
-                    OrganismFactory.CreateAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, mother);
+                    OrganismFactory.CreateAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, mother, childHandler);
                 }
             }
             //code here for sex
@@ -565,11 +585,29 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return size.GetValue();
     }
-
+    
     public ConsumptionType GetConsumptionType()
     {
         return ConsumptionType.Animal;
 
+    }
+
+    private void UpdateSize()
+    {
+        Vector3 scale = gameObject.transform.localScale;
+        scale = scale * (float)size.GetValue();
+    }
+
+    // update position and value of status bars
+    private void UpdateStatusBars()
+    {
+        Debug.Log(hunger.GetValue());
+        statusBars.UpdateStatus((float)hunger.GetValue(), (float)thirst.GetValue(), (float)energy);
+
+        Renderer rend = (Renderer)childRenderers[0]; // take the first one
+        Vector3 center = rend.bounds.center;
+        float radius = rend.bounds.extents.magnitude;
+        statusBars.gameObject.transform.position = center + new Vector3(0, radius, 0);
     }
 
 }

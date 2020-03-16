@@ -6,7 +6,7 @@ using UnityEngine.AI;
  */
 public static class OrganismFactory
 {
-    public static void CreateAnimal(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, Vector3 location)
+    public static void CreateAnimal(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, Vector3 location, FCMHandler handler)
     {
         GameObject gameObject;
         switch (species)
@@ -20,7 +20,7 @@ public static class OrganismFactory
         }
 
         Animal animal = gameObject.AddComponent<Animal>();
-        animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed);
+        animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, handler);
         NavMeshHit myNavHit;
         if (NavMesh.SamplePosition(location, out myNavHit, 100, -1))
         {

@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using System;
 
 
 public class FCM
@@ -162,6 +164,125 @@ public class FCM
         }
 
         return s;
+    }
+
+    private EntityInput[] GetInputs()
+    {
+        EntityInput[] inputs = new EntityInput[NOInputs];
+        for (int i = 0; i < NOInputs; i++)
+        {
+            inputs[i] = (EntityInput)translation.Reverse[i];
+        }
+        return inputs;
+    }
+
+    private EntityAction[] GetActions()
+    {
+        EntityAction[] actions = new EntityAction[NOActions];
+        for (int i = NOInputs; i < NOFields; i++)
+        {
+            actions[i] = (EntityAction)translation.Reverse[i];
+        }
+        return actions;
+    }
+
+
+
+    internal FCM Reproduce(FCM mateFCM)
+    {
+        // make entity parameters for child
+        // basically take union of both parents
+        HashSet<EntityInput> inputs = new HashSet<EntityInput>(GetInputs());
+        HashSet<EntityAction> actions = new HashSet<EntityAction>(GetActions());
+
+        HashSet<EntityInput> mateInputs = new HashSet<EntityInput>(mateFCM.GetInputs());
+        HashSet<EntityAction> mateActions = new HashSet<EntityAction>(mateFCM.GetActions());
+
+        inputs.UnionWith(mateInputs);
+        actions.UnionWith(mateActions);
+
+        EntityInput[] childInputs = new EntityInput[inputs.Count];
+        EntityAction[] childActions = new EntityAction[actions.Count];
+
+        inputs.CopyTo(childInputs);
+        actions.CopyTo(childActions);
+
+        FCM child = new FCM(childInputs, childActions);
+
+        // calculate how many weights child should have
+        int weightedInputs = weights.GetLength(0);
+        int weightedActions = weights.GetLength(1);
+
+        int weightedMateInputs = mateFCM.weights.GetLength(0);
+        int weightedMateActions = mateFCM.weights.GetLength(1);
+
+        int maxWeightedInputs = Math.Max(weightedInputs, weightedMateInputs);
+        int maxWeightedActions = Math.Max(weightedActions, weightedMateActions);
+
+
+        double[,] childWeights = new double[maxWeightedInputs, maxWeightedActions];
+        // set flag for weights that dont exist
+        for (int i = 0; i < childWeights.GetLength(0); i++)
+        {
+            for (int j = 0; j < childWeights.GetLength(1); j++)
+            {
+                childWeights[i, j] = double.MinValue;
+            }
+        }
+        // add my weights
+        for (int i = 0; i < weightedInputs; i++)
+        {
+            for (int j = 0; j < weightedActions; j++)
+            {
+                childWeights[i, j] = weights[i, j];
+            }
+        }
+        // add mate's weights
+        for (int i = 0; i < weightedMateInputs; i++)
+        {
+            for (int j = 0; j < weightedMateActions; j++)
+            {
+                // if weight already added, do crossover
+                if (childWeights[i, j] != double.MinValue)
+                {
+                    double geneA = weights[i, j];
+                    double geneB = mateFCM.weights[i, j];
+                    childWeights[i, j] = ReproductionUtility.Crossover(geneA, geneB);
+
+                }
+                else // else just add
+                {
+                    childWeights[i, j] = weights[i, j];
+                }
+            }
+        }
+
+        // mutate and add to child
+        for (int i = 0; i < maxWeightedInputs; i++)
+        {
+            for (int j = 0; j < maxWeightedActions; j++)
+            {
+                child.SetWeight((EntityField)i, (EntityField)j,
+                    ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights[i, j], -1, 1)).GetValue());
+            }
+        }
+
+        // dont set states for now, maybe kid shouldnt know anything? idk
+        /*
+        // set states
+        int states = this.states.Length;
+        int mateStates = mateFCM.states.Length;
+
+        int maxStates = Math.Max(states, mateStates);
+        double[] childstates = new double[maxStates];
+
+        foreach (double state in states)
+        {
+            fcm.SetState(EntityField.WaterFar, 1);
+        }
+        */
+
+        return child;
     }
 
 }

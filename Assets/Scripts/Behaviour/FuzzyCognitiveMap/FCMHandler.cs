@@ -7,12 +7,13 @@ using UnityEngine;
  * from a SenseRegistrator
  * 
  */
-abstract class FCMHandler
+public abstract class FCMHandler
 {
     protected FCM fcm;
 
-    public FCMHandler()
+    public FCMHandler(FCM fcm)
     {
+        this.fcm = fcm;
     }
 
     public void CalculateFCM()
@@ -32,4 +33,5 @@ abstract class FCMHandler
 
     public abstract void ProcessSensedObjects(Animal animal, ArrayList gameObjects);
 
+    public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 }

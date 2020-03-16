@@ -19,6 +19,18 @@ public static class ReproductionUtility
         return crossedGene;
     }
 
+    // Crossover and mutate
+    public static RangedDouble ReproduceRangedDouble(RangedDouble gene)
+    {
+
+        System.Random random = new System.Random();
+        if (random.NextDouble() < MUTATION_CHANCE)
+        {
+            return MutateRangedDouble(gene);
+        }
+        return gene;
+    }
+
     public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
     {
         RangedInt crossedGene = Crossover(geneA, geneB);
@@ -45,7 +57,7 @@ public static class ReproductionUtility
     }
 
     // Crossover help function
-    private static T Crossover<T>(T geneA, T geneB)
+    public static T Crossover<T>(T geneA, T geneB)
     {
         System.Random rand = new System.Random();
         if (rand.Next(2) == 1)
