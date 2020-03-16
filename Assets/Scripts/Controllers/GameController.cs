@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour
         // spawn first plants
         for (int i = 0; i < nPlants; i++)
         {
-            OrganismFactory.CreatePlant(1,NavMeshUtil.GetRandomLocation());
+            OrganismFactory.CreatePlant(1, NavMeshUtil.GetRandomLocation());
         }
 
 
