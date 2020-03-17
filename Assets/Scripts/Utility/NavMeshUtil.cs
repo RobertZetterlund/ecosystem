@@ -35,6 +35,11 @@ public static class NavMeshUtil
         }
         //Vector3.Lerp(point, navMeshData.vertices[navMeshData.indices[t + 2]], Random.value); //Made Obsolete
 
+        NavMeshHit myNavHit;
+        if (NavMesh.SamplePosition(point, out myNavHit, 100, -1))
+        {
+            point = myNavHit.position;
+        }
         return point;
     }
 
@@ -49,6 +54,11 @@ public static class NavMeshUtil
         Vector3 point = Vector3.Lerp(navMeshData.vertices[navMeshData.indices[t]], navMeshData.vertices[navMeshData.indices[t + 1]], UnityEngine.Random.value);
         Vector3.Lerp(point, navMeshData.vertices[navMeshData.indices[t + 2]], UnityEngine.Random.value);
 
+        NavMeshHit myNavHit;
+        if (NavMesh.SamplePosition(point, out myNavHit, 100, -1))
+        {
+            point = myNavHit.position;
+        }
         return point;
     }
 

@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    private int nPlants = 1;
-    private static int nRabbits = 5;
+    private int nPlants = 100;
+    private static int nRabbits = 50;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
 
 
