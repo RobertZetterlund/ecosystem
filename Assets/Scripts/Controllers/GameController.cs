@@ -6,6 +6,7 @@ public class GameController : MonoBehaviour
     private int nPlants = 100;
     private static int nRabbits = 50;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
+    private static bool respawn = true;
 
 
     void Start()
@@ -48,9 +49,12 @@ public class GameController : MonoBehaviour
     public static void Unregister(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, FCMHandler fcmHandler)
     {
         nAliveAnimals[(int)species]--;
-        if (nAliveAnimals[(int)species] == 0)
+        if (respawn)
         {
-            SpawnAnimal(species, maxSize, dietFactor, nChildren, infantFactor,growthFactor, speed, fcmHandler);
+            if (nAliveAnimals[(int)species] == 0)
+            {
+                SpawnAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, fcmHandler);
+            }
         }
 
     }
