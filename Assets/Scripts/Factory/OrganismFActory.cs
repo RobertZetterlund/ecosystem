@@ -21,11 +21,8 @@ public static class OrganismFactory
 
         Animal animal = gameObject.AddComponent<Animal>();
         animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, handler);
-        NavMeshHit myNavHit;
-        if (NavMesh.SamplePosition(location, out myNavHit, 100, -1))
-        {
-            animal.transform.position = myNavHit.position;
-        }
+        animal.transform.position = location;
+
         
 
 

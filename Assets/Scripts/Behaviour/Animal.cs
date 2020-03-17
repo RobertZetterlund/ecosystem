@@ -64,6 +64,8 @@ public class Animal : MonoBehaviour, IConsumable
         targetGameObject = null;
 
         this.fcmHandler = fcmHandler;
+
+        GameController.Register(species);
     }
 
     // Start is called before the first frame update
@@ -240,8 +242,8 @@ public class Animal : MonoBehaviour, IConsumable
         {
             dead = true;
             //Something.log(cause);
-            //Environment.RegisterDeath (this);
-            //Destroy (gameObject);
+            GameController.Unregister(species, maxSize.GetValue(), dietFactor.GetValue(), nChildren.GetValue(), infantFactor.GetValue(), growthFactor.GetValue(), speed.GetValue(), fcmHandler);
+            Destroy(gameObject);
         }
 
     }
