@@ -8,29 +8,33 @@ using UnityEngine.AI;
 
 public class Animal : MonoBehaviour, IConsumable
 {
+    // traits that could be in fcm:
     private RangedDouble hunger = new RangedDouble(0, 0, 1);
     private RangedDouble thirst = new RangedDouble(0, 0, 1);
+    private double energy = 1;
+    private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
+    protected EntityAction currentAction = EntityAction.Idle;
+    private bool isMale;
+    private RangedInt nChildren; // how many kids you will have
+    private RangedDouble size;
+    private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
+    private RangedDouble speed;
+    // internal traits
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
     private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
-    private double energy = 1;
-    private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
-    protected EntityAction currentAction = EntityAction.Idle;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
     private float lastFCMUpdate = 0;
     private string targetGametag = "";
     private ArrayList sensedGameObjects;
-    private bool isMale;
     private Species species;
-    private RangedInt nChildren; // how many kids you will have
-    private RangedDouble size;
     private RangedDouble maxSize;
     private RangedDouble infantFactor; // how big the child is in %
     private RangedDouble growthFactor; // how much you grow each tick
-    private RangedDouble speed;
+    private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
     // senses
     private float senseRadius;
 	private AbstractSensor[] sensors;
@@ -48,7 +52,7 @@ public class Animal : MonoBehaviour, IConsumable
     public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
 
-    public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, FCMHandler fcmHandler)
+    public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, FCMHandler fcmHandler, double heatTimer)
     {
         this.species = species;
         this.dietFactor = new RangedDouble(dietFactor, 0, 1);
@@ -58,12 +62,13 @@ public class Animal : MonoBehaviour, IConsumable
         this.infantFactor = new RangedDouble(infantFactor, 0, 1);
         this.growthFactor = new RangedDouble(growthFactor, 0, 1);
         this.speed = new RangedDouble(speed, 0);
-
+        this.fcmHandler = fcmHandler;
         System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
+        this.heatTimer = new RangedDouble(heatTimer, 1);
+
         targetGameObject = null;
 
-        this.fcmHandler = fcmHandler;
 
         GameController.Register(species);
     }
@@ -202,6 +207,8 @@ public class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1 / lifespan;
 
+        heat.Add(1 / heatTimer.GetValue());
+
         Sense();
         if ((Time.time - lastFCMUpdate) > 1)
         {
@@ -216,6 +223,7 @@ public class Animal : MonoBehaviour, IConsumable
         //check if the animal is dead
         isDead();
 
+        
     }
 
 
@@ -242,7 +250,7 @@ public class Animal : MonoBehaviour, IConsumable
         {
             dead = true;
             //Something.log(cause);
-            GameController.Unregister(species, maxSize.GetValue(), dietFactor.GetValue(), nChildren.GetValue(), infantFactor.GetValue(), growthFactor.GetValue(), speed.GetValue(), fcmHandler);
+            GameController.Unregister(species, maxSize.GetValue(), dietFactor.GetValue(), nChildren.GetValue(), infantFactor.GetValue(), growthFactor.GetValue(), speed.GetValue(), fcmHandler, heatTimer.GetValue());
             Destroy(gameObject);
         }
 
@@ -356,6 +364,7 @@ public class Animal : MonoBehaviour, IConsumable
                     double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
                     double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
                     FCMHandler childHandler = fcmHandler.Reproduce(mate.fcmHandler);
+                    double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
 
                     Vector3 mother;
                     if (isMale)
@@ -367,7 +376,7 @@ public class Animal : MonoBehaviour, IConsumable
                         mother = transform.position;
                     }
 
-                    OrganismFactory.CreateAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, mother, childHandler);
+                    OrganismFactory.CreateAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, mother, childHandler, heatTimer);
                 }
             }
             //code here for sex
