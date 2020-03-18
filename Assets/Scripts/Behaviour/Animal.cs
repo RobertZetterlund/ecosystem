@@ -52,7 +52,8 @@ public class Animal : MonoBehaviour, IConsumable
     public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
     // trait copy for easier logging etc
-    AnimalTraits traits;
+    private AnimalTraits traits;
+    private bool logNext = false;
 
     public void Init(AnimalTraits traits)
     {
@@ -220,14 +221,20 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
         UpdateStatusBars();
-        TraitLogger.Log(traits);
+        if (logNext)
+        {
+            TraitLogger.Log(traits);
+        }
 
         chooseNextAction();
 
         //check if the animal is dead
-        isDead();
+        isDead(); 
+    }
 
-        
+    void LateUpdate()
+    {
+        logNext = TraitLogger.logNext;
     }
 
 
