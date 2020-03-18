@@ -5,6 +5,7 @@ using System.Drawing;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using Assets.Scripts;
 
 public class Animal : MonoBehaviour, IConsumable
 {
@@ -47,28 +48,30 @@ public class Animal : MonoBehaviour, IConsumable
     // ui
     private StatusBars statusBars;
     private Component[] childRenderers;
-
     //Debugging
     public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
+    // trait copy for easier logging etc
+    AnimalTraits traits;
 
-    public void Init(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, FCMHandler fcmHandler, double heatTimer)
+    public void Init(AnimalTraits traits)
     {
-        this.species = species;
-        this.dietFactor = new RangedDouble(dietFactor, 0, 1);
-        this.maxSize = new RangedDouble(maxSize, 0);
-        this.size = new RangedDouble(maxSize * infantFactor, 0, maxSize);
-        this.nChildren = new RangedInt(nChildren, 1);
-        this.infantFactor = new RangedDouble(infantFactor, 0, 1);
-        this.growthFactor = new RangedDouble(growthFactor, 0, 1);
-        this.speed = new RangedDouble(speed, 0);
-        this.fcmHandler = fcmHandler;
+        this.species = traits.species;
+        this.dietFactor = new RangedDouble(traits.dietFactor, 0, 1);
+        this.maxSize = new RangedDouble(traits.maxSize, 0);
+        this.size = new RangedDouble(traits.maxSize * traits.infantFactor, 0, traits.maxSize);
+        this.nChildren = new RangedInt(traits.nChildren, 1);
+        this.infantFactor = new RangedDouble(traits.infantFactor, 0, 1);
+        this.growthFactor = new RangedDouble(traits.growthFactor, 0, 1);
+        this.speed = new RangedDouble(traits.speed, 0);
+        this.fcmHandler = traits.fcmHandler;
         System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
-        this.heatTimer = new RangedDouble(heatTimer, 1);
+        this.heatTimer = new RangedDouble(traits.heatTimer, 1);
+
+        this.traits = traits;
 
         targetGameObject = null;
-
 
         GameController.Register(species);
     }
@@ -217,6 +220,7 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
         UpdateStatusBars();
+        TraitLogger.Log(traits);
 
         chooseNextAction();
 
@@ -250,7 +254,7 @@ public class Animal : MonoBehaviour, IConsumable
         {
             dead = true;
             //Something.log(cause);
-            GameController.Unregister(species, maxSize.GetValue(), dietFactor.GetValue(), nChildren.GetValue(), infantFactor.GetValue(), growthFactor.GetValue(), speed.GetValue(), fcmHandler, heatTimer.GetValue());
+            GameController.Unregister(traits);
             Destroy(gameObject);
         }
 
@@ -366,8 +370,10 @@ public class Animal : MonoBehaviour, IConsumable
                     double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
                     double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
                     double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
-                    FCMHandler childHandler = fcmHandler.Reproduce(mate.fcmHandler);
                     double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
+                    FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
+
+                    AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
 
                     Vector3 mother;
                     if (isMale)
@@ -379,7 +385,7 @@ public class Animal : MonoBehaviour, IConsumable
                         mother = transform.position;
                     }
 
-                    OrganismFactory.CreateAnimal(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, mother, childHandler, heatTimer);
+                    OrganismFactory.CreateAnimal(child, mother);
                 }
             }
             //code here for sex
