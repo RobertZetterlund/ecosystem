@@ -322,6 +322,9 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void Reproduce(Animal mate)
     {
+        // reduce heat (assume you did the fucko but even if the animals were incompatible biologically)
+        heat.Add(-1);
+
         if (size.GetValue() < maxSize.GetValue())
         {
             // if still a child or wounded
