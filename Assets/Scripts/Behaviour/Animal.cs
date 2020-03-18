@@ -552,23 +552,22 @@ public class Animal : MonoBehaviour, IConsumable
     IEnumerator Walk()
     {
         Vector3 pos = ChooseNewDestination();
-
-        //SetDestination(pos);
-        //yield return null;
-
         NavMeshPath path = new NavMeshPath();
         bool canPath = navMeshAgent.CalculatePath(pos, path);
-      
+
         if (path.status == NavMeshPathStatus.PathComplete && canPath)
         {
             SetDestination(pos);
         }
         else
         {
-            transform.Rotate(Vector3.up, 40);
-            Walk();
+            NavMeshHit myNavHit;
+            if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
+            {
+                SetDestination(myNavHit.position);
+            }
         }
-        
+
         yield return new WaitForSeconds(0);
     }
 
