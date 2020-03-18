@@ -5,7 +5,7 @@ using Assets.Scripts;
 public class GameController : MonoBehaviour
 {
     private int nPlants = 100;
-    private static int nRabbits = 3;
+    private static int nRabbits = 50;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
     private static bool respawn = true;
 
@@ -13,8 +13,8 @@ public class GameController : MonoBehaviour
     void Start()
     {
         // spawn first rabbits
-        AnimalTraits traits = new AnimalTraits(Species.Rabbit, 1, 1, 3, 0.1, 0.02, 4, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
-        SpawnAnimal(traits);
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 1, 3, 0.1, 0.02, 4, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        SpawnAnimal(rabbitTraits);
         // spawn first plants
         for (int i = 0; i < nPlants; i++)
         {
@@ -30,6 +30,7 @@ public class GameController : MonoBehaviour
             case Species.Rabbit:
                 for (int i = 0; i < nRabbits; i++)
                 {
+                    traits.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
                     OrganismFactory.CreateAnimal(traits, NavMeshUtil.GetRandomLocation());
                 }
                 break;
