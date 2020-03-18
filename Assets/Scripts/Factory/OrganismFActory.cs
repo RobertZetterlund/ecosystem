@@ -1,15 +1,16 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.AI;
+using Assets.Scripts;
 /*
  * Class for creating animals
  */
 public static class OrganismFactory
 {
-    public static void CreateAnimal(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, Vector3 location, FCMHandler handler, double heatTimer)
+    public static void CreateAnimal(AnimalTraits traits, Vector3 location)
     {
         GameObject gameObject;
-        switch (species)
+        switch (traits.species)
         {
             case Species.Rabbit:
                 gameObject = CreateRabbit();
@@ -20,7 +21,7 @@ public static class OrganismFactory
         }
 
         Animal animal = gameObject.AddComponent<Animal>();
-        animal.Init(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, handler, heatTimer);
+        animal.Init(traits);
         animal.transform.position = location;
 
         
