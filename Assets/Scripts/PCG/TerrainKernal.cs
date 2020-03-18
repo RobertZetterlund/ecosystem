@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using DelaunatorSharp.Interfaces;
+using DelaunatorSharp.Models;
 
 public class TerrainKernal : MonoBehaviour
 {
@@ -22,21 +25,27 @@ public class TerrainKernal : MonoBehaviour
     public GameObject waterPrefab;
     public GameObject ground;
     public Material terrainMaterial;
+    public Material waterTempMaterial;
 
     Texture2D texture;
     Color[] colors;
 
     List<List<Vector2>> waterList;
+    [SerializeField]
     List<GameObject> puddleList = new List<GameObject>();
 
     GenerateMesh generator;
     ColorIndexer colorIndex;
+    
 
-    private void Awake() 
+    private void Awake()
     {
         
         UpdateMap();
+        
     }
+
+
 
     private void Start()
     {
@@ -71,6 +80,7 @@ public class TerrainKernal : MonoBehaviour
         terrainMaterial.SetTexture("_MainTex", texture);
         texture.SetPixels(colors);
         texture.Apply();
+        
     }
 
 
@@ -83,37 +93,36 @@ public class TerrainKernal : MonoBehaviour
         ground.GetComponent<MeshFilter>().sharedMesh = mesh;
         ground.GetComponent<MeshRenderer>().material = terrainMaterial;
 
+        
+
+      
         WaterGenerator waterGen = new WaterGenerator();
-        /*waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
-
-        int puddlesNow = 0;
-        int puddlesBefore = puddleList.Count - 1;
-
-        foreach(List<Vector2> cluster in waterList)
+        waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
+        if (puddleList.Count != 0)
         {
-            if(puddlesNow <= puddlesBefore)
+            foreach (GameObject obj in puddleList)
             {
-                AddWater(cluster, puddleList[puddlesNow]);
-
-            }else{
-
-                puddleList.Add(Instantiate(waterPrefab));
-                AddWater(cluster, puddleList[puddlesNow]);
-
+                
+                DestroyImmediate(obj);
             }
-            puddlesNow++;
+            puddleList = new List<GameObject>();
         }
 
-        for(int i = puddlesBefore; i > puddlesNow; i--)
+        foreach (List<Vector2> cluster in waterList)
         {
-            DestroyImmediate(puddleList[i]);
-            puddleList.RemoveAt(i);
+            GameObject obj = new GameObject();
+            puddleList.Add(obj);
+            AddWater(cluster, obj);
+
+         
         }
-        */
+
+        
+
 
     }
 
-
+    /*
     public void AddWater(List<Vector2> cluster, GameObject puddle)
     {
         float maxX = float.MinValue;
@@ -150,8 +159,54 @@ public class TerrainKernal : MonoBehaviour
         puddle.transform.position = new Vector3(meanX, amplifier*animCurve.Evaluate(0.25f), meanZ);
         puddle.transform.localScale =  new Vector3(maxR, 1f, maxR);
 
-    }
+    }*/
 
+    public void AddWater(List<Vector2> lVertices2D, GameObject newObject)
+    {
+       
+
+        lVertices2D.OrderBy(p => p.y).ThenBy(p => p.x);
+            
+
+        Vector2[] vertices2D = lVertices2D.ToArray();
+        List<IPoint> points = new List<IPoint>();
+
+        foreach (Vector2 vec in vertices2D)
+        {
+            points.Add(new Point(vec.x, vec.y));
+        }
+        DelaunatorSharp.Delaunator del = new DelaunatorSharp.Delaunator(points);
+
+
+        // Create the Vector3 vertices
+        Vector3[] vertices = new Vector3[vertices2D.Length];
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] = new Vector3(vertices2D[i].x, amplifier * animCurve.Evaluate(0.25f), vertices2D[i].y);
+        }
+
+        int[] indices = del.Triangles;
+        // Create the mesh
+        Mesh msh = new Mesh();
+        msh.vertices = vertices;
+        msh.triangles = indices;
+        msh.RecalculateNormals();
+        msh.RecalculateBounds();
+
+        // Set up game object with mesh;
+        
+
+        newObject.AddComponent(typeof(MeshRenderer));
+        var rend = newObject.GetComponent<MeshRenderer>();
+        Material[] mat = new Material[1];
+        mat[0] = waterTempMaterial;
+        rend.materials = mat;
+        MeshFilter filter = newObject.AddComponent(typeof(MeshFilter)) as MeshFilter;
+        newObject.AddComponent(typeof(MeshCollider));
+        filter.mesh = msh;
+
+        
+    }
     public void GenerateMap(){
         
 
@@ -163,6 +218,17 @@ public class TerrainKernal : MonoBehaviour
         mat.SetTexture("_MainTex", texture);
 
         testObject.GetComponent<MeshRenderer>().material = mat;
+    }
+
+    private void OnApplicationQuit()
+    {
+        Debug.Log("hej");
+        foreach (GameObject obj in puddleList)
+        {
+
+            DestroyImmediate(obj);
+            puddleList = new List<GameObject>();
+        }
     }
 
 }
