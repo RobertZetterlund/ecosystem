@@ -30,6 +30,19 @@ namespace Assets.Scripts
             this.heatTimer = heatTimer;
             this.fcmHandler = fcmHandler;
         }
+
+        public (double, string)[] GetNumericalTraits()
+        {
+            (double, string)[] traits = new (double, string)[7];
+            traits[0] = (maxSize, "max size");
+            traits[1] = (dietFactor, "diet factor");
+            traits[2] = ((double)nChildren, "#children");
+            traits[3] = (infantFactor, "infant factor");
+            traits[4] = (growthFactor, "growth factor");
+            traits[5] = (speed, "speed");
+            traits[6] = (heatTimer, "heat Timer");
+            return traits;
+        }
     }
 
 

@@ -220,6 +220,7 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
         UpdateStatusBars();
+        TraitLogger.Log(traits);
 
         chooseNextAction();
 
