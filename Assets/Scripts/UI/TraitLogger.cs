@@ -7,6 +7,7 @@ public class TraitLogger : MonoBehaviour
 {
     private static (double,string)[][] currentTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
+    private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
     private int counter = 0;
     public static bool logNext = false;
     private int logInterval = 300;
@@ -36,10 +37,9 @@ public class TraitLogger : MonoBehaviour
         {
             // maybe need to add empty entries for when a species is temporarily dead
 
-
+            Save();
             for (int i = 0; i < Species.GetValues(typeof(Species)).Length; i++)
             {
-                Visualize((Species)i);
                 nAnimals[i] = 0; // refresh 
             }
         }
@@ -64,8 +64,10 @@ public class TraitLogger : MonoBehaviour
     }
 
     // draw and or log current averages;
-    private void Visualize(Species species)
+    private void Save()
     {
         // flera species,   flera traits för varje  s          flera averages för varje t
+        // if species entry doesnt exist, add blank null
+
     }
 }
