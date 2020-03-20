@@ -77,7 +77,7 @@ public class TraitLogger : MonoBehaviour
         if (firstSave)
         {
             row = MakeRow(true).Append("\n").Append(row);
-            filename = "Logs/Trait Logs/Trait Log " + DateTime.Now.ToString("M-dd--HH-mm-ss") + ".txt";
+            filename = "Graphs and Logs/Trait Logs/Trait Log " + DateTime.Now.ToString("M-dd--HH-mm-ss") + ".txt";
             firstSave = false;
         }
         //File.WriteAllText(filename, row.ToString());
