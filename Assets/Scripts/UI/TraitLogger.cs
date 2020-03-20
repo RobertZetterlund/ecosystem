@@ -77,11 +77,11 @@ public class TraitLogger : MonoBehaviour
         if (firstSave)
         {
             row = MakeRow(true).Append("\n").Append(row);
-            filename = "Logs/Trait Log " + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+            filename = "Logs/Trait Logs/Trait Log " + DateTime.Now.ToString("M-dd--HH-mm-ss") + ".txt";
             firstSave = false;
         }
         //File.WriteAllText(filename, row.ToString());
-        using (StreamWriter writeText = new StreamWriter(filename +".txt", true))
+        using (StreamWriter writeText = new StreamWriter(filename, true))
         {
             writeText.WriteLine(row.ToString());
         }
@@ -100,11 +100,11 @@ public class TraitLogger : MonoBehaviour
                 {
                     row.Append(((Species)i).ToString());
                     row.Append('-');
-                    row.Append("population, ");
+                    row.Append("population,");
                 } else
                 {
                     row.Append(nAnimals[i]);
-                    row.Append(", ");
+                    row.Append(",");
                 }
                 // make an entry for each trait
                 for (int j = 0; j < currentTotals[i].Length; j++)
@@ -117,13 +117,14 @@ public class TraitLogger : MonoBehaviour
                         row.Append(currentTotals[i][j].Item2);
                     } else
                     {
-                        row.Append(currentTotals[i][j].Item1/nAnimals[i]); // average
+                        // average
+                        row.Append((currentTotals[i][j].Item1/nAnimals[i]).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)); 
                     }
-                    row.Append(", ");
+                    row.Append(",");
                 }
             }
         }
-        row.Length -= 2; // remove ", "
+        row.Length -= 1; // remove ","
         return row;
     }
 }
