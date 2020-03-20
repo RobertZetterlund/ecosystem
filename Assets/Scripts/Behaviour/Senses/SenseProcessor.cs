@@ -1,9 +1,11 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class SenseProcessor
 {
+    
     Animal self;
     GameObject closestFoodObj;
     GameObject closestFoe;
@@ -69,4 +71,6 @@ public class SenseProcessor
 
         return closestFoodObj;
     }
+    
 }
+*/

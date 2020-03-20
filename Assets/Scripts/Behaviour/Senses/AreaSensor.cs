@@ -89,7 +89,7 @@ public class AreaSensor : AbstractSensor
                     continue;
                 }
             }
-            Debug.Log("Found " + sensedObject.tag + " with " + sensorType);
+            //Debug.Log("Found " + sensedObject.tag + " with " + sensorType);
             sensedGameObjects.Add(sensedObject);
         }
         return sensedGameObjects.ToArray();

@@ -427,13 +427,13 @@ public class Animal : MonoBehaviour, IConsumable
         switch (type)
         {
             case ConsumptionType.Water:
-                thirst.Add(-amount);
+                thirst.Add(amount);
                 break;
             case ConsumptionType.Animal:
-                hunger.Add(-amount * dietFactor.GetValue());
+                hunger.Add(amount * dietFactor.GetValue());
                 break;
             case ConsumptionType.Plant:
-                hunger.Add(-amount * (1 - dietFactor.GetValue()));
+                hunger.Add(amount * (1 - dietFactor.GetValue()));
                 break;
         }
     }

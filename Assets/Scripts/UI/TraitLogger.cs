@@ -12,9 +12,9 @@ public class TraitLogger : MonoBehaviour
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     // current total might not exist when all animals are dead, but we still want to log so we need this
     private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
-    private int counter = 0;
+    private int counter = 2; // dont log at t=0
     public static bool logNext = false;
-    private int logInterval = 300;
+    private int logInterval = 100;
     private bool firstSave = true;
     private string filename; 
 
@@ -76,10 +76,15 @@ public class TraitLogger : MonoBehaviour
         StringBuilder row = MakeRow(false);
         if (firstSave)
         {
-            row = MakeRow(true).Append(row);
-            filename = "Trait Log " + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+            row = MakeRow(true).Append("\n").Append(row);
+            filename = "Logs/Trait Log " + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+            firstSave = false;
         }
-        File.WriteAllText(filename, row.ToString());
+        //File.WriteAllText(filename, row.ToString());
+        using (StreamWriter writeText = new StreamWriter(filename +".txt", true))
+        {
+            writeText.WriteLine(row.ToString());
+        }
     }
 
     private StringBuilder MakeRow(bool isHeader)
@@ -90,10 +95,23 @@ public class TraitLogger : MonoBehaviour
             // make 1 column or each trait and species
             if (loggableSpecies[i] == 1)
             {
+                // make entry for each population
+                if (isHeader)
+                {
+                    row.Append(((Species)i).ToString());
+                    row.Append('-');
+                    row.Append("population, ");
+                } else
+                {
+                    row.Append(nAnimals[i]);
+                    row.Append(", ");
+                }
+                // make an entry for each trait
                 for (int j = 0; j < currentTotals[i].Length; j++)
                 {
                     if (isHeader)
                     {
+                        // "e.g Rabbit-speed"
                         row.Append(((Species)i).ToString());
                         row.Append('-');
                         row.Append(currentTotals[i][j].Item2);
@@ -106,7 +124,6 @@ public class TraitLogger : MonoBehaviour
             }
         }
         row.Length -= 2; // remove ", "
-        row.Append("\n");
         return row;
     }
 }

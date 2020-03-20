@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         // spawn first rabbits
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 1, 3, 0.1, 0.02, 4, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 0, 3, 0.1, 0.02, 4, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
         SpawnAnimal(rabbitTraits);
         // spawn first plants
         for (int i = 0; i < nPlants; i++)
