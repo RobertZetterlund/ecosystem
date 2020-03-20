@@ -1,16 +1,22 @@
 ﻿using Assets.Scripts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 public class TraitLogger : MonoBehaviour
 {
     private static (double,string)[][] currentTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
+    // current total might not exist when all animals are dead, but we still want to log so we need this
     private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
     private int counter = 0;
     public static bool logNext = false;
     private int logInterval = 300;
+    private bool firstSave = true;
+    private string filename; 
 
     // Start is called before the first frame update
     void Start()
@@ -48,6 +54,7 @@ public class TraitLogger : MonoBehaviour
     public static void Log(AnimalTraits traits)
     {
         nAnimals[(int)traits.species]++;
+        loggableSpecies[(int)traits.species] = 1;
         (double, string)[] traitValues = traits.GetNumericalTraits();
 
         if (nAnimals[(int)traits.species] == 1)
@@ -66,8 +73,40 @@ public class TraitLogger : MonoBehaviour
     // draw and or log current averages;
     private void Save()
     {
-        // flera species,   flera traits för varje  s          flera averages för varje t
-        // if species entry doesnt exist, add blank null
+        StringBuilder row = MakeRow(false);
+        if (firstSave)
+        {
+            row = MakeRow(true).Append(row);
+            filename = "Trait Log " + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+        }
+        File.WriteAllText(filename, row.ToString());
+    }
 
+    private StringBuilder MakeRow(bool isHeader)
+    {
+        StringBuilder row = new StringBuilder("");
+        for (int i = 0; i < loggableSpecies.Length; i++)
+        {
+            // make 1 column or each trait and species
+            if (loggableSpecies[i] == 1)
+            {
+                for (int j = 0; j < currentTotals[i].Length; j++)
+                {
+                    if (isHeader)
+                    {
+                        row.Append(((Species)i).ToString());
+                        row.Append('-');
+                        row.Append(currentTotals[i][j].Item2);
+                    } else
+                    {
+                        row.Append(currentTotals[i][j].Item1/nAnimals[i]); // average
+                    }
+                    row.Append(", ");
+                }
+            }
+        }
+        row.Length -= 2; // remove ", "
+        row.Append("\n");
+        return row;
     }
 }
