@@ -8,6 +8,9 @@ using UnityEngine;
 
 public class TraitLogger : MonoBehaviour
 {
+    [SerializeField]
+    public bool enable = false; // set true to log
+    
     private static (double,string)[][] currentTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     // current total might not exist when all animals are dead, but we still want to log so we need this
@@ -27,6 +30,10 @@ public class TraitLogger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!enable)
+        {
+            return;
+        }
         counter++;
         if (counter % logInterval == 0)
         {
@@ -39,6 +46,10 @@ public class TraitLogger : MonoBehaviour
 
     void LateUpdate()
     {
+        if (!enable)
+        {
+            return;
+        }
         if (counter % logInterval == 1) // need to wait 1 extra update so animals can log themselves
         {
             // maybe need to add empty entries for when a species is temporarily dead
