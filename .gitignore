@@ -118,3 +118,14 @@ $RECYCLE.BIN/
 *.lnk
 
 .vscode/settings.json
+Packages/Microsoft.CSharp.4.5.0/ref/xamarinios10/_._
+Packages/Microsoft.CSharp.4.5.0/ref/xamarinmac20/_._
+Packages/Microsoft.CSharp.4.5.0/ref/xamarintvos10/_._
+Packages/Microsoft.CSharp.4.5.0/ref/xamarinwatchos10/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/lib/xamarinios10/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/lib/xamarinmac20/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/lib/xamarintvos10/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/lib/xamarinwatchos10/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/ref/xamarinios10/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/ref/xamarinmac20/_._
+Packages/System.Threading.Tasks.Extensions.4.5.2/ref/xamarintvos10/_._

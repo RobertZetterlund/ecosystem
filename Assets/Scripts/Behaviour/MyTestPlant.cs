@@ -46,7 +46,7 @@ public class MyTestPlant : MonoBehaviour, IConsumable
 
     public double Consume(double amount) {
 
-        double consumed = -amountRemaining.Add(-amount);
+        double consumed = amountRemaining.Add(-amount);
 
         if (amountRemaining.GetValue() <= 0) {
             //Die(CauseOfDeath.Eaten);

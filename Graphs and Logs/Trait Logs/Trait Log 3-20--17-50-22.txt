@@ -1,0 +1,4 @@
+Rabbit-population,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-infant factor,Rabbit-growth factor,Rabbit-speed,Rabbit-heat Timer
+50,1.000,0.000,3.000,0.100,0.020,4.000,600.000
+50,1.000,0.000,3.000,0.100,0.020,4.000,600.000
+50,1.000,0.000,3.000,0.100,0.020,4.000,600.000

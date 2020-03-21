@@ -54,7 +54,8 @@ public class Animal : MonoBehaviour, IConsumable
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
     Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
     // trait copy for easier logging etc
-    AnimalTraits traits;
+    private AnimalTraits traits;
+    private bool logNext = false;
 
     public void Init(AnimalTraits traits)
     {
@@ -149,7 +150,10 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
         UpdateStatusBars();
-        TraitLogger.Log(traits);
+		if (logNext)
+        {
+            TraitLogger.Log(traits);
+        }
 
         chooseNextAction();
 
@@ -258,9 +262,10 @@ public class Animal : MonoBehaviour, IConsumable
         Consume(target);
     }
 
-    
-
-
+    void LateUpdate()
+    {
+        logNext = TraitLogger.logNext;
+    }
 
     public void isDead()
     {
@@ -455,13 +460,13 @@ public class Animal : MonoBehaviour, IConsumable
         switch (type)
         {
             case ConsumptionType.Water:
-                thirst.Add(-amount);
+                thirst.Add(amount);
                 break;
             case ConsumptionType.Animal:
-                hunger.Add(-amount * dietFactor.GetValue());
+                hunger.Add(amount * dietFactor.GetValue());
                 break;
             case ConsumptionType.Plant:
-                hunger.Add(-amount * (1 - dietFactor.GetValue()));
+                hunger.Add(amount * (1 - dietFactor.GetValue()));
                 break;
         }
     }

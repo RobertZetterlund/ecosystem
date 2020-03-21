@@ -1,12 +1,25 @@
 ﻿using Assets.Scripts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 public class TraitLogger : MonoBehaviour
 {
+    [SerializeField]
+    public bool enable = false; // set true to log
+    
     private static (double,string)[][] currentTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
+    // current total might not exist when all animals are dead, but we still want to log so we need this
+    private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
+    private int counter = 2; // dont log at t=0
+    public static bool logNext = false;
+    private int logInterval = 100;
+    private bool firstSave = true;
+    private string filename; 
 
     // Start is called before the first frame update
     void Start()
@@ -17,22 +30,42 @@ public class TraitLogger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!enable)
+        {
+            return;
+        }
+        counter++;
+        if (counter % logInterval == 0)
+        {
+            logNext = true;
+        } else
+        {
+            logNext = false;
+        }
     }
 
     void LateUpdate()
     {
-        for (int i = 0; i < Species.GetValues(typeof(Species)).Length; i++)
+        if (!enable)
         {
-            Visualize((Species)i);
-            nAnimals[i] = 0; // refresh 
+            return;
+        }
+        if (counter % logInterval == 1) // need to wait 1 extra update so animals can log themselves
+        {
+            // maybe need to add empty entries for when a species is temporarily dead
 
+            Save();
+            for (int i = 0; i < Species.GetValues(typeof(Species)).Length; i++)
+            {
+                nAnimals[i] = 0; // refresh 
+            }
         }
     }
 
     public static void Log(AnimalTraits traits)
     {
         nAnimals[(int)traits.species]++;
+        loggableSpecies[(int)traits.species] = 1;
         (double, string)[] traitValues = traits.GetNumericalTraits();
 
         if (nAnimals[(int)traits.species] == 1)
@@ -49,8 +82,60 @@ public class TraitLogger : MonoBehaviour
     }
 
     // draw and or log current averages;
-    private void Visualize(Species species)
+    private void Save()
     {
+        StringBuilder row = MakeRow(false);
+        if (firstSave)
+        {
+            row = MakeRow(true).Append("\n").Append(row);
+            filename = "Graphs and Logs/Trait Logs/Trait Log " + DateTime.Now.ToString("M-dd--HH-mm-ss") + ".txt";
+            firstSave = false;
+        }
+        //File.WriteAllText(filename, row.ToString());
+        using (StreamWriter writeText = new StreamWriter(filename, true))
+        {
+            writeText.WriteLine(row.ToString());
+        }
+    }
 
+    private StringBuilder MakeRow(bool isHeader)
+    {
+        StringBuilder row = new StringBuilder("");
+        for (int i = 0; i < loggableSpecies.Length; i++)
+        {
+            // make 1 column or each trait and species
+            if (loggableSpecies[i] == 1)
+            {
+                // make entry for each population
+                if (isHeader)
+                {
+                    row.Append(((Species)i).ToString());
+                    row.Append('-');
+                    row.Append("population,");
+                } else
+                {
+                    row.Append(nAnimals[i]);
+                    row.Append(",");
+                }
+                // make an entry for each trait
+                for (int j = 0; j < currentTotals[i].Length; j++)
+                {
+                    if (isHeader)
+                    {
+                        // "e.g Rabbit-speed"
+                        row.Append(((Species)i).ToString());
+                        row.Append('-');
+                        row.Append(currentTotals[i][j].Item2);
+                    } else
+                    {
+                        // average
+                        row.Append((currentTotals[i][j].Item1/nAnimals[i]).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)); 
+                    }
+                    row.Append(",");
+                }
+            }
+        }
+        row.Length -= 1; // remove ","
+        return row;
     }
 }
