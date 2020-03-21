@@ -39,10 +39,11 @@ public class Animal : MonoBehaviour, IConsumable
     private Timer senseTimer, fcmTimer;
     private float senseRadius;
 	private AbstractSensor[] sensors;
+    private AbstractSensor touchSensor;
     private float sightLength = 25;
     private float smellRadius = 7;
-    private float horisontalFOV = 90;
-    private float verticalFOV = 45;
+    private float horisontalFOV = 120;
+    private float verticalFOV = 90;
     private GameObject targetGameObject;
     private Transform currentTargetTransform;
     // ui
@@ -99,6 +100,7 @@ public class Animal : MonoBehaviour, IConsumable
         sensors = new AbstractSensor[2];
         sensors[0] = SensorFactory.SightSensor(sightLength, horisontalFOV, verticalFOV);
         sensors[1] = SensorFactory.SmellSensor(smellRadius);
+        touchSensor = SensorFactory.TouchSensor(0.5f);
 
         senseTimer = new Timer(0.25f);
         fcmTimer = new Timer(0.25f);
@@ -201,7 +203,7 @@ public class Animal : MonoBehaviour, IConsumable
             // move to that thing lol
 
             //If they are next to each other or the same position
-            if (CloseEnoughToAct(currentTargetTransform.position, this.transform.position))
+            if (CloseEnoughToAct(currentTargetTransform.gameObject))
             {
                 IConsumable target = (IConsumable)gameObject.GetType();
                 Act(target);
@@ -209,10 +211,25 @@ public class Animal : MonoBehaviour, IConsumable
         }
     }
 
-    private bool CloseEnoughToAct(Vector3 position1, Vector3 position2)
+    private bool CloseEnoughToAct(GameObject gameObject)
+    {
+        if (touchSensor.IsSensingTag(transform, gameObject.tag))
+        {
+            return true;
+        }
+        return false;
+
+    }
+
+    /*private bool CloseEnoughToAct(Vector3 position1, Vector3 position2)
     {
         return Vector3.Distance(position1, position2) < 1; //we probabbly need to update this number later on
     }
+
+    private bool CloseEnoughToAct(Collider collider1, Collider collider2)
+    {
+        return collider1.bounds.Intersects(collider2.bounds);
+    }*/
 
     protected void Act(IConsumable currentTarget)
     {
@@ -547,12 +564,16 @@ public class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator Approach(GameObject targetGameObject)
     {
-        while(targetGameObject != null && !CloseEnoughToAct(transform.position, targetGameObject.transform.position))
+        while(targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
             yield return new WaitForSeconds(0.1f);
             if(targetGameObject != null)
                 SetDestination(targetGameObject.transform.position);
         }
+        // To prevent the animal from not going further than necessary to perform its action.
+        // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
+        // has to resume the movement when you want the animal to walk again, so I did it this way instead.
+        SetDestination(transform.position);
         yield return null;
     }
 

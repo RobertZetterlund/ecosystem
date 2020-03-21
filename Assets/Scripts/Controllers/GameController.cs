@@ -5,7 +5,7 @@ using Assets.Scripts;
 public class GameController : MonoBehaviour
 {
     private int nPlants = 40;
-    private static int nRabbits = 10;
+    private static int nRabbits = 15;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
     private static bool respawn = true;
 
