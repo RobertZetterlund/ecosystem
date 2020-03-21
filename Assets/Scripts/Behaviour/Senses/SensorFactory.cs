@@ -10,4 +10,9 @@ static class SensorFactory
     {
         return new AreaSensor(senseRadius, 360, 360, false, SensorType.SMELL);
     }
+
+    public static AbstractSensor TouchSensor(float senseRadius)
+    {
+        return new AreaSensor(senseRadius, 360, 360, false, SensorType.TOUCH);
+    }
 }

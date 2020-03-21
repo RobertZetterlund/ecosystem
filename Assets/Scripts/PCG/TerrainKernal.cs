@@ -194,7 +194,7 @@ public class TerrainKernal : MonoBehaviour
         msh.RecalculateBounds();
 
         // Set up game object with mesh;
-        
+
 
         newObject.AddComponent(typeof(MeshRenderer));
         var rend = newObject.GetComponent<MeshRenderer>();
@@ -202,8 +202,13 @@ public class TerrainKernal : MonoBehaviour
         mat[0] = waterTempMaterial;
         rend.materials = mat;
         MeshFilter filter = newObject.AddComponent(typeof(MeshFilter)) as MeshFilter;
-        newObject.AddComponent(typeof(MeshCollider));
+        MeshCollider meshCollider = newObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
+        meshCollider.sharedMesh = msh;
         filter.mesh = msh;
+
+        // Add WaterPond script to object
+
+        newObject.AddComponent(typeof(WaterPond));
 
         
     }

@@ -11,6 +11,7 @@ public class MyTestPlant : MonoBehaviour, IConsumable
     private int regenTimer = 0;
     private UnityEngine.AI.NavMeshAgent navMeshAgent;
     private Species species = Species.Plant;
+    private bool dead = false;
 
     public void Init(double size)
     {
@@ -48,7 +49,15 @@ public class MyTestPlant : MonoBehaviour, IConsumable
         double consumed = amountRemaining.Add(-amount);
 
         if (amountRemaining.GetValue() <= 0) {
-            //Die (CauseOfDeath.Eaten);
+            //Die(CauseOfDeath.Eaten);
+            try
+            {
+                Destroy(gameObject);
+            } catch (MissingReferenceException e)
+            {
+                Debug.LogWarning("The animals tried to access a consumable that was already destroyed");
+            }
+            
         }
 
         return consumed;

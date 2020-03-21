@@ -3,6 +3,7 @@ public enum SensorType
 {
     SIGHT,
     HEARING,
-    SMELL
+    SMELL,
+    TOUCH
 }
 
