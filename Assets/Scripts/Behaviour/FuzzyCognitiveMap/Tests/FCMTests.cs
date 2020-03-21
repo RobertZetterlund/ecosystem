@@ -12,13 +12,8 @@ namespace Tests
         [Test]
         public void FCMTest()
         {
-            EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.Idle };
-            EntityInput[] inputs = new EntityInput[] {EntityInput.FoodClose};
 
-            FCM fcm = new FCM(inputs, actions);
-            fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
-            fcm.SetState(EntityField.FoodClose, 1);
-            fcm.SetState(EntityField.Idle, 0.5);
+            FCM fcm = CreateFCM();
 
             fcm.Calculate();
             foreach(double d in fcm.GetStates()) 
@@ -36,6 +31,25 @@ namespace Tests
             }
 
             Debug.Log(" ");
+        }
+        [Test]
+        public void NoFieldFoundTest()
+        {
+            FCM fcm = CreateFCM();
+            fcm.SetState(EntityField.Reproducing, 1);
+        }
+
+        private FCM CreateFCM()
+        {
+            EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.Idle };
+            EntityInput[] inputs = new EntityInput[] { EntityInput.FoodClose };
+
+            FCM fcm = new FCM(inputs, actions);
+            fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
+            fcm.SetState(EntityField.FoodClose, 1);
+            fcm.SetState(EntityField.Idle, 0.5);
+
+            return fcm;
         }
 
         [Test]

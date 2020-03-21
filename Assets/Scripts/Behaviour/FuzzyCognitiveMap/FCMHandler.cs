@@ -21,7 +21,7 @@ public abstract class FCMHandler
         fcm.Calculate();
     }
 
-    public EntityAction GetAction()
+    public virtual EntityAction GetAction()
     {
         return fcm.GetAction();
     }
@@ -29,6 +29,11 @@ public abstract class FCMHandler
     public string GetFCMData()
     {
         return fcm.ToString();
+    }
+
+    public FCM GetFCM()
+    {
+        return fcm;
     }
 
     public abstract void ProcessSensedObjects(Animal animal, ArrayList gameObjects);

@@ -23,12 +23,11 @@ public class Animal : MonoBehaviour, IConsumable
     // internal traits
     double timeToDeathByHunger = 200;
     double timeToDeathByThirst = 200;
-    private static double BITE_FACTOR = 0.2; // use to calculate how much you eat in one bite
+    private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
     double lifespan = 2000;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
-    private float lastFCMUpdate = 0;
     private string targetGametag = "";
     private ArrayList sensedGameObjects;
     private Species species;
@@ -37,6 +36,7 @@ public class Animal : MonoBehaviour, IConsumable
     private RangedDouble growthFactor; // how much you grow each tick
     private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
     // senses
+    private Timer senseTimer, fcmTimer;
     private float senseRadius;
 	private AbstractSensor[] sensors;
     private float sightLength = 25;
@@ -49,8 +49,9 @@ public class Animal : MonoBehaviour, IConsumable
     private StatusBars statusBars;
     private Component[] childRenderers;
     //Debugging
-    public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo = false;
+    public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo, showTargetDestinationGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
+    Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
     // trait copy for easier logging etc
     AnimalTraits traits;
 
@@ -99,6 +100,9 @@ public class Animal : MonoBehaviour, IConsumable
         sensors[0] = SensorFactory.SightSensor(sightLength, horisontalFOV, verticalFOV);
         sensors[1] = SensorFactory.SmellSensor(smellRadius);
 
+        senseTimer = new Timer(0.25f);
+        fcmTimer = new Timer(0.25f);
+
         // update ui and visual traits
         UpdateSize();
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
@@ -107,6 +111,51 @@ public class Animal : MonoBehaviour, IConsumable
         canvas.transform.parent = gameObject.transform;
         childRenderers = GetComponentsInChildren<Renderer>();
         UpdateStatusBars();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // growth = hunger drain and size gain while growing
+        double growth = 0;
+        //increases hunger and thirst over time
+        if (size.GetValue() < maxSize.GetValue()) // if not fully grown
+        {
+            growth = maxSize.GetValue() * growthFactor.GetValue();
+            size.Add(growth);
+            UpdateSize();
+        }
+        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius));
+        thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
+
+        //age the animal
+        energy -= Time.deltaTime * 1 / lifespan;
+
+        heat.Add(1 / heatTimer.GetValue());
+
+        if (senseTimer.IsDone())
+        {
+            Sense();
+            senseTimer.Reset();
+            senseTimer.Start();
+        }
+        if (fcmTimer.IsDone())
+        {
+            fcmHandler.CalculateFCM();
+            fcmTimer.Reset();
+            fcmTimer.Start();
+        }
+
+        UpdateStatusBars();
+        TraitLogger.Log(traits);
+
+        chooseNextAction();
+
+        //check if the animal is dead
+        if(GameController.animalCanDie)
+            isDead();
+
+
     }
 
     void Sense()
@@ -162,7 +211,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     private bool CloseEnoughToAct(Vector3 position1, Vector3 position2)
     {
-        return Vector3.Distance(position1, position2) < 5; //we probabbly need to update this number later on
+        return Vector3.Distance(position1, position2) < 1; //we probabbly need to update this number later on
     }
 
     protected void Act(IConsumable currentTarget)
@@ -192,43 +241,7 @@ public class Animal : MonoBehaviour, IConsumable
         Consume(target);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // growth = hunger drain and size gain while growing
-        double growth = 0;
-        //increases hunger and thirst over time
-        if (size.GetValue() < maxSize.GetValue()) // if not fully grown
-        {
-            growth = maxSize.GetValue() * growthFactor.GetValue();
-            size.Add(growth);
-            UpdateSize();
-        }
-        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius));
-        thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
-
-        //age the animal
-        energy -= Time.deltaTime * 1 / lifespan;
-
-        heat.Add(1 / heatTimer.GetValue());
-
-        Sense();
-        if ((Time.time - lastFCMUpdate) > 1)
-        {
-            lastFCMUpdate = Time.time;
-            fcmHandler.CalculateFCM();
-        }
-
-        UpdateStatusBars();
-        TraitLogger.Log(traits);
-
-        chooseNextAction();
-
-        //check if the animal is dead
-        isDead();
-
-        
-    }
+    
 
 
 
@@ -276,7 +289,9 @@ public class Animal : MonoBehaviour, IConsumable
         if(currentAction != newAction)
         {
             StopAllCoroutines();
-            currentAction = fcmHandler.GetAction();
+            currentAction = newAction;
+            //This has to reset somewhere
+            targetGameObject = null;
             switch (currentAction)
             {
                 case EntityAction.GoingToWater:
@@ -293,7 +308,7 @@ public class Animal : MonoBehaviour, IConsumable
             if(!GameObjectExists(targetGameObject))
             {
                 //Debug.Log("I dont see my target");
-                currentAction = EntityAction.Idle;
+                //currentAction = EntityAction.Idle;
                 //Choose the next bestTarget
 
             }
@@ -304,6 +319,9 @@ public class Animal : MonoBehaviour, IConsumable
 
     private bool GameObjectExists(GameObject target)
     {
+        if (sensedGameObjects == null)
+            return false;
+
         foreach(GameObject gameObject in sensedGameObjects)
         {
             if (gameObject.Equals(target))
@@ -415,7 +433,7 @@ public class Animal : MonoBehaviour, IConsumable
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
-        amount /= size.GetValue(); // balance according to size. (note that amount will be higher if your size is bigger)
+        amount /= (size.GetValue()); // balance according to size. (note that amount will be higher if your size is bigger)
         // increment energy / hunger / thirst
         switch (type)
         {
@@ -494,6 +512,10 @@ public class Animal : MonoBehaviour, IConsumable
                 prev = newpos;
             }
         }
+        if(showTargetDestinationGizmo)
+        {
+            Gizmos.DrawLine(transform.position, targetDestinationGizmo);
+        }
 
 
     }
@@ -503,35 +525,40 @@ public class Animal : MonoBehaviour, IConsumable
         return navMeshAgent;
     }
 
-    public IEnumerator GoToFood()
+    public IEnumerator GoToStationaryConsumable(string gametag)
     {
-        yield return Search("Plant");
+        yield return StartCoroutine(Search(gametag));
         IConsumable consumable = targetGameObject.GetComponent<MyTestPlant>();
-        yield return Approach(targetGameObject);
-        for(int i = 0; i < 5; i++)
+        yield return StartCoroutine(Approach(targetGameObject));
+        for (int i = 0; i < 5; i++)
         {
             Eat(consumable); // take one bite
-            new WaitForSeconds(1);
+            yield return new WaitForSeconds(1);
         }
-        
+
         currentAction = EntityAction.Idle;
         yield return null;
-   
+    }
+
+    public IEnumerator GoToFood()
+    {
+        yield return StartCoroutine(GoToStationaryConsumable("Plant"));
     }
 
     public IEnumerator Approach(GameObject targetGameObject)
     {
-        while(!CloseEnoughToAct(transform.position, targetGameObject.transform.position))
+        while(targetGameObject != null && !CloseEnoughToAct(transform.position, targetGameObject.transform.position))
         {
             yield return new WaitForSeconds(0.1f);
-            SetDestination(targetGameObject.transform.position);
+            if(targetGameObject != null)
+                SetDestination(targetGameObject.transform.position);
         }
         yield return null;
     }
 
     public IEnumerator GoToWater()
     {
-        yield return Search("Water");
+        yield return StartCoroutine(GoToStationaryConsumable("Water"));
     }
 
     public IEnumerator GoToPartner()
@@ -557,6 +584,7 @@ public class Animal : MonoBehaviour, IConsumable
 
         if (path.status == NavMeshPathStatus.PathComplete && canPath)
         {
+            targetDestinationGizmo = pos;
             SetDestination(pos);
         }
         else
@@ -564,20 +592,26 @@ public class Animal : MonoBehaviour, IConsumable
             NavMeshHit myNavHit;
             if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
             {
+                targetDestinationGizmo = myNavHit.position;
                 SetDestination(myNavHit.position);
             }
         }
 
-        yield return new WaitForSeconds(0);
+        yield return null;
     }
 
     public IEnumerator Search(string gametag)
     {
         targetGametag = gametag;
+        //Make it search before actually walking, since it otherwise might walk away from a plant
+        //and then walk right back to it.
+        Sense();
+        senseTimer.Reset();
+        senseTimer.Start();
         while (targetGameObject == null)
         {
+            yield return StartCoroutine(Walk());
             yield return new WaitForSeconds(1);
-            yield return Walk();
         }
         yield return null;
 
@@ -628,4 +662,14 @@ public class Animal : MonoBehaviour, IConsumable
         statusBars.gameObject.transform.position = center + new Vector3(0, radius, 0);
     }
 
+    //Currently used for testing
+    public FCMHandler GetFCMHandler()
+    {
+        return fcmHandler;
+    }
+
+    public void SetFCMHandler(FCMHandler fcmHandler)
+    {
+        this.fcmHandler = fcmHandler;
+    }
 }
