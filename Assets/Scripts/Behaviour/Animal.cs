@@ -15,6 +15,7 @@ public class Animal : MonoBehaviour, IConsumable
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
+    private ActionState state = new ActionState();
     private bool isMale;
     private RangedInt nChildren; // how many kids you will have
     private RangedDouble size;
@@ -177,21 +178,25 @@ public class Animal : MonoBehaviour, IConsumable
                 //SensedObjectEvent sensedObjectEvent = new SensedObjectEvent(this, gameObject, sensor.sensorType);
                 //sensedObjectEvents.Add(sensedObjectEvent);
                 sensedGameObjects.Add(gameObject);
-                if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
+
+                if(state == ActionState.Searching)
                 {
-                    targetGameObject = gameObject;
-                    //StopAllCoroutines();
+                    if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
+                    {
+                        targetGameObject = gameObject;
+                        //StopAllCoroutines();
 
-                    // decide to go towards that gameObject
+                        // decide to go towards that gameObject
 
-                    //currentTargetTransform = gameObject.transform;
+                        //currentTargetTransform = gameObject.transform;
 
-                    //FollowMyCurrentTarget(gameObject);
+                        //FollowMyCurrentTarget(gameObject);
 
 
-                    // break;
+                        // break;
 
-                    //SetDestination(gameObject.transform.position);
+                        //SetDestination(gameObject.transform.position);
+                    }
                 }
             }
         }
@@ -539,6 +544,8 @@ public class Animal : MonoBehaviour, IConsumable
             Gizmos.DrawLine(transform.position, targetDestinationGizmo);
         }
 
+        Handles.Label(transform.position + new Vector3(0, 3, 0), state.ToString());
+
 
     }
 
@@ -547,31 +554,55 @@ public class Animal : MonoBehaviour, IConsumable
         return navMeshAgent;
     }
 
-    public IEnumerator GoToStationaryConsumable(string gametag)
+    public IEnumerator GoToStationaryConsumable(ConsumptionType consumptionType)
     {
+        string gametag = consumptionType.ToString();
         yield return StartCoroutine(Search(gametag));
-        IConsumable consumable = targetGameObject.GetComponent<MyTestPlant>();
         yield return StartCoroutine(Approach(targetGameObject));
+        yield return StartCoroutine(EatConsumable(consumptionType));
+    }
+
+    public IEnumerator EatConsumable(ConsumptionType consumptionType)
+    {
+        IConsumable consumable = null;
+        switch(consumptionType)
+        {
+            case ConsumptionType.Animal:
+                throw new NotImplementedException();
+                break;
+            case ConsumptionType.Plant:
+                consumable = targetGameObject.GetComponent<MyTestPlant>();
+                break;
+            case ConsumptionType.Water:
+                consumable = targetGameObject.GetComponent<WaterPond>();
+                break;
+        }
+        state = ActionState.Eating;
         for (int i = 0; i < 5; i++)
         {
+            if (consumable == null)
+                break;
+
             Eat(consumable); // take one bite
             yield return new WaitForSeconds(1);
         }
-
-        currentAction = EntityAction.Idle;
-        yield return null;
     }
 
     public IEnumerator GoToFood()
     {
-        yield return StartCoroutine(GoToStationaryConsumable("Plant"));
+        state = ActionState.GoingToFood;
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Plant));
+        state = ActionState.Idle;
+        currentAction = EntityAction.Idle;
     }
 
     public IEnumerator Approach(GameObject targetGameObject)
     {
+        state = ActionState.Approaching;
+
         while(targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
             if(targetGameObject != null)
                 SetDestination(targetGameObject.transform.position);
         }
@@ -584,7 +615,10 @@ public class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator GoToWater()
     {
-        yield return StartCoroutine(GoToStationaryConsumable("Water"));
+        state = ActionState.GoingToWater;
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water));
+        state = ActionState.Idle;
+        currentAction = EntityAction.Idle;
     }
 
     public IEnumerator GoToPartner()
@@ -628,6 +662,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator Search(string gametag)
     {
+        state = ActionState.Searching;
         targetGametag = gametag;
         //Make it search before actually walking, since it otherwise might walk away from a plant
         //and then walk right back to it.
@@ -640,7 +675,6 @@ public class Animal : MonoBehaviour, IConsumable
             yield return new WaitForSeconds(1);
         }
         yield return null;
-
     }
 
 
