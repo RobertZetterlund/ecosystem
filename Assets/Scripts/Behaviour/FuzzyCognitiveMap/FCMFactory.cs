@@ -1,5 +1,5 @@
 ﻿
-static class FCMFactory
+public static class FCMFactory
 {
     public static FCM RabbitFCM()
     {

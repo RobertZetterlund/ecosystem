@@ -148,6 +148,16 @@ public class FCM
         return states;
     }
 
+    public double[,] GetWeights()
+    {
+        return weights;
+    }
+
+    public TwoWayMap<int, int> GetTranslation()
+    {
+        return translation;
+    }
+
     public void SetWeight(EntityField _from, EntityField _to, double weight)
     {
         int i_from = translation.Forward[(int)_from];
