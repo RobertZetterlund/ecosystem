@@ -7,7 +7,7 @@ public class GenerateMesh : MonoBehaviour
 	ColorIndexer colorIndex;
 	Vector3[] vectorMap;
 	int[] triangleMap;
-	public Mesh meshMap;
+	public GameObject groundObject;
 	Vector2[] uvs;
 	
 
@@ -44,16 +44,16 @@ public class GenerateMesh : MonoBehaviour
 			}
 		}
 
-		
+
+		Mesh mesh = groundObject.GetComponent<MeshFilter>().mesh;
+
+		mesh.vertices = vectorMap;
+		mesh.triangles = triangleMap;
+		mesh.uv = uvs;
+		mesh.RecalculateNormals();
 
 
-		meshMap.vertices = vectorMap;
-		meshMap.triangles = triangleMap;
-		meshMap.uv = uvs;
-		meshMap.RecalculateNormals();
-
-
-		return meshMap;
+		return mesh;
 		
 	}
 

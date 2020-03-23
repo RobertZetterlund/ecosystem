@@ -16,7 +16,7 @@ public class TerrainKernal : MonoBehaviour
     public float lacunarity;
     [Range(0f, 1f)]
     public float persistance;
-    public GameObject testObject;
+    public GameObject previewPlane;
     float[,] heightMap;
     public bool autoUpdate;
     public float amplifier;
@@ -222,7 +222,7 @@ public class TerrainKernal : MonoBehaviour
 
         mat.SetTexture("_MainTex", texture);
 
-        testObject.GetComponent<MeshRenderer>().material = mat;
+        previewPlane.GetComponent<MeshRenderer>().material = mat;
     }
 
     private void OnApplicationQuit()
