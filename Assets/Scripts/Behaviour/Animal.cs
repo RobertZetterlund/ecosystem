@@ -21,7 +21,7 @@ public class Animal : MonoBehaviour, IConsumable
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     private RangedDouble speed;
     // internal traits
-    double timeToDeathByHunger = 200;
+    double timeToDeathByHunger = 600;
     double timeToDeathByThirst = 200;
     private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
     double lifespan = 2000;
@@ -56,6 +56,8 @@ public class Animal : MonoBehaviour, IConsumable
     // trait copy for easier logging etc
     private AnimalTraits traits;
     private bool logNext = false;
+    private Vector3 lastPos;
+    private Animator animator;
 
     public void Init(AnimalTraits traits)
     {
@@ -94,6 +96,8 @@ public class Animal : MonoBehaviour, IConsumable
         //r.material = Resources.Load("unity_builtin_extra/Default-Material", typeof(Material)) as Material; // not working
 
         gameObject.layer = 8;
+        lastPos = transform.position;
+        animator = GetComponent<Animator>();
 
         //The concept of senseRadius does not make any sense anymore, but the variable is used still.
         senseRadius = 10;
@@ -161,6 +165,9 @@ public class Animal : MonoBehaviour, IConsumable
         if(GameController.animalCanDie)
             isDead();
 
+        //Animation
+
+        UpdateAnimation();
 
     }
 
@@ -698,4 +705,28 @@ public class Animal : MonoBehaviour, IConsumable
     {
         this.fcmHandler = fcmHandler;
     }
+
+
+    void UpdateAnimation()
+    {
+        
+        Vector3 deltaV = new Vector3(transform.position.x - lastPos.x, transform.position.y - lastPos.y, transform.position.z - lastPos.z);
+        float deltaPos = Vector3.Magnitude(deltaV);
+        float rapidness = deltaPos / Time.deltaTime;
+
+      
+        if(rapidness > 0.1)
+        {
+            animator.SetBool("Run", true);
+            animator.speed = 1.3f * rapidness;
+        }else
+        {
+            animator.speed = 1f;
+            animator.SetBool("Run", false);
+        }
+        lastPos = transform.position;
+
+    }
+
+
 }

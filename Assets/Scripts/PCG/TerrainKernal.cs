@@ -45,7 +45,7 @@ public class TerrainKernal : MonoBehaviour
         
     }
 
-
+    
 
     private void Start()
     {
