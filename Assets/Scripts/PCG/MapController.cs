@@ -7,7 +7,8 @@ public class MapController : Editor
 
     bool autoupdate;
     
-    public override void OnInspectorGUI() {
+    public override void OnInspectorGUI()
+    {
         TerrainKernal kernal = (TerrainKernal)target;
 
         if(DrawDefaultInspector()){
@@ -24,7 +25,7 @@ public class MapController : Editor
             kernal.UpdateMap();
             kernal.GenerateMesh();
         }
-        //kernal.GenerateMap();
+        
     }
 
 
