@@ -11,7 +11,8 @@ public class TraitLogger : MonoBehaviour
     [SerializeField]
     public bool enable = false; // set true to log
     
-    private static (double,string)[][] currentTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
+    private static (double,string)[][] currentTraitTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
+    private static FCMHandler[] recentFCMs = new FCMHandler[Species.GetValues(typeof(Species)).Length];
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     // current total might not exist when all animals are dead, but we still want to log so we need this
     private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
@@ -19,12 +20,16 @@ public class TraitLogger : MonoBehaviour
     public static bool logNext = false;
     private int logInterval = 100;
     private bool firstSave = true;
-    private string filename; 
+    private string folder; 
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (enable)
+        {
+            folder = "Python Scripts and Logs/Logs/" + DateTime.Now.ToString("M-dd--HH-mm-ss");
+            Directory.CreateDirectory(folder);
+        }
     }
 
     // Update is called once per frame
@@ -62,6 +67,23 @@ public class TraitLogger : MonoBehaviour
         }
     }
 
+    void OnApplicationQuit()
+    {
+        if (enable)
+        {
+            // save fcm
+            for (int i = 0; i < recentFCMs.Length; i++)
+            {
+                if (recentFCMs[i] != null)
+                {
+                    string s = recentFCMs[i].GenerateJSON();
+
+                    recentFCMs[i].SaveFCM(s, folder + '/' + ((Species)i).ToString());
+                }
+            }
+        }
+    }
+
     public static void Log(AnimalTraits traits)
     {
         nAnimals[(int)traits.species]++;
@@ -71,28 +93,29 @@ public class TraitLogger : MonoBehaviour
         if (nAnimals[(int)traits.species] == 1)
         {
             // refresh list
-            currentTotals[(int)traits.species] = traitValues;
+            currentTraitTotals[(int)traits.species] = traitValues;
         } else
         {
             for (int i = 0; i < traitValues.Length; i++)
             {
-                currentTotals[(int)traits.species][i].Item1 += traitValues[i].Item1;
+                currentTraitTotals[(int)traits.species][i].Item1 += traitValues[i].Item1;
             }
         }
+        recentFCMs[(int)traits.species] = traits.fcmHandler;
     }
 
     // draw and or log current averages;
     private void Save()
     {
         StringBuilder row = MakeRow(false);
+        // save traits
         if (firstSave)
         {
             row = MakeRow(true).Append("\n").Append(row);
-            filename = "Graphs and Logs/Trait Logs/Trait Log " + DateTime.Now.ToString("M-dd--HH-mm-ss") + ".txt";
             firstSave = false;
         }
         //File.WriteAllText(filename, row.ToString());
-        using (StreamWriter writeText = new StreamWriter(filename, true))
+        using (StreamWriter writeText = new StreamWriter(folder + '/' + "Traits" + ".txt", true))
         {
             writeText.WriteLine(row.ToString());
         }
@@ -118,18 +141,18 @@ public class TraitLogger : MonoBehaviour
                     row.Append(",");
                 }
                 // make an entry for each trait
-                for (int j = 0; j < currentTotals[i].Length; j++)
+                for (int j = 0; j < currentTraitTotals[i].Length; j++)
                 {
                     if (isHeader)
                     {
                         // "e.g Rabbit-speed"
                         row.Append(((Species)i).ToString());
                         row.Append('-');
-                        row.Append(currentTotals[i][j].Item2);
+                        row.Append(currentTraitTotals[i][j].Item2);
                     } else
                     {
                         // average
-                        row.Append((currentTotals[i][j].Item1/nAnimals[i]).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)); 
+                        row.Append((currentTraitTotals[i][j].Item1/nAnimals[i]).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)); 
                     }
                     row.Append(",");
                 }
