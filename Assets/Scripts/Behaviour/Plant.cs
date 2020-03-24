@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-public class MyTestPlant : MonoBehaviour, IConsumable
+public class Plant : MonoBehaviour, IConsumable
 {
     private RangedDouble amountRemaining;
     private RangedDouble size;
@@ -52,7 +53,7 @@ public class MyTestPlant : MonoBehaviour, IConsumable
             //Die(CauseOfDeath.Eaten);
             try
             {
-                Destroy(gameObject);
+                TransformToSappling();
             } catch (MissingReferenceException e)
             {
                 Debug.LogWarning("The animals tried to access a consumable that was already destroyed");
@@ -61,6 +62,12 @@ public class MyTestPlant : MonoBehaviour, IConsumable
         }
 
         return consumed;
+    }
+
+    private void TransformToSappling()
+    {
+        Destroy(gameObject);
+        OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
     }
 
     public double GetAmount()

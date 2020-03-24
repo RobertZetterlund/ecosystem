@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
     public bool respawn = true;
     private static bool respawnStatic = true;
     private int nPlants = 40;
-    private static int nRabbits = 15;
+    private static int nRabbits = 10;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
 
     [Range(1f,100)]

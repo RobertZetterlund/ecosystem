@@ -16,5 +16,17 @@ public abstract class AbstractSensor
         }
         return false;
     }
+
+    public bool IsSensingObject(Transform transform, GameObject targetGameObject)
+    {
+        foreach (GameObject gameObject in Sense(transform))
+        {
+            if (targetGameObject != null && gameObject.Equals(targetGameObject))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
