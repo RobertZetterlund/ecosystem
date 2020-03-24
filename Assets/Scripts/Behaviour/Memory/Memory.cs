@@ -44,7 +44,7 @@ public class Memory
     }
 
     public void forgetRejection(int id) {
-        rejctedByIds.Remove(id);
+        rejectedByIDs.Remove(id);
     }
 
     public Vector3 ReadFoodFromMemory() {
