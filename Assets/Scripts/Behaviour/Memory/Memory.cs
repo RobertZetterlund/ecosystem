@@ -18,10 +18,10 @@ public class Memory
 
     public void WriteSensedEventToMemory(SensedEvent sE)
     {
-        WriteWaterToMemory(sE.getWater());
-        WriteFoeToMemory(sE.getFoe());
-        WriteMateToMemory(sE.getMate());
-        WriteFoodToMemory(sE.getFood());
+        WriteWaterToMemory(sE.GetWater());
+        WriteFoeToMemory(sE.GetFoe());
+        WriteMateToMemory(sE.GetMate());
+        WriteFoodToMemory(sE.GetFood());
     }
 
     private void WriteWaterToMemory(GameObject Water) {
