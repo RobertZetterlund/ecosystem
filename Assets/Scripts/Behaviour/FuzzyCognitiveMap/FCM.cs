@@ -188,10 +188,11 @@ public class FCM
 
     private EntityAction[] GetActions()
     {
+        // kinda dumb cause the first half (noINput) is gonna be empty
         EntityAction[] actions = new EntityAction[NOActions];
         for (int i = NOInputs; i < NOFields; i++)
         {
-            actions[i] = (EntityAction)translation.Reverse[i];
+            actions[i-NOInputs] = (EntityAction)translation.Reverse[i];
         }
         return actions;
     }
@@ -217,9 +218,21 @@ public class FCM
         inputs.CopyTo(childInputs);
         actions.CopyTo(childActions);
 
+        foreach (var item in childInputs)
+        {
+            Debug.Log(item.ToString() + " i");
+
+        }foreach (var item in childActions)
+        {
+            Debug.Log(item.ToString() + " a");
+
+        }
+
+
         FCM child = new FCM(childInputs, childActions);
 
         // calculate how many weights child should have
+        /*
         int weightedInputs = weights.GetLength(0);
         int weightedActions = weights.GetLength(1);
 
@@ -228,9 +241,11 @@ public class FCM
 
         int maxWeightedInputs = Math.Max(weightedInputs, weightedMateInputs);
         int maxWeightedActions = Math.Max(weightedActions, weightedMateActions);
+        */
 
-
-        double[,] childWeights = new double[maxWeightedInputs, maxWeightedActions];
+        int childFields = childInputs.Length + childActions.Length;
+        double[,] childWeights = new double[childFields, childFields];
+        Dictionary<(EntityInput, EntityAction), double> childWeights2 = new Dictionary<(EntityInput, EntityAction), double>();
         // set flag for weights that dont exist
         for (int i = 0; i < childWeights.GetLength(0); i++)
         {
@@ -239,6 +254,62 @@ public class FCM
                 childWeights[i, j] = double.MinValue;
             }
         }
+
+        foreach (EntityInput ei in childInputs)
+        {
+            foreach(EntityAction ea in childActions)
+            {
+                EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
+                EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
+
+                try
+                {
+                    int i_from = translation.Forward[(int)_from];
+                    int i_to = translation.Forward[(int)_to];
+                    // childweights[ei,ea]=
+                    childWeights2.Add((ei,ea), weights[i_from, i_to]);
+                } catch (Exception)
+                {
+                    // ignore if field doesnt exist
+                }
+                try
+                {
+                    int i_from = mateFCM.translation.Forward[(int)_from];
+                    int i_to = mateFCM.translation.Forward[(int)_to];
+
+                    if (!childWeights2.ContainsKey((ei, ea)))
+                    {
+                        childWeights2.Add((ei, ea), weights[i_from, i_to]);
+                    }
+                    else
+                    {
+                        double geneA = childWeights2[(ei, ea)];
+                        double geneB = mateFCM.weights[i_from, i_to];
+                        childWeights2[(ei, ea)] = ReproductionUtility.Crossover(geneA, geneB);
+                    }
+                } catch (Exception)
+                {
+                    // ignore if field doesnt exist
+                }
+                double geneC = ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights2[(ei, ea)], -1, 1)).GetValue();
+                child.SetWeight(_from, _to, geneC);
+            }
+        }
+        /*
+        for (int i = 0; i < childFields; i++){
+            for (int j = 0; j < childFields; j++)
+            {
+                í_from = child
+                    // vill ha entityi / a / f i childweights
+                if (childWeights[i,j] != double.MinValue)
+                {
+                    child.SetWeight()
+                }
+            }
+        }
+        */
+
+        /*
         // add my weights
         for (int i = 0; i < weightedInputs; i++)
         {
@@ -262,20 +333,27 @@ public class FCM
                 }
                 else // else just add
                 {
-                    childWeights[i, j] = weights[i, j];
+                    childWeights[i, j] = mateFCM.weights[i, j];
                 }
             }
         }
-
+        */
+        /*
+        Debug.Log("fan");
         // mutate and add to child
         for (int i = 0; i < maxWeightedInputs; i++)
         {
-            for (int j = 0; j < maxWeightedActions; j++)
+            for (int j = 0; j < childActions.Length; j++) //maxWeightedActions
             {
-                child.SetWeight((EntityField)i, (EntityField)j,
+                Debug.Log(childActions.Length + " " + i + " " + childInputs.Length);
+                EntityField inputField = (EntityField)Enum.Parse(typeof(EntityField), childInputs[i].ToString());
+                Debug.Log(childActions.Length + " " + j + " " + childActions.Length);
+                EntityField actionField = (EntityField)Enum.Parse(typeof(EntityField), childActions[j].ToString());
+                child.SetWeight(inputField, actionField,
                     ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights[i, j], -1, 1)).GetValue());
             }
         }
+        */
 
         // dont set states for now, maybe kid shouldnt know anything? idk
         /*

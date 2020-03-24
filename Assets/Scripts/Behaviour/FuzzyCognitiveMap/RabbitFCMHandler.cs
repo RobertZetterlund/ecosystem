@@ -24,6 +24,10 @@ public class RabbitFCMHandler : FCMHandler
             {
                 SetInverseDistanceInputFields(EntityInput.WaterClose, EntityInput.WaterFar, value, animal);
             }
+            if (value.CompareTag(Species.Rabbit.ToString()))
+            {
+                SetInverseDistanceInputFields(EntityInput.RabbitClose, EntityInput.RabbitFar, value, animal);
+            }
         }
             
     }

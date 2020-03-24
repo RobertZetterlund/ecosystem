@@ -77,6 +77,7 @@ public class Animal : MonoBehaviour, IConsumable
         this.traits = traits;
 
         targetGameObject = null;
+        gameObject.tag = species.ToString();
 
         GameController.Register(species);
     }
@@ -183,6 +184,10 @@ public class Animal : MonoBehaviour, IConsumable
             {
                 //SensedObjectEvent sensedObjectEvent = new SensedObjectEvent(this, gameObject, sensor.sensorType);
                 //sensedObjectEvents.Add(sensedObjectEvent);
+                if (gameObject == this.gameObject)
+                {
+                    break;
+                }
                 sensedGameObjects.Add(gameObject);
                 if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
                 {
@@ -314,8 +319,8 @@ public class Animal : MonoBehaviour, IConsumable
 
     private void CheckCurrentAction(EntityAction newAction)
     {
-        
-        if(currentAction != newAction)
+
+        if (currentAction != newAction)
         {
             StopAllCoroutines();
             currentAction = newAction;
@@ -330,11 +335,15 @@ public class Animal : MonoBehaviour, IConsumable
                 case EntityAction.GoingToFood:
                     StartCoroutine(GoToFood());
                     break;
+
+                case EntityAction.SearchingForMate:
+                    StartCoroutine(GoToPartner());
+                    break;
             }
         }
         else
         {
-            if(!GameObjectExists(targetGameObject))
+            if (!GameObjectExists(targetGameObject))
             {
                 //Debug.Log("I dont see my target");
                 //currentAction = EntityAction.Idle;
@@ -373,24 +382,16 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void Reproduce(Animal mate)
     {
+        //mate.Reproduce(this);
         // reduce heat (assume you did the fucko but even if the animals were incompatible biologically)
         heat.Add(-1);
+        mate.heat.Add(-1);
 
-        if (size.GetValue() < maxSize.GetValue())
+        if (size.GetValue() < maxSize.GetValue() || // if still a child or wounded
+            species != mate.species || // if different species
+            !(isMale ^ mate.isMale)) // if same sex
         {
-            // if still a child or wounded
-            return;
-        }
-
-        if (species != mate.species)
-        {
-            // if different species
-            return;
-        }
-
-        if (!(isMale ^ mate.isMale))
-        {
-            // if same sex
+            currentAction = EntityAction.Idle; // Set action to idle when done
             return;
         }
 
@@ -435,9 +436,9 @@ public class Animal : MonoBehaviour, IConsumable
                     OrganismFactory.CreateAnimal(child, mother);
                 }
             }
-            //code here for sex
-            currentAction = EntityAction.Idle; // Set action to idle when done
         }
+        //code here for sex
+        currentAction = EntityAction.Idle; // Set action to idle when done
     }
 
     // let this animal attempt to take a bite from the given consumable
@@ -557,6 +558,7 @@ public class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToStationaryConsumable(string gametag)
     {
         yield return StartCoroutine(Search(gametag));
+        // should probably not hard code plant?
         IConsumable consumable = targetGameObject.GetComponent<MyTestPlant>();
         yield return StartCoroutine(Approach(targetGameObject));
         for (int i = 0; i < 5; i++)
@@ -564,6 +566,21 @@ public class Animal : MonoBehaviour, IConsumable
             Eat(consumable); // take one bite
             yield return new WaitForSeconds(1);
         }
+
+        currentAction = EntityAction.Idle;
+        yield return null;
+    }
+
+    public IEnumerator GoToMate()
+    {
+        // might want to have argument for species, so you can try to mate with other species
+        yield return StartCoroutine(Search(species.ToString()));
+        // should not hard code plant?
+        Animal mate = targetGameObject.GetComponent<Animal>();
+        yield return StartCoroutine(Approach(targetGameObject));
+
+        Act((IConsumable)mate); // frick
+        yield return new WaitForSeconds(1);
 
         currentAction = EntityAction.Idle;
         yield return null;
@@ -596,7 +613,8 @@ public class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator GoToPartner()
     {
-        throw new NotImplementedException();
+        yield return StartCoroutine(GoToMate());
+        //throw new NotImplementedException();
     }
 
     public IEnumerator ChaseAnimal(Animal animal)

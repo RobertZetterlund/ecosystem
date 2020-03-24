@@ -11,5 +11,7 @@
     FoodClose,
     FoodFar,
     WaterClose,
-    WaterFar
+    WaterFar,
+    RabbitClose,
+    RabbitFar,
 }
