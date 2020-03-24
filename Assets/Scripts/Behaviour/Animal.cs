@@ -60,6 +60,9 @@ public class Animal : MonoBehaviour, IConsumable
     private Vector3 lastPos;
     private Animator animator;
 
+    private Memory memory;
+    private SenseProcessor senseProcessor;
+
     public void Init(AnimalTraits traits)
     {
         this.species = traits.species;
@@ -85,6 +88,12 @@ public class Animal : MonoBehaviour, IConsumable
     // Start is called before the first frame update
     void Start()
     {
+
+        memory = new Memory();
+        senseProcessor = new SenseProcessor(this);
+
+
+
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = (float)speed.GetValue();
         // calculate instead if possible
@@ -207,6 +216,10 @@ public class Animal : MonoBehaviour, IConsumable
                 }
             }
         }
+
+        SensedEvent sE = senseProcessor.Process(sensedGameObjects);
+        memory.WriteSensedEventToMemory(sE);
+
 
         fcmHandler.ProcessSensedObjects(this, sensedGameObjects);
 
