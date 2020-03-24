@@ -44,10 +44,18 @@ public static class OrganismFactory
         //GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
         //GameObject model = (GameObject)Resources.Load("bush2");
         GameObject model = GameObject.Instantiate((GameObject)Resources.Load("Tree"));
-        MyTestPlant plant = model.AddComponent<MyTestPlant>();
+        Plant plant = model.AddComponent<Plant>();
         plant.Init(size);
         plant.transform.position = location;
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
+    }
+
+    public static void CreateSappling(int size, Vector3 location)
+    {
+        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("Sappling"));
+        Sappling sappling = model.AddComponent<Sappling>();
+        sappling.Init(size);
+        sappling.transform.position = location;
     }
     // Get offset for the corresponding navmesh agent so it doesn't clip with the ground
     public static float GetOffset(Species species)

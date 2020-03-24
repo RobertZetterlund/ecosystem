@@ -222,12 +222,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     private bool CloseEnoughToAct(GameObject gameObject)
     {
-        if (touchSensor.IsSensingTag(transform, gameObject.tag))
-        {
-            return true;
-        }
-        return false;
-
+        return touchSensor.IsSensingObject(transform, gameObject);
     }
 
     /*private bool CloseEnoughToAct(Vector3 position1, Vector3 position2)
@@ -571,7 +566,7 @@ public class Animal : MonoBehaviour, IConsumable
                 throw new NotImplementedException();
                 break;
             case ConsumptionType.Plant:
-                consumable = targetGameObject.GetComponent<MyTestPlant>();
+                consumable = targetGameObject.GetComponent<Plant>();
                 break;
             case ConsumptionType.Water:
                 consumable = targetGameObject.GetComponent<WaterPond>();
@@ -586,6 +581,7 @@ public class Animal : MonoBehaviour, IConsumable
             Eat(consumable); // take one bite
             yield return new WaitForSeconds(1);
         }
+        yield return null;
     }
 
     public IEnumerator GoToFood()
