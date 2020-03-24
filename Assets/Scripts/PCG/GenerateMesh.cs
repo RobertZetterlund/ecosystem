@@ -45,7 +45,7 @@ public class GenerateMesh : MonoBehaviour
 		}
 
 
-		Mesh mesh = groundObject.GetComponent<MeshFilter>().mesh;
+		Mesh mesh = groundObject.GetComponent<MeshFilter>().sharedMesh;
 
 		mesh.vertices = vectorMap;
 		mesh.triangles = triangleMap;

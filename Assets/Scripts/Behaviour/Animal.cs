@@ -116,7 +116,7 @@ public class Animal : MonoBehaviour, IConsumable
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
         GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
         statusBars = canvas.GetComponent(typeof(StatusBars)) as StatusBars;
-        canvas.transform.parent = gameObject.transform;
+        canvas.transform.SetParent(gameObject.transform, false);
         childRenderers = GetComponentsInChildren<Renderer>();
         UpdateStatusBars();
     }
@@ -582,7 +582,7 @@ public class Animal : MonoBehaviour, IConsumable
         state = ActionState.Eating;
         for (int i = 0; i < 5; i++)
         {
-            if (consumable == null)
+            if (consumable == null || consumable.GetAmount() == 0)
                 break;
 
             Eat(consumable); // take one bite
