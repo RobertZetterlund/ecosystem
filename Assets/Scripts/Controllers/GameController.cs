@@ -4,10 +4,12 @@ using Assets.Scripts;
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField]
+    public bool respawn = true;
+    private static bool respawnStatic = true;
     private int nPlants = 40;
     private static int nRabbits = 10;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
-    private static bool respawn = true;
 
     [Range(1f,100)]
     public float gameSpeed = 1;
@@ -24,7 +26,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         // spawn first rabbits
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 0, 3, 0.1, 0.02, 10, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 0, 3, 0.1, 0.02, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
         SpawnAnimal(rabbitTraits);
         // spawn first plants
         for (int i = 0; i < nPlants; i++)
@@ -32,8 +34,11 @@ public class GameController : MonoBehaviour
             OrganismFactory.CreatePlant(100, NavMeshUtil.GetRandomLocation());
         }
     }
-    
 
+    void Update()
+    {
+        respawnStatic = respawn;
+    }
     private static void SpawnAnimal(AnimalTraits traits)
     {
         switch(traits.species)
@@ -68,7 +73,7 @@ public class GameController : MonoBehaviour
     public static void Unregister(AnimalTraits traits)
     {
         nAliveAnimals[(int)traits.species]--;
-        if (respawn)
+        if (respawnStatic)
         {
             if (nAliveAnimals[(int)traits.species] == 0)
             {

@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-class RabbitFCMHandler : FCMHandler
+public class RabbitFCMHandler : FCMHandler
 {
     private IFuzzifier fuzzifier;
     public RabbitFCMHandler(FCM fcm) : base(fcm)

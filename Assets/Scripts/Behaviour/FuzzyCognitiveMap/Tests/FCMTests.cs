@@ -9,28 +9,20 @@ namespace Tests
     public class FCMTests
     {
         // A Test behaves as an ordinary method
+        [Ignore("dont want these mixed with real logs")]
         [Test]
-        public void FCMTest()
+        public void FCMJSONTest()
         {
+            FCM fcm = FCMFactory.RabbitFCM();
 
-            FCM fcm = CreateFCM();
+            FCMHandler fCMHandler = new RabbitFCMHandler(fcm);
 
-            fcm.Calculate();
-            foreach(double d in fcm.GetStates()) 
-            {
-                Debug.Log(d);
-            }
+            string s = fCMHandler.GenerateJSON();
+            Debug.Log(s);
 
-            Debug.Log(" ");
+            fCMHandler.SaveFCM(s, "SavedFCM");
 
-            fcm.Calculate();
-
-            foreach (double d in fcm.GetStates())
-            {
-                Debug.Log(d);
-            }
-
-            Debug.Log(" ");
+            
         }
         [Test]
         public void NoFieldFoundTest()
@@ -52,32 +44,6 @@ namespace Tests
             return fcm;
         }
 
-        [Test]
-        public void DefuzzificationTest()
-        {
-            EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.Idle };
-            EntityInput[] inputs = new EntityInput[] { EntityInput.FoodClose };
-
-            FCM fcm = new FCM(inputs, actions);
-            fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
-            fcm.SetState(EntityField.GoingToFood, 1);
-            fcm.SetState(EntityField.Idle, 0.5);
-
-            Dictionary<EntityAction, int> dict = new Dictionary<EntityAction, int>();
-            for(int i = 0; i < 1000; i++)
-            {
-                EntityAction action = fcm.GetAction();
-                if (dict.ContainsKey(action)) {
-                    dict[action] += 1;
-                }
-                else
-                {
-                    dict.Add(action, 1);
-                }
-            }
-
-            Debug.Log(dict.ToString());
-        }
 
         // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
         // `yield return null;` to skip a frame.
