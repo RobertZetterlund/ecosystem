@@ -75,28 +75,29 @@ public class GameController : MonoBehaviour
                 {
                     AnimalTraits trait = traits.copyMe();
                     //Uses an fcmHandler that overrides the GetAction method in the RabbitFCMHandler
+                    int x;
+                    int z;
+                    //OrganismFactory.CreateAnimal(trait, NavMeshUtil.GetRandomLocation());
+                    while (true)
+                    {
+                        
+                        x = random.Next(1, sideLength);
+                        z = random.Next(1, sideLength);
+
+                        if (heightMap[x, z] < 0.80f && heightMap[x, z] > 0.25f)
+                        {
+                            break;
+                        }
+                    }
                     if (spawnWithManualActions)
                     {
                         trait.fcmHandler = new MockFCMHandler(new RabbitFCMHandler(FCMFactory.RabbitFCM()));
                     }
                     else
                     {
-                        trait.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
-                        int x;
-                        int z;
-                        //OrganismFactory.CreateAnimal(trait, NavMeshUtil.GetRandomLocation());
-                        while (true)
-                        {
-                            x = random.Next(1, sideLength);
-                            z = random.Next(1, sideLength);
-
-                            if (heightMap[x, z] < 0.80f && heightMap[x, z] > 0.25f)
-                            {
-                                break;
-                            }
-                        }
-                        OrganismFactory.CreateAnimal(trait, new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z));
+                        trait.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());                     
                     }
+                    OrganismFactory.CreateAnimal(trait, new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z));
 
                 }
                 break;
