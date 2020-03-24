@@ -12,10 +12,10 @@ public class SenseProcessor
     GameObject closestWaterObj;
     GameObject closestMateObj;
 
-    double closestFoodDist;
-    double closestFoeDist;
-    double closestWaterDist;
-    double closestMateDist;
+    double closestFoodDist = Int32.MaxValue;
+    double closestFoeDist = Int32.MaxValue;
+    double closestWaterDist = Int32.MaxValue;
+    double closestMateDist = Int32.MaxValue;
 
     string[] diet;
     string[] foes;
@@ -47,8 +47,8 @@ public class SenseProcessor
         return Vector3.Distance(obj1.transform.position, obj2.transform.position);
     }
 
-
-    public void Process(ArrayList sensedGameObjects)
+    // returns a sensedEvent that can be written to memory
+    public SensedEvent Process(ArrayList sensedGameObjects)
     {
         foreach (GameObject gameObject in sensedGameObjects)
         {
@@ -101,13 +101,18 @@ public class SenseProcessor
         }
         // end of foreach loop
 
+
+        
+
+
         // collect all data and combine to a strength of various senses.
+
+        return new SensedEvent(null, closestFoeObj, closestMateObj, closestFoodObj);
     }
 
 
     public GameObject GetClosestFoodObj()
     {
-
         return closestFoodObj;
     }
     

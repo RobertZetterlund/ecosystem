@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Memory
 {
-    private Vector3 WaterVector;
-    private Vector3 FoeVector;
-    private Vector3 MateVector;
-    private Vector3 FoodVector;
+    private GameObject Water;
+    private GameObject Foe;
+    private GameObject Mate;
+    private GameObject Food;
 
     private List<int> rejectedByIDs;
 
@@ -16,20 +16,28 @@ public class Memory
         rejectedByIDs = new List<int>();
     }
 
-    public void WriteWaterToMemory(Vector3 WaterVector) {
-        this.WaterVector = WaterVector;
+    public void WriteSensedEventToMemory(SensedEvent sE)
+    {
+        WriteWaterToMemory(sE.getWater());
+        WriteFoeToMemory(sE.getFoe());
+        WriteMateToMemory(sE.getMate());
+        WriteFoodToMemory(sE.getFood());
     }
 
-    public void WriteFoeToMemory(Vector3 foeVector) {
-        this.FoeVector = foeVector;
+    private void WriteWaterToMemory(GameObject Water) {
+        this.Water = Water;
     }
 
-    public void WriteMateToMemory(Vector3 MateVector) {
-        this.MateVector = MateVector;
+    private void WriteFoeToMemory(GameObject Foe) {
+        this.Foe = Foe;
     }
 
-    public void WriteFoodToMemory(Vector3 FoodVector) {
-        this.FoodVector = FoodVector;
+    private void WriteMateToMemory(GameObject Mate) {
+        this.Mate = Mate;
+    }
+
+    private void WriteFoodToMemory(GameObject Food) {
+        this.Food = Food;
     }
 
     public void AddRejection(int id) {
@@ -47,16 +55,16 @@ public class Memory
         rejectedByIDs.Remove(id);
     }
 
-    public Vector3 ReadFoodFromMemory() {
-        return FoodVector;
+    public GameObject ReadFoodFromMemory() {
+        return Food;
     }
-    public Vector3 ReadFoeFromMemory() {
-        return FoeVector;
+    public GameObject ReadFoeFromMemory() {
+        return Foe;
     }
-    public Vector3 ReadWaterFromMemory() {
-        return WaterVector;
+    public GameObject ReadWaterFromMemory() {
+        return Water;
     }
-    public Vector3 ReadMateFromMemory() {
-        return MateVector;
+    public GameObject ReadMateFromMemory() {
+        return Mate;
     }
 }
