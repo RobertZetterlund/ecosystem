@@ -9,6 +9,7 @@ namespace Tests
     public class FCMTests
     {
         // A Test behaves as an ordinary method
+        [Ignore("dont want these mixed with real logs")]
         [Test]
         public void FCMJSONTest()
         {

@@ -122,6 +122,11 @@ public class TerrainKernal : MonoBehaviour
 
     }
 
+    public float[,] GetHeightMap()
+    {
+        return heightMap;
+    }
+
     /*
     public void AddWater(List<Vector2> cluster, GameObject puddle)
     {

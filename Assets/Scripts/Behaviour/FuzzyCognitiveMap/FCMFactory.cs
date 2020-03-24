@@ -20,5 +20,16 @@ public static class FCMFactory
 
         return fcm;
     }
+
+    public static FCM getSpeciesFCM(Species species){
+
+        if(species == Species.Rabbit){
+
+            return RabbitFCM();  
+        }else{
+            return null;
+        }
+        
+    }
 }
 

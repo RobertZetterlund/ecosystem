@@ -851,6 +851,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eec1e50f7398094dad7f592efc5aba7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameSpeed: 1
+  _spawnWithManualActions: 0
+  _animalCanDie: 1
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -863,6 +866,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebbbb5738d902a84a860757cb2b4c27c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enable: 0
 --- !u!43 &990215534
 Mesh:
   m_ObjectHideFlags: 0
