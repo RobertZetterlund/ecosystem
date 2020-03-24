@@ -95,19 +95,19 @@ public abstract class FCMHandler
         public JSONWeight[] weights;
     }
 
-    public void SaveFCM(string json, string name)
+    public void SaveFCM(string json, string path)
     {
-        string path = null;
+        string name = null;
 #if UNITY_EDITOR
-        path = "Assets/SavedData/FCMData/" + name + ".json";
+        name = path + ".json";
 #endif
 #if UNITY_STANDALONE
         // You cannot add a subfolder, at least it does not work for me
-        path = "Assets/SavedData/FCMData/" + name + ".json";
+        name = path + ".json";
 #endif
 
         string str = json;
-        using (FileStream fs = new FileStream(path, FileMode.Create))
+        using (FileStream fs = new FileStream(name, FileMode.Create))
         {
             using (StreamWriter writer = new StreamWriter(fs))
             {
