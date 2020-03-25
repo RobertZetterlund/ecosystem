@@ -82,6 +82,8 @@ public class Animal : MonoBehaviour, IConsumable
 
         targetGameObject = null;
 
+        gameObject.tag = species.ToString();
+
         GameController.Register(species);
     }
 
@@ -193,6 +195,9 @@ public class Animal : MonoBehaviour, IConsumable
             {
                 //SensedObjectEvent sensedObjectEvent = new SensedObjectEvent(this, gameObject, sensor.sensorType);
                 //sensedObjectEvents.Add(sensedObjectEvent);
+                if (this.gameObject.GetInstanceID() == gameObject.GetInstanceID())
+                    continue;
+
                 sensedGameObjects.Add(gameObject);
 
                 if(state == ActionState.Searching)
@@ -508,9 +513,8 @@ public class Animal : MonoBehaviour, IConsumable
     {
         if (showFCMGizmo)
         {
-            Vector3 textOffset = new Vector3(-3, 2, 0);
-            Handles.Label(transform.position + textOffset, currentAction.ToString());
-            textOffset = new Vector3(1, 2, 0);
+ 
+            Vector3 textOffset = new Vector3(10, 2, 0);
             if (fcmHandler != null)
                 Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
         }

@@ -1,11 +1,12 @@
 ﻿
+using System;
+
 public static class FCMFactory
 {
     public static FCM RabbitFCM()
     {
-        EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.GoingToWater, EntityAction.Idle };
-        EntityInput[] inputs = new EntityInput[] { EntityInput.FoodClose, EntityInput.FoodFar, 
-                                                    EntityInput.WaterClose, EntityInput.WaterFar };
+        EntityInput[] inputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
+        EntityAction[] actions = (EntityAction[])Enum.GetValues(typeof(EntityAction));
 
         FCM fcm = new FCM(inputs, actions);
 
