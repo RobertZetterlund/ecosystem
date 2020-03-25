@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 /**
@@ -42,7 +43,7 @@ public abstract class FCMHandler
 
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 
-    public string GenerateJSON()
+    /*public string GenerateJSON()
     {
 
         double[,] weights = fcm.GetWeights();
@@ -79,8 +80,75 @@ public abstract class FCMHandler
         jwl.weights = jsonWeights.ToArray();
 
         return JsonUtility.ToJson(jwl);
+    }*/
+
+    public string ToJson()
+    {
+        EntityInput[] inputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
+        EntityAction[] actions = (EntityAction[])Enum.GetValues(typeof(EntityAction));
+        EntityField[] fields = new EntityField[inputs.Length + actions.Length];
+        Array.Copy(inputs, fields, inputs.Length);
+        Array.Copy(actions, 0, fields, inputs.Length, actions.Length);
+
+        string[] fieldsAsString = new string[fields.Length];
+
+        for(int i = 0; i < fields.Length; i++)
+        {
+            fieldsAsString[i] = fields[i].ToString();
+        }
+
+        JsonObject jwa = new JsonObject();
+        //jwa.fields = fieldsAsString;
+
+        double[,] weights = fcm.GetWeights();
+        double[,] convertedWeights = new double[fields.Length,fields.Length];
+
+        TwoWayMap<int, int> translation = fcm.GetTranslation();
+
+        for (int _from = 0; _from < weights.GetLength(0); _from++)
+        {
+            for (int _to = 0; _to < weights.GetLength(1); _to++)
+            {
+                double weight = weights[_from,_to];
+                convertedWeights[translation.Reverse[_from], translation.Reverse[_to]] = weight;
+            }
+        }
+
+        jwa.weights = convertedWeights;
+
+        return JsonUtility.ToJson(jwa);
     }
 
+    public StringBuilder ToCsv()
+    {
+        StringBuilder csv = new StringBuilder("");
+
+        EntityField[] fields = (EntityField[])Enum.GetValues(typeof(EntityField));
+
+        bool run = fields.Length > 0;
+        int i = 0;
+        csv.Append("field,");
+        while (run)
+        {
+            csv.Append(fields[i].ToString());
+            if(i++ +1 < fields.Length)
+                csv.Append(",");
+            else
+                break;
+        }
+        return csv;
+       
+    }
+
+    [Serializable]
+    private class JsonObject
+    {
+        [SerializeField]
+        public double[,] weights;
+        //public string[] fields;
+    }
+
+    /*
     [Serializable]
     private class JSONWeight
     {
@@ -93,7 +161,7 @@ public abstract class FCMHandler
     private class JSONWeightList
     {
         public JSONWeight[] weights;
-    }
+    }*/
 
     public void SaveFCM(string json, string path)
     {

@@ -1,5 +1,12 @@
 ﻿public enum EntityField
 {
+    //Concepts
+    FoodClose,
+    FoodFar,
+    WaterClose,
+    WaterFar,
+
+    //Actions
     Idle,
     Resting,
     GoingToFood,
@@ -7,9 +14,5 @@
     Eating,
     Drinking,
     SearchingForMate,
-    Reproducing,
-    FoodClose,
-    FoodFar,
-    WaterClose,
-    WaterFar
+    Reproducing  
 }

@@ -9,16 +9,15 @@ namespace Tests
     public class FCMTests
     {
         // A Test behaves as an ordinary method
-        [Ignore("dont want these mixed with real logs")]
+        //[Ignore("dont want these mixed with real logs")]
         [Test]
-        public void FCMJSONTest()
+        public void FcmCsvTest()
         {
             FCM fcm = FCMFactory.RabbitFCM();
 
             FCMHandler fCMHandler = new RabbitFCMHandler(fcm);
 
-            string s = fCMHandler.GenerateJSON();
-            Debug.Log(s);
+            string s = fCMHandler.ToCsv().ToString();
 
             fCMHandler.SaveFCM(s, "SavedFCM");
 
