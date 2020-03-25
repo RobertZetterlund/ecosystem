@@ -56,7 +56,10 @@ public class SenseProcessor
         int foeCount = 0;
         int mateCount = 0;
         int waterCount = 0;
-
+        closestFoodDist = Int32.MaxValue;
+        closestFoeDist = Int32.MaxValue;
+        closestMateDist = Int32.MaxValue;
+        closestWaterDist = Int32.MaxValue;
 
         closestFoodObj = null;
         closestFoeObj = null;
