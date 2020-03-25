@@ -19,19 +19,19 @@ public class Memory
     public void WriteSensedEventToMemory(SensedEvent sE)
     {
         // dont overwrite if null
-        if (sE.GetWater() != null)
+        if (!(sE.GetWater() is null))
         {
             WriteWaterToMemory(sE.GetWater());
         }
-        if (sE.GetFoe() != null)
+        if (!(sE.GetFoe() is null))
         {
             WriteFoeToMemory(sE.GetFoe());
         }
-        if (sE.GetMate() != null)
+        if (!(sE.GetMate() is null))
         {
             WriteMateToMemory(sE.GetMate());
         }
-        if (sE.GetFood() != null)
+        if (!(sE.GetFood() is null))
         {
             WriteFoodToMemory(sE.GetFood());
         }
