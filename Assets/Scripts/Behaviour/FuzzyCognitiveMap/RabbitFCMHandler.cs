@@ -31,9 +31,14 @@ public class RabbitFCMHandler : FCMHandler
     // Sets the two input fields as "komplement" to eachother in the fcm.
     private void SetInverseDistanceInputFields(EntityInput close, EntityInput far, GameObject sensedObject, Animal animal)
     {
-        float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
-        float standard = fuzzifier.Fuzzify(0, animal.GetSenseRadius(), dist);
-        float inverse = 1 - standard;
+        float standard = 0;
+        float inverse = 1;
+        if(sensedObject != null)
+        {
+            float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
+            standard = fuzzifier.Fuzzify(0, 100, dist);
+            inverse = 1 - standard;
+        }
         fcm.SetState((EntityField)close, standard);
         fcm.SetState((EntityField)far, inverse);
     }
