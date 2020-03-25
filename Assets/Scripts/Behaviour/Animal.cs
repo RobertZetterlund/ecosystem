@@ -192,32 +192,11 @@ public class Animal : MonoBehaviour, IConsumable
         foreach (AbstractSensor sensor in sensors)
         {
             foreach (GameObject gameObject in sensor.Sense(transform))
-            {
-                //SensedObjectEvent sensedObjectEvent = new SensedObjectEvent(this, gameObject, sensor.sensorType);
-                //sensedObjectEvents.Add(sensedObjectEvent);
-                if (this.gameObject.GetInstanceID() == gameObject.GetInstanceID())
-                    continue;
-
+            { 
+                if (this.gameObject.GetInstanceID() != gameObject.GetInstanceID())
+                {
                 sensedGameObjects.Add(gameObject);
 
-                if(state == ActionState.Searching)
-                {
-                    if (!targetGametag.Equals("") && gameObject.CompareTag(targetGametag))
-                    {
-                        targetGameObject = gameObject;
-                        //StopAllCoroutines();
-
-                        // decide to go towards that gameObject
-
-                        //currentTargetTransform = gameObject.transform;
-
-                        //FollowMyCurrentTarget(gameObject);
-
-
-                        // break;
-
-                        //SetDestination(gameObject.transform.position);
-                    }
                 }
             }
         }
@@ -228,7 +207,6 @@ public class Animal : MonoBehaviour, IConsumable
         IDictionary<string, int> impactMap = sE.GetWeightMap();
 
         fcmHandler.ProcessSensedObjects(this, sE);
-
     }
 
     void FollowMyCurrentTarget(GameObject gameObject)
@@ -343,10 +321,14 @@ public class Animal : MonoBehaviour, IConsumable
             switch (currentAction)
             {
                 case EntityAction.GoingToWater:
+                    targetGameObject = memory.ReadWaterFromMemory();
+
                     StartCoroutine(GoToWater());
                     break;
 
                 case EntityAction.GoingToFood:
+                    targetGameObject = memory.ReadFoodFromMemory();
+
                     StartCoroutine(GoToFood());
                     break;
             }
