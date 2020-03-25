@@ -14,4 +14,8 @@
     WaterFar,
     RabbitClose,
     RabbitFar,
+    Fertile,
+    NotFertile,
+    Hungry,
+    NotHungry
 }

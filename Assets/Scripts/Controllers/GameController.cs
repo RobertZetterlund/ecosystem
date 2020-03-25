@@ -46,13 +46,14 @@ public class GameController : MonoBehaviour
             case Species.Rabbit:
                 for (int i = 0; i < nRabbits; i++)
                 {
+                    AnimalTraits traitsCopy = traits.Duplicate();
                     //Uses an fcmHandler that overrides the GetAction method in the RabbitFCMHandler
                     if(spawnWithManualActions) 
-                        traits.fcmHandler = new MockFCMHandler(new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+                        traitsCopy.fcmHandler = new MockFCMHandler(new RabbitFCMHandler(FCMFactory.RabbitFCM()));
                     else
-                        traits.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
+                        traitsCopy.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
 
-                    OrganismFactory.CreateAnimal(traits, NavMeshUtil.GetRandomLocation());
+                    OrganismFactory.CreateAnimal(traitsCopy, NavMeshUtil.GetRandomLocation());
                 }
                 break;
             case Species.Plant:

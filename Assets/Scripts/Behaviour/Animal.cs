@@ -14,13 +14,14 @@ public class Animal : MonoBehaviour, IConsumable
     private RangedDouble thirst = new RangedDouble(0, 0, 1);
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
-    protected EntityAction currentAction = EntityAction.Idle;
     private bool isMale;
     private RangedInt nChildren; // how many kids you will have
     private RangedDouble size;
-    private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     private RangedDouble speed;
+    private bool isFertile;
     // internal traits
+    protected EntityAction currentAction = EntityAction.Idle;
+    private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     double timeToDeathByHunger = 600;
     double timeToDeathByThirst = 200;
     private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
@@ -140,6 +141,10 @@ public class Animal : MonoBehaviour, IConsumable
         energy -= Time.deltaTime * 1 / lifespan;
 
         heat.Add(1 / heatTimer.GetValue());
+        if (heat.GetValue() == 1)
+        {
+            isFertile = true;
+        }
 
         if (senseTimer.IsDone())
         {
@@ -384,12 +389,11 @@ public class Animal : MonoBehaviour, IConsumable
     {
         //mate.Reproduce(this);
         // reduce heat (assume you did the fucko but even if the animals were incompatible biologically)
-        heat.Add(-1);
-        mate.heat.Add(-1);
 
         if (size.GetValue() < maxSize.GetValue() || // if still a child or wounded
             species != mate.species || // if different species
-            !(isMale ^ mate.isMale)) // if same sex
+            !(isMale ^ mate.isMale) || // if same sex
+            !isFertile || !mate.isFertile) // if not fertile
         {
             currentAction = EntityAction.Idle; // Set action to idle when done
             return;
@@ -399,8 +403,10 @@ public class Animal : MonoBehaviour, IConsumable
         {
             if (energy > 0.4)
             {
-
-
+                heat.Add(-1);
+                mate.heat.Add(-1);
+                isFertile = false;
+                mate.isFertile = false;
                 //make #nChildren children
                 for (int i = 0; i < nChildren.GetValue(); i++)
                 {
@@ -437,7 +443,6 @@ public class Animal : MonoBehaviour, IConsumable
                 }
             }
         }
-        //code here for sex
         currentAction = EntityAction.Idle; // Set action to idle when done
     }
 

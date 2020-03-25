@@ -5,5 +5,9 @@
     WaterClose = EntityField.WaterClose,
     WaterFar = EntityField.WaterFar,
     RabbitClose = EntityField.RabbitClose,
-    RabbitFar = EntityField.RabbitFar
+    RabbitFar = EntityField.RabbitFar,
+    Fertile = EntityField.Fertile,
+    NotFertile = EntityField.NotFertile,
+    Hungry = EntityField.Hungry,
+    NotHungry = EntityField.NotHungry
 }

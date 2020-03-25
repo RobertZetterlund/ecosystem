@@ -43,7 +43,16 @@ namespace Assets.Scripts
             traits[6] = (heatTimer, "heat Timer");
             return traits;
         }
+        // warning - shallow copy of fcmHandler for now
+        // but we probably wont need this method later if we  randomize different traits for
+        // each animal
+        public AnimalTraits Duplicate()
+        {
+            AnimalTraits copy = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+            return copy;
+        }
     }
+
 
 
 }

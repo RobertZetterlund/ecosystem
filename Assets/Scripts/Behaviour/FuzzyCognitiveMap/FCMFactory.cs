@@ -6,7 +6,9 @@ public static class FCMFactory
         EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.GoingToWater, EntityAction.Idle, EntityAction.SearchingForMate };
         EntityInput[] inputs = new EntityInput[] { EntityInput.FoodClose, EntityInput.FoodFar, 
                                                     EntityInput.WaterClose, EntityInput.WaterFar,
-                                                    EntityInput.RabbitClose, EntityInput.RabbitFar};
+                                                    EntityInput.RabbitClose, EntityInput.RabbitFar,
+                                                    EntityInput.Fertile, EntityInput.NotFertile,
+                                                    EntityInput.Hungry, EntityInput.NotHungry};
 
         FCM fcm = new FCM(inputs, actions);
 
@@ -16,6 +18,10 @@ public static class FCMFactory
         fcm.SetWeight(EntityField.WaterFar, EntityField.GoingToWater, -0.05);
         fcm.SetWeight(EntityField.RabbitClose, EntityField.SearchingForMate, 0.05);
         fcm.SetWeight(EntityField.RabbitFar, EntityField.SearchingForMate, -0.05);
+        fcm.SetWeight(EntityField.Fertile, EntityField.SearchingForMate, 0.5);
+        fcm.SetWeight(EntityField.NotFertile, EntityField.SearchingForMate, -1);
+        fcm.SetWeight(EntityField.Hungry, EntityField.GoingToFood, 0.5);
+        fcm.SetWeight(EntityField.NotHungry, EntityField.GoingToFood, -0.5);
 
         //This should start of has being far away, unless anything else has been sensed
         fcm.SetState(EntityField.FoodFar, 1);
