@@ -62,6 +62,12 @@ public class SenseProcessor
         int waterCount = 0;
 
 
+        closestFoodObj = null;
+        closestFoeObj = null;
+        closestWaterObj = null;
+        closestMateObj = null;
+
+
         foreach (GameObject gameObject in sensedGameObjects)
         {
             string tagOfSensedObject = gameObject.tag;
@@ -137,7 +143,7 @@ public class SenseProcessor
         weightMap.Add("Mate", mateCount);
 
         // return a sensedEvent that can be written to memory.
-        return new SensedEvent(weightMap ,null, closestFoeObj, closestMateObj, closestFoodObj);
+        return new SensedEvent(weightMap ,closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);
     }
 
 
