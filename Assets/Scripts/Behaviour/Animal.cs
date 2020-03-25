@@ -51,12 +51,14 @@ public class Animal : MonoBehaviour, IConsumable
     private StatusBars statusBars;
     private Component[] childRenderers;
     //Debugging
-    public bool showFCMGizmo, showSenseRadiusGizmo, showSightGizmo, showSmellGizmo, showTargetDestinationGizmo = false;
+    public bool showFCMGizmo = true;
+    public bool showSenseRadiusGizmo, showSightGizmo, showSmellGizmo, showTargetDestinationGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
     Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
     // trait copy for easier logging etc
     private AnimalTraits traits;
     private bool logNext = false;
+    //animation
     private Vector3 lastPos;
     private Animator animator;
 
@@ -154,6 +156,8 @@ public class Animal : MonoBehaviour, IConsumable
         }
         if (fcmTimer.IsDone())
         {
+            fcmHandler.ProcessAnimal(hunger.GetValue(), thirst.GetValue(), energy, dietFactor.GetValue(), 
+                isMale, nChildren.GetValue(), size.GetValue(), speed.GetValue(), isFertile);
             fcmHandler.CalculateFCM();
             fcmTimer.Reset();
             fcmTimer.Start();
@@ -498,14 +502,7 @@ public class Animal : MonoBehaviour, IConsumable
     //Draws a sphere corresponding to its sense radius
     void OnDrawGizmos()
     {
-        if (showFCMGizmo)
-        {
-            Vector3 textOffset = new Vector3(-3, 2, 0);
-            Handles.Label(transform.position + textOffset, currentAction.ToString());
-            textOffset = new Vector3(1, 2, 0);
-            if (fcmHandler != null)
-                Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
-        }
+        
 
         /*if (showSenseRadiusGizmo)
         {
@@ -553,6 +550,17 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
 
+    }
+    void OnDrawGizmosSelected()
+    {
+        if (showFCMGizmo)
+        {
+            Vector3 textOffset = new Vector3(-3, 2, 0);
+            Handles.Label(transform.position + textOffset, currentAction.ToString());
+            textOffset = new Vector3(1, 2, 0);
+            if (fcmHandler != null)
+                Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
+        }
     }
 
     public NavMeshAgent GetNavMeshAgent()
@@ -710,8 +718,9 @@ public class Animal : MonoBehaviour, IConsumable
     // update position and value of status bars
     private void UpdateStatusBars()
     {
-        statusBars.UpdateStatus((float)hunger.GetValue(), (float)thirst.GetValue(), (float)energy);
+        statusBars.UpdateStatus((float)hunger.GetValue(), (float)thirst.GetValue(), (float)energy, (float)heat.GetValue());
 
+        // set position of status bars
         Renderer rend = (Renderer)childRenderers[0]; // take the first one
         Vector3 center = rend.bounds.center;
         float radius = rend.bounds.extents.magnitude;

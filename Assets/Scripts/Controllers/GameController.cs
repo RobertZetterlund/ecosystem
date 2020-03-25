@@ -7,8 +7,8 @@ public class GameController : MonoBehaviour
     [SerializeField]
     public bool respawn = true;
     private static bool respawnStatic = true;
-    private int nPlants = 1;
-    private static int nRabbits = 10;
+    private int nPlants = 200;
+    private static int nRabbits = 30;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
 
     [Range(1f,100)]
