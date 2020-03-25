@@ -220,8 +220,9 @@ public class Animal : MonoBehaviour, IConsumable
         SensedEvent sE = senseProcessor.Process(sensedGameObjects);
         memory.WriteSensedEventToMemory(sE);
 
+        IDictionary<string, int> impactMap = sE.GetWeightMap();
 
-        fcmHandler.ProcessSensedObjects(this, sensedGameObjects);
+        fcmHandler.ProcessSensedObjects(this, sE);
 
     }
 
