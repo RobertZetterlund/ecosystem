@@ -11,5 +11,9 @@
     FoodClose,
     FoodFar,
     WaterClose,
-    WaterFar
+    WaterFar,
+    MateClose,
+    MateFar,
+    FoeClose,
+    FoeFar
 }

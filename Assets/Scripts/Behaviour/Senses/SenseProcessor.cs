@@ -59,6 +59,7 @@ public class SenseProcessor
         int foodCount = 0;
         int foeCount = 0;
         int mateCount = 0;
+        int waterCount = 0;
 
 
         foreach (GameObject gameObject in sensedGameObjects)
@@ -71,6 +72,8 @@ public class SenseProcessor
             {
                 Debug.Log("SENSING FOOD!");
                 foodCount++;
+
+               
       
                 if (closestFoodDist > distanceBetween)
                 {
@@ -82,9 +85,14 @@ public class SenseProcessor
             else if ((gameObject.tag).Equals("Water"))
             {
                 Debug.Log("SENSING WATER");
+                waterCount++;
 
-                // TODO: implement
-                // hold off until we have water sorted
+                if(closestWaterDist > distanceBetween)
+                {
+                    closestWaterObj = gameObject;
+                    closestWaterDist = distanceBetween;
+                }
+                
             }
             // check if foe
             else if(Array.Exists(foes, foe => foe.Equals(tagOfSensedObject)))
