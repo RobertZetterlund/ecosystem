@@ -115,42 +115,34 @@ public class Animal : MonoBehaviour, IConsumable
         fcmTimer = new Timer(0.25f);
 
         // update ui and visual traits
-        UpdateSize();
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
         GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
         statusBars = canvas.GetComponent(typeof(StatusBars)) as StatusBars;
-        //GameObject empty = new GameObject();
-        //canvas.transform.parent = empty.transform;
-        //canvas.transform.parent = gameObject.transform;
-        //canvas.transform.SetParent(gameObject.transform, true);
-        //canvas.transform.localScale = StatusBars.scale;
-        //empty.transform.parent = gameObject.transform;
+
         childRenderers = GetComponentsInChildren<Renderer>();
+        UpdateSize();
         UpdateStatusBars();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // growth = hunger drain and size gain while growing
         double growth = 0;
         //increases hunger and thirst over time
         if (size.GetValue() < maxSize.GetValue()) // if not fully grown
         {
             growth = size.GetValue() * growthFactor.GetValue(); // used to be maxSize
-            //size.Add(growth);
-            //UpdateSize();
         }
         double depletion = Time.deltaTime / timeToDeathByHunger * (size.GetValue() * speed.GetValue() + senseRadius);
         double depleted = hunger.Add(depletion);
         if (depletion != depleted)
         {
-            Debug.Log(growth + " " + (depleted- depletion));
             size.Add(depleted - depletion);
+            UpdateSize();
         }
         else
         {
-            size.Add(-hunger.Add(-growth));
+            size.Add(hunger.Add(growth)); // grow until hunger runs out
             UpdateSize();
         }
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
@@ -159,10 +151,9 @@ public class Animal : MonoBehaviour, IConsumable
         energy -= Time.deltaTime * 1 / lifespan;
 
         heat.Add(1 / heatTimer.GetValue());
-        if (heat.GetValue() == 1)
-        {
-            isFertile = true;
-        }
+
+        // can only mate if in heat and fully grown
+        isFertile = heat.GetValue() == 1 && size.GetValue() == maxSize.GetValue();
 
         if (senseTimer.IsDone())
         {
@@ -412,12 +403,10 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void Reproduce(Animal mate)
     {
-        Debug.Log("r start");
         try
         {
             // checked if can mate
-            if (size.GetValue() < maxSize.GetValue() || // if still a child or wounded
-                species != mate.species || // if different species
+            if (species != mate.species || // if different species
                 !(isMale ^ mate.isMale) || // if same sex
                 !isFertile || !mate.isFertile) // if not fertile
             {
@@ -438,16 +427,13 @@ public class Animal : MonoBehaviour, IConsumable
                     {
                         double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
 
-                        Debug.Log("b start");
                         // deplete hunger for each child born
                         // stop when your hunger would run out
                         // if: hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue()
                         if (size.Add(-maxSize * this.infantFactor.GetValue()) != -maxSize * this.infantFactor.GetValue())
                         {
-                            Debug.Log("fk " + i);
                             return;
                         }
-                        Debug.Log("b emd");
                         double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
                         int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
                         double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
@@ -470,6 +456,7 @@ public class Animal : MonoBehaviour, IConsumable
 
                         OrganismFactory.CreateAnimal(child, mother);
                     }
+                    UpdateSize();
                 }
             }
         }
@@ -495,7 +482,9 @@ public class Animal : MonoBehaviour, IConsumable
     // eat this animal
     public double Consume(double amount)
     {
-        return size.Add(-amount);
+        double eaten = size.Add(-amount);
+        UpdateSize();
+        return eaten;
     }
 
 
@@ -600,9 +589,22 @@ public class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator GoToStationaryConsumable(string gametag)
     {
-        yield return StartCoroutine(Search(gametag));
-        // should probably not hard code plant?
-        IConsumable consumable = targetGameObject.GetComponent<MyTestPlant>();
+        bool retry = true;
+        IConsumable consumable = null;
+        while (retry == true)
+        {
+            retry = false;
+            yield return StartCoroutine(Search(gametag));
+            try
+            {
+                consumable = targetGameObject.GetComponent<MyTestPlant>();
+            }
+            catch (MissingReferenceException)
+            {
+                retry = true;
+            }
+        }
+
         yield return StartCoroutine(Approach(targetGameObject));
         for (int i = 0; i < 5; i++)
         {
@@ -625,18 +627,14 @@ public class Animal : MonoBehaviour, IConsumable
             yield return StartCoroutine(SearchMate(species.ToString()));
             try
             {
-                Debug.Log("try");
                 mate = targetGameObject.GetComponent<Animal>();
             } catch (MissingReferenceException)
             {
-                Debug.Log("catch");
                 retry = true;
             }
         }
         //yield return StartCoroutine(SearchMate(species.ToString()));
-        Debug.Log("approch");
         yield return StartCoroutine(Approach(targetGameObject));
-        Debug.Log("frick");
         Act((IConsumable)mate); // frick
         yield return new WaitForSeconds(1);
 
@@ -657,7 +655,6 @@ public class Animal : MonoBehaviour, IConsumable
             if(targetGameObject != null)
                 SetDestination(targetGameObject.transform.position);
         }
-        Debug.Log("close");
         // To prevent the animal from not going further than necessary to perform its action.
         // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
         // has to resume the movement when you want the animal to walk again, so I did it this way instead.
@@ -774,6 +771,10 @@ public class Animal : MonoBehaviour, IConsumable
     private void UpdateSize()
     {
         gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+
+        Renderer rend = (Renderer)childRenderers[0];
+        float radius = rend.bounds.extents.magnitude;
+        touchSensor.setRadius(radius * 1.1f);
         //statusBars.transform.localScale = StatusBars.scale;
     }
 
