@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEditor;
 
-[CustomEditor(typeof(Animal))]
+[CustomEditor(typeof(Rabbit))]
 public class ObjectBuilderEditor : Editor
 {
     MockFCMHandler fcmHandler;

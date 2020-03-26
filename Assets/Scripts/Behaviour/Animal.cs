@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Assets.Scripts;
 
-public class Animal : MonoBehaviour, IConsumable
+public abstract class Animal : MonoBehaviour, IConsumable
 {
     // traits that could be in fcm:
     private RangedDouble hunger = new RangedDouble(0, 0, 1);
@@ -15,7 +15,7 @@ public class Animal : MonoBehaviour, IConsumable
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
-    private ActionState state = new ActionState();
+    protected ActionState state = new ActionState();
     private bool isMale;
     private RangedInt nChildren; // how many kids you will have
     private RangedDouble size;
@@ -45,7 +45,7 @@ public class Animal : MonoBehaviour, IConsumable
     private float smellRadius = 7;
     private float horisontalFOV = 120;
     private float verticalFOV = 90;
-    private GameObject targetGameObject;
+    protected GameObject targetGameObject;
     private Transform currentTargetTransform;
     private Memory memory;
     private SenseProcessor senseProcessor;
@@ -64,7 +64,7 @@ public class Animal : MonoBehaviour, IConsumable
     private Animator animator;
 
 
-    public void Init(AnimalTraits traits)
+    public virtual void Init(AnimalTraits traits)
     {
         this.species = traits.species;
         this.dietFactor = new RangedDouble(traits.dietFactor, 0, 1);
@@ -553,7 +553,7 @@ public class Animal : MonoBehaviour, IConsumable
         switch (consumptionType)
         {
             case ConsumptionType.Animal:
-                throw new NotImplementedException();
+                consumable = targetGameObject.GetComponent<Animal>();
                 break;
             case ConsumptionType.Plant:
                 consumable = targetGameObject.GetComponent<Plant>();
@@ -574,7 +574,7 @@ public class Animal : MonoBehaviour, IConsumable
         yield return null;
     }
 
-    public IEnumerator GoToFood()
+    public virtual IEnumerator GoToFood()
     {
         state = ActionState.GoingToFood;
         string gametag = ConsumptionType.Plant.ToString();
@@ -632,11 +632,14 @@ public class Animal : MonoBehaviour, IConsumable
         throw new NotImplementedException();
     }
 
-    public IEnumerator ChaseAnimal(Animal animal)
+    public IEnumerator ChaseAnimal(GameObject animal)
     {
         //this is where we need to implement a sort of following the animal code;
         //yield return StartCoroutine()
-        throw new NotImplementedException();
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Animal, targetGameObject.transform.position));
+        state = ActionState.Idle;
+        currentAction = EntityAction.Idle;
+
     }
 
     public IEnumerator EscapeAnimal(Animal animal)

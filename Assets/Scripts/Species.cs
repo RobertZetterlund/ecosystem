@@ -2,6 +2,7 @@
 {
     Undefined,
     Rabbit,
+    Fox,
     Plant,
     Water
 }
