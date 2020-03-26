@@ -9,18 +9,20 @@ public static class OrganismFactory
 {
     public static void CreateAnimal(AnimalTraits traits, Vector3 location)
     {
-        GameObject gameObject;
+        Animal animal;
         switch (traits.species)
         {
             case Species.Rabbit:
-                gameObject = CreateRabbit();
+                animal = CreateRabbit();
+                break;
+            case Species.Fox:
+                animal = CreateFox();
                 break;
             default:
-                gameObject = null;
+                animal = null;
                 break;
         }
 
-        Animal animal = gameObject.AddComponent<Animal>();
         animal.Init(traits);
         animal.transform.position = location;
 
@@ -31,12 +33,22 @@ public static class OrganismFactory
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
     }
 
-    private static GameObject CreateRabbit()
+    private static Animal CreateFox()
+    {
+        //return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        GameObject model = GameObject.Instantiate((GameObject)Resources.Load("testF")); //name a Fox to testF in unity
+        Animal animal = model.AddComponent<Fox>();
+        //model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        return animal;
+    }
+
+    private static Animal CreateRabbit()
     {
         //return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         GameObject model = GameObject.Instantiate((GameObject)Resources.Load("testR"));
+        Animal animal = model.AddComponent<Rabbit>();
         //model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-        return model;
+        return animal;
     }
 
     public static void CreatePlant(int size, Vector3 location)

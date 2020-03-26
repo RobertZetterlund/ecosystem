@@ -33,7 +33,11 @@ public class GameController : MonoBehaviour
         sideLength = terrainKernal.resolution;
 
         System.Random random = new System.Random();
-        
+
+        // spawn first foxes
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 1, 1, 3, 0.1, 0.02, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM())); //might need a foxFCM later on
+        SpawnAnimal(foxTraits);
+
         // spawn first rabbits
         AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 0, 3, 0.1, 0.02, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
         SpawnAnimal(rabbitTraits);
@@ -70,6 +74,7 @@ public class GameController : MonoBehaviour
       
         switch (traits.species)
         {
+            case Species.Fox: //need to fix this later on (FCM handler)
             case Species.Rabbit:
                 for (int i = 0; i < nRabbits; i++)
                 {
