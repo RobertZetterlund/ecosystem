@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class StatusBars : MonoBehaviour
 {
+    public static Vector3 scale = new Vector3(0.01152718f, 0.02385204f, 0.01152718f);
     [Header("unity stuff")]
     private Image hungerBar;
     private Image thirstBar;

@@ -119,7 +119,12 @@ public class Animal : MonoBehaviour, IConsumable
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
         GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
         statusBars = canvas.GetComponent(typeof(StatusBars)) as StatusBars;
-        canvas.transform.parent = gameObject.transform;
+        //GameObject empty = new GameObject();
+        //canvas.transform.parent = empty.transform;
+        //canvas.transform.parent = gameObject.transform;
+        //canvas.transform.SetParent(gameObject.transform, true);
+        //canvas.transform.localScale = StatusBars.scale;
+        //empty.transform.parent = gameObject.transform;
         childRenderers = GetComponentsInChildren<Renderer>();
         UpdateStatusBars();
     }
@@ -302,6 +307,10 @@ public class Animal : MonoBehaviour, IConsumable
         {
             Die(CauseOfDeath.Age);
         }
+        else if (size.GetValue() == 0)
+        {
+            Die(CauseOfDeath.Eaten);
+        }
     }
 
     public void Die(CauseOfDeath cause)
@@ -311,6 +320,7 @@ public class Animal : MonoBehaviour, IConsumable
             dead = true;
             //Something.log(cause);
             GameController.Unregister(traits);
+            Destroy(statusBars.gameObject);
             Destroy(gameObject);
         }
 
@@ -418,7 +428,8 @@ public class Animal : MonoBehaviour, IConsumable
 
                         // deplete hunger for each child born
                         // stop when your hunger would run out
-                        if (hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
+                        // if: hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue()
+                        if (size.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
                         {
                             return;
                         }
@@ -744,20 +755,24 @@ public class Animal : MonoBehaviour, IConsumable
 
     private void UpdateSize()
     {
-        Vector3 scale = gameObject.transform.localScale;
-        scale = scale * (float)size.GetValue();
+        gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+        //statusBars.transform.localScale = StatusBars.scale;
     }
 
     // update position and value of status bars
     private void UpdateStatusBars()
     {
         statusBars.UpdateStatus((float)hunger.GetValue(), (float)thirst.GetValue(), (float)energy, (float)heat.GetValue());
-
+        statusBars.gameObject.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
         // set position of status bars
         Renderer rend = (Renderer)childRenderers[0]; // take the first one
         Vector3 center = rend.bounds.center;
         float radius = rend.bounds.extents.magnitude;
-        statusBars.gameObject.transform.position = center + new Vector3(0, radius, 0);
+        Vector3[] corners = new Vector3[4];
+        statusBars.gameObject.GetComponent<RectTransform>().GetWorldCorners(corners);
+        float height = corners[1].y - corners[0].y;
+        statusBars.gameObject.transform.position = center + new Vector3(0, radius/2, 0) + new Vector3(0f,height/2,0f);
+        statusBars.transform.localScale = StatusBars.scale;
     }
 
     //Currently used for testing

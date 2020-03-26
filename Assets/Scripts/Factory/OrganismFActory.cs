@@ -62,4 +62,17 @@ public static class OrganismFactory
                 return 0f;
         }
     }
+
+    public static Vector3 GetOriginalScale(Species species)
+    {
+        switch (species)
+        {
+            case Species.Rabbit:
+                return new Vector3(1f, 1f, 1f);
+            case Species.Plant:
+                return new Vector3 (1f, 1f, 1f);
+            default:
+                return new Vector3(1f, 1f, 1f);
+        }
+    }
 }
