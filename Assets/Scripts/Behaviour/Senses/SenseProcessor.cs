@@ -75,7 +75,6 @@ public class SenseProcessor
             // check if in diet
             if (Array.Exists(diet, food => food.Equals(tagOfSensedObject)))
             {
-                Debug.Log("SENSING FOOD!");
                 foodCount++;
 
                 if (closestFoodDist > distanceBetween)
@@ -87,7 +86,6 @@ public class SenseProcessor
             // check if water
             else if ((gameObject.tag).Equals("Water"))
             {
-                Debug.Log("SENSING WATER");
                 waterCount++;
 
                 if (closestWaterDist > distanceBetween)
@@ -100,7 +98,6 @@ public class SenseProcessor
             // check if foe
             else if (Array.Exists(foes, foe => foe.Equals(tagOfSensedObject)))
             {
-                Debug.Log("SENSING FOE");
                 foeCount++;
                 if (closestFoeDist > distanceBetween)
                 {
@@ -112,7 +109,6 @@ public class SenseProcessor
             // check if mate
             else if (Array.Exists(mates, mate => mate.Equals(tagOfSensedObject)))
             {
-                Debug.Log("SENSING MATE");
                 mateCount++;
                 if (closestMateDist > distanceBetween)
                 {
@@ -123,8 +119,6 @@ public class SenseProcessor
             // unknown
             else
             {
-                Debug.Log("SENSING UNKNOWN");
-
                 /// ?
             }
         }
