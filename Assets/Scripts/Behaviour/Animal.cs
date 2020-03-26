@@ -634,6 +634,8 @@ public class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator ChaseAnimal(Animal animal)
     {
+        //this is where we need to implement a sort of following the animal code;
+        //yield return StartCoroutine()
         throw new NotImplementedException();
     }
 
