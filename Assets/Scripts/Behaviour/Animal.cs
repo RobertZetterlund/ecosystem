@@ -15,7 +15,7 @@ public class Animal : MonoBehaviour, IConsumable
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     protected EntityAction currentAction = EntityAction.Idle;
-    private ActionState state = new ActionState();
+    protected ActionState state = new ActionState();
     private bool isMale;
     private RangedInt nChildren; // how many kids you will have
     private RangedDouble size;
@@ -45,7 +45,7 @@ public class Animal : MonoBehaviour, IConsumable
     private float smellRadius = 7;
     private float horisontalFOV = 120;
     private float verticalFOV = 90;
-    private GameObject targetGameObject;
+    protected GameObject targetGameObject;
     private Transform currentTargetTransform;
     private Memory memory;
     private SenseProcessor senseProcessor;
