@@ -39,7 +39,7 @@ public class Animal : MonoBehaviour, IConsumable
     // senses
     private Timer senseTimer, fcmTimer;
     private float senseRadius;
-	private AbstractSensor[] sensors;
+    private AbstractSensor[] sensors;
     private AbstractSensor touchSensor;
     private float sightLength = 25;
     private float smellRadius = 7;
@@ -47,6 +47,9 @@ public class Animal : MonoBehaviour, IConsumable
     private float verticalFOV = 90;
     private GameObject targetGameObject;
     private Transform currentTargetTransform;
+    private Memory memory;
+    private SenseProcessor senseProcessor;
+
     // ui
     private StatusBars statusBars;
     private Component[] childRenderers;
@@ -60,8 +63,6 @@ public class Animal : MonoBehaviour, IConsumable
     private Vector3 lastPos;
     private Animator animator;
 
-    private Memory memory;
-    private SenseProcessor senseProcessor;
 
     public void Init(AnimalTraits traits)
     {
@@ -100,7 +101,7 @@ public class Animal : MonoBehaviour, IConsumable
         navMeshAgent.speed = (float)speed.GetValue();
         // calculate instead if possible
         navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
-        
+
         CapsuleCollider c = gameObject.AddComponent(typeof(CapsuleCollider)) as CapsuleCollider;
         c.height = 2;
 
@@ -166,7 +167,7 @@ public class Animal : MonoBehaviour, IConsumable
         }
 
         UpdateStatusBars();
-		if (logNext)
+        if (logNext)
         {
             TraitLogger.Log(traits);
         }
@@ -174,7 +175,7 @@ public class Animal : MonoBehaviour, IConsumable
         chooseNextAction();
 
         //check if the animal is dead
-        if(GameController.animalCanDie)
+        if (GameController.animalCanDie)
             isDead();
 
         //Animation
@@ -186,17 +187,13 @@ public class Animal : MonoBehaviour, IConsumable
     void Sense()
     {
         sensedGameObjects = new ArrayList();
-        // This could be used for a more comfortable way of handling sensed events.
-        // Although I'm not 100% sure thats its working correctly atm. Not sure if we will need it either.
-        //ArrayList sensedObjectEvents = new ArrayList();
         foreach (AbstractSensor sensor in sensors)
         {
             foreach (GameObject gameObject in sensor.Sense(transform))
-            { 
+            {
                 if (this.gameObject.GetInstanceID() != gameObject.GetInstanceID())
                 {
-                sensedGameObjects.Add(gameObject);
-
+                    sensedGameObjects.Add(gameObject);
                 }
             }
         }
@@ -302,17 +299,11 @@ public class Animal : MonoBehaviour, IConsumable
     public void chooseNextAction()
     {
         CheckCurrentAction(fcmHandler.GetAction());
-        //currentAction = fcmHandler.GetAction();
-
-
-        //doAction();
-        // a method that makes the animal eat, drink, or reproduce
     }
 
     private void CheckCurrentAction(EntityAction newAction)
     {
-        
-        if(currentAction != newAction)
+        if (currentAction != newAction)
         {
             StopAllCoroutines();
             currentAction = newAction;
@@ -322,29 +313,24 @@ public class Animal : MonoBehaviour, IConsumable
             {
                 case EntityAction.GoingToWater:
                     targetGameObject = memory.ReadWaterFromMemory();
-
                     StartCoroutine(GoToWater());
                     break;
 
                 case EntityAction.GoingToFood:
                     targetGameObject = memory.ReadFoodFromMemory();
-
                     StartCoroutine(GoToFood());
                     break;
             }
         }
         else
         {
-            if(!GameObjectExists(targetGameObject))
+            if (!GameObjectExists(targetGameObject))
             {
                 //Debug.Log("I dont see my target");
                 //currentAction = EntityAction.Idle;
                 //Choose the next bestTarget
-
             }
-
         }
-
     }
 
     private bool GameObjectExists(GameObject target)
@@ -352,7 +338,7 @@ public class Animal : MonoBehaviour, IConsumable
         if (sensedGameObjects == null)
             return false;
 
-        foreach(GameObject gameObject in sensedGameObjects)
+        foreach (GameObject gameObject in sensedGameObjects)
         {
             if (gameObject.Equals(target))
             {
@@ -399,8 +385,6 @@ public class Animal : MonoBehaviour, IConsumable
         {
             if (energy > 0.4)
             {
-
-
                 //make #nChildren children
                 for (int i = 0; i < nChildren.GetValue(); i++)
                 {
@@ -451,14 +435,11 @@ public class Animal : MonoBehaviour, IConsumable
         swallow(consumable.Consume(biteSize), type);
     }
 
-
-
     // eat this animal
     public double Consume(double amount)
     {
         return size.Add(-amount);
     }
-
 
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
@@ -495,7 +476,7 @@ public class Animal : MonoBehaviour, IConsumable
     {
         if (showFCMGizmo)
         {
- 
+
             Vector3 textOffset = new Vector3(10, 2, 0);
             if (fcmHandler != null)
                 Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
@@ -507,7 +488,7 @@ public class Animal : MonoBehaviour, IConsumable
             Gizmos.DrawSphere(transform.position, senseRadius);
         }*/
 
-        if(showSightGizmo)
+        if (showSightGizmo)
         {
             float hFOV = horisontalFOV;
             //float vFOV = verticalFOV;
@@ -541,14 +522,11 @@ public class Animal : MonoBehaviour, IConsumable
                 prev = newpos;
             }
         }
-        if(showTargetDestinationGizmo)
+        if (showTargetDestinationGizmo)
         {
             Gizmos.DrawLine(transform.position, targetDestinationGizmo);
         }
-
         Handles.Label(transform.position + new Vector3(0, 3, 0), state.ToString());
-
-
     }
 
     public NavMeshAgent GetNavMeshAgent()
@@ -567,7 +545,7 @@ public class Animal : MonoBehaviour, IConsumable
     public IEnumerator EatConsumable(ConsumptionType consumptionType)
     {
         IConsumable consumable = null;
-        switch(consumptionType)
+        switch (consumptionType)
         {
             case ConsumptionType.Animal:
                 throw new NotImplementedException();
@@ -603,10 +581,10 @@ public class Animal : MonoBehaviour, IConsumable
     {
         state = ActionState.Approaching;
 
-        while(targetGameObject != null && !CloseEnoughToAct(targetGameObject))
+        while (targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
             yield return new WaitForSeconds(0.2f);
-            if(targetGameObject != null)
+            if (targetGameObject != null)
                 SetDestination(targetGameObject.transform.position);
         }
         // To prevent the animal from not going further than necessary to perform its action.
@@ -701,7 +679,7 @@ public class Animal : MonoBehaviour, IConsumable
     {
         return size.GetValue();
     }
-    
+
     public ConsumptionType GetConsumptionType()
     {
         return ConsumptionType.Animal;
@@ -739,17 +717,18 @@ public class Animal : MonoBehaviour, IConsumable
 
     void UpdateAnimation()
     {
-        
+
         Vector3 deltaV = new Vector3(transform.position.x - lastPos.x, transform.position.y - lastPos.y, transform.position.z - lastPos.z);
         float deltaPos = Vector3.Magnitude(deltaV);
         float rapidness = deltaPos / Time.deltaTime;
 
-      
-        if(rapidness > 0.1)
+
+        if (rapidness > 0.1)
         {
             animator.SetBool("Run", true);
             animator.speed = 1.3f * rapidness;
-        }else
+        }
+        else
         {
             animator.speed = 1f;
             animator.SetBool("Run", false);
