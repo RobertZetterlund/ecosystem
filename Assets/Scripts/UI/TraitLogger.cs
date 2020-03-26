@@ -151,7 +151,7 @@ public class TraitLogger : MonoBehaviour
                     } else
                     {
                         // average
-                        row.Append((currentTraitTotals[i][j].Item1/nAnimals[i]).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)); 
+                        row.Append((currentTraitTotals[i][j].Item1/nAnimals[i]).ToString(System.Globalization.CultureInfo.InvariantCulture)); 
                     }
                     row.Append(",");
                 }

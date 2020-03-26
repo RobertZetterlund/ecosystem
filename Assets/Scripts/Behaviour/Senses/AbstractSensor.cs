@@ -9,7 +9,7 @@ public abstract class AbstractSensor
     {
         foreach (GameObject gameObject in Sense(transform))
         {
-            if (!gametag.Equals("") && gameObject.CompareTag(gametag))
+            if (!gametag.Equals("") && gameObject.CompareTag(gametag) && gameObject.transform != transform)
             {
                 return true;       
             }

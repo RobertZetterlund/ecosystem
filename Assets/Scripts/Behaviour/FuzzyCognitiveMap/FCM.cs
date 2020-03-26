@@ -218,16 +218,6 @@ public class FCM
         inputs.CopyTo(childInputs);
         actions.CopyTo(childActions);
 
-        foreach (var item in childInputs)
-        {
-            Debug.Log(item.ToString() + " i");
-
-        }foreach (var item in childActions)
-        {
-            Debug.Log(item.ToString() + " a");
-
-        }
-
 
         FCM child = new FCM(childInputs, childActions);
 

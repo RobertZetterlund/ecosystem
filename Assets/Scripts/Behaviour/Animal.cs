@@ -20,6 +20,7 @@ public class Animal : MonoBehaviour, IConsumable
     private RangedDouble speed;
     private bool isFertile;
     // internal traits
+    private static System.Random rand = MathUtility.random;
     protected EntityAction currentAction = EntityAction.Idle;
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     double timeToDeathByHunger = 600;
@@ -73,7 +74,6 @@ public class Animal : MonoBehaviour, IConsumable
         this.growthFactor = new RangedDouble(traits.growthFactor, 0, 1);
         this.speed = new RangedDouble(traits.speed, 0);
         this.fcmHandler = traits.fcmHandler;
-        System.Random rand = new System.Random();
         isMale = rand.NextDouble() >= 0.5;
         this.heatTimer = new RangedDouble(traits.heatTimer, 1);
 
@@ -391,61 +391,66 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void Reproduce(Animal mate)
     {
-        //mate.Reproduce(this);
-        // reduce heat (assume you did the fucko but even if the animals were incompatible biologically)
-
-        if (size.GetValue() < maxSize.GetValue() || // if still a child or wounded
-            species != mate.species || // if different species
-            !(isMale ^ mate.isMale) || // if same sex
-            !isFertile || !mate.isFertile) // if not fertile
+        try
         {
-            currentAction = EntityAction.Idle; // Set action to idle when done
-            return;
-        }
-
-        if (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6)
-        {
-            if (energy > 0.4)
+            // checked if can mate
+            if (size.GetValue() < maxSize.GetValue() || // if still a child or wounded
+                species != mate.species || // if different species
+                !(isMale ^ mate.isMale) || // if same sex
+                !isFertile || !mate.isFertile) // if not fertile
             {
-                heat.Add(-1);
-                mate.heat.Add(-1);
-                isFertile = false;
-                mate.isFertile = false;
-                //make #nChildren children
-                for (int i = 0; i < nChildren.GetValue(); i++)
+                currentAction = EntityAction.Idle; // Set action to idle when done
+                return;
+            }
+        // mak babi
+        if (true || (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6))
+            {
+                if (true || energy > 0.4)
                 {
-                    double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
-
-                    // deplete hunger for each child born
-                    // stop when your hunger would run out
-                    if (hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
+                    mate.heat.Add(-1);
+                    mate.isFertile = false;
+                    heat.Add(-1);
+                    isFertile = false;
+                    //make #nChildren children
+                    for (int i = 0; i < nChildren.GetValue(); i++)
                     {
-                        return;
+                        double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
+
+                        // deplete hunger for each child born
+                        // stop when your hunger would run out
+                        if (hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
+                        {
+                            return;
+                        }
+
+                        double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
+                        int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
+                        double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
+                        double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
+                        double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
+                        double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
+                        FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
+
+                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+
+                        Vector3 mother;
+                        if (isMale)
+                        {
+                            mother = mate.transform.position;
+                        }
+                        else
+                        {
+                            mother = transform.position;
+                        }
+
+                        OrganismFactory.CreateAnimal(child, mother);
                     }
-
-                    double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
-                    int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
-                    double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
-                    double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
-                    double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
-                    double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
-                    FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
-
-                    AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
-
-                    Vector3 mother;
-                    if (isMale)
-                    {
-                        mother = mate.transform.position;
-                    }
-                    else
-                    {
-                        mother = transform.position;
-                    }
-
-                    OrganismFactory.CreateAnimal(child, mother);
                 }
             }
+        }
+        catch (MissingReferenceException e)
+        {
+            // mate died lol
         }
         currentAction = EntityAction.Idle; // Set action to idle when done
     }
@@ -587,9 +592,21 @@ public class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToMate()
     {
         // might want to have argument for species, so you can try to mate with other species
-        yield return StartCoroutine(Search(species.ToString()));
-        // should not hard code plant?
-        Animal mate = targetGameObject.GetComponent<Animal>();
+        bool retry = true;
+        Animal mate = null;
+        while (retry == true)
+        {
+            retry = false;
+            yield return StartCoroutine(SearchMate(species.ToString()));
+            try
+            {
+                mate = targetGameObject.GetComponent<Animal>();
+            } catch (MissingReferenceException)
+            {
+                retry = true;
+            }
+        }
+        yield return StartCoroutine(SearchMate(species.ToString()));
         yield return StartCoroutine(Approach(targetGameObject));
 
         Act((IConsumable)mate); // frick
@@ -678,9 +695,25 @@ public class Animal : MonoBehaviour, IConsumable
             yield return new WaitForSeconds(1);
         }
         yield return null;
+    }
+    public IEnumerator SearchMate(string gametag)
+    {
+        targetGametag = gametag;
+        //Make it search before actually walking, since it otherwise might walk away from a plant
+        //and then walk right back to it.
+        Sense();
+        senseTimer.Reset();
+        senseTimer.Start();
+        while (targetGameObject == null ||
+            (targetGameObject.GetComponent<Animal>().isMale && isMale) ||
+            targetGameObject.GetComponent<Animal>().heat.GetValue() != 1)
+        {
+            yield return StartCoroutine(Walk());
+            yield return new WaitForSeconds(1);
+        }
+        yield return null;
 
     }
-
 
     /**
      * Makes the animal walk to a position 10 steps in front of the animal in a direction that is in the bounderies of an angle
