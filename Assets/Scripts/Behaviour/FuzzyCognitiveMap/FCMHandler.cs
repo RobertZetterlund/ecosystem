@@ -127,15 +127,42 @@ public abstract class FCMHandler
 
         bool run = fields.Length > 0;
         int i = 0;
-        csv.Append("field,");
-        while (run)
+        csv.Append("from,to,weight");
+        /*while (run)
         {
             csv.Append(fields[i].ToString());
             if(i++ +1 < fields.Length)
                 csv.Append(",");
             else
                 break;
+        }*/
+        csv.AppendLine();
+
+        double[,] weights = fcm.GetWeights();
+        double[,] convertedWeights = new double[fields.Length, fields.Length];
+
+        TwoWayMap<int, int> translation = fcm.GetTranslation();
+
+
+        for (int _from = 0; _from < weights.GetLength(0); _from++)
+        {
+            for (int _to = 0; _to < weights.GetLength(1); _to++)
+            {
+                double weight = weights[_from, _to];
+                convertedWeights[translation.Reverse[_from], translation.Reverse[_to]] = weight;
+            }
         }
+
+        for (int _from = 0; _from < convertedWeights.GetLength(0); _from++)
+        {
+            for (int _to = 0; _to < convertedWeights.GetLength(1); _to++)
+            {
+                double weight = convertedWeights[_from, _to];
+                csv.Append(((EntityField)_from).ToString() + "," + ((EntityField)_to).ToString() + "," + weight);
+                csv.AppendLine();
+            }      
+        }
+
         return csv;
        
     }
@@ -163,18 +190,18 @@ public abstract class FCMHandler
         public JSONWeight[] weights;
     }*/
 
-    public void SaveFCM(string json, string path)
+    public void SaveFCM(string content, string path)
     {
         string name = null;
 #if UNITY_EDITOR
-        name = path + ".json";
+        name = path + ".txt";
 #endif
 #if UNITY_STANDALONE
         // You cannot add a subfolder, at least it does not work for me
-        name = path + ".json";
+        name = path + ".txt";
 #endif
 
-        string str = json;
+        string str = content;
         using (FileStream fs = new FileStream(name, FileMode.Create))
         {
             using (StreamWriter writer = new StreamWriter(fs))

@@ -77,7 +77,7 @@ public class TraitLogger : MonoBehaviour
                 if (recentFCMs[i] != null)
                 {
                     StringBuilder s = recentFCMs[i].ToCsv();
-                    recentFCMs[i].SaveFCM(s.ToString(), folder + '/' + ((Species)i).ToString());
+                    recentFCMs[i].SaveFCM(s.ToString(), folder + '/' + ((Species)i).ToString() + "_fcm");
                 }
             }
         }
