@@ -128,7 +128,7 @@ public class SenseProcessor
 
         // this is the count of sensed objects, it will dictate the strength of which the FCM will input the concept
         // collect all data and combine to a strength of various senses.
-        IDictionary<string, int> weightMap = new Dictionary<string, int>();
+        Dictionary<string, int> weightMap = new Dictionary<string, int>();
         weightMap.Add("Foe", foeCount);
         weightMap.Add("Food", foodCount);
         weightMap.Add("Mate", mateCount);

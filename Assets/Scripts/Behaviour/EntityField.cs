@@ -10,10 +10,18 @@
     Reproducing,
     FoodClose,
     FoodFar,
+    FoodPresenceHigh,
+    FoodPresenceLow,
     WaterClose,
     WaterFar,
+    WaterPresenceHigh,
+    WaterPresenceLow,
     MateClose,
     MateFar,
+    MatePresenceHigh,
+    MatePresenceLow,
     FoeClose,
-    FoeFar
+    FoeFar,
+    FoePresenceHigh,
+    FoePresenceLow
 }
