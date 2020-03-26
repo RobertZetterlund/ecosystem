@@ -10,7 +10,7 @@ using Assets.Scripts;
 public class Animal : MonoBehaviour, IConsumable
 {
     // traits that could be in fcm:
-    private RangedDouble hunger = new RangedDouble(0, 0, 1);
+    private RangedDouble hunger = new RangedDouble(1, 0, 1);
     private RangedDouble thirst = new RangedDouble(0, 0, 1);
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
@@ -137,11 +137,22 @@ public class Animal : MonoBehaviour, IConsumable
         //increases hunger and thirst over time
         if (size.GetValue() < maxSize.GetValue()) // if not fully grown
         {
-            growth = maxSize.GetValue() * growthFactor.GetValue();
-            size.Add(growth);
+            growth = size.GetValue() * growthFactor.GetValue(); // used to be maxSize
+            //size.Add(growth);
+            //UpdateSize();
+        }
+        double depletion = Time.deltaTime / timeToDeathByHunger * (size.GetValue() * speed.GetValue() + senseRadius);
+        double depleted = hunger.Add(depletion);
+        if (depletion != depleted)
+        {
+            Debug.Log(growth + " " + (depleted- depletion));
+            size.Add(depleted - depletion);
+        }
+        else
+        {
+            size.Add(-hunger.Add(-growth));
             UpdateSize();
         }
-        hunger.Add(Time.deltaTime * 1 / timeToDeathByHunger * ((size.GetValue() + growth) * speed.GetValue() + senseRadius));
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
 
         //age the animal
@@ -295,7 +306,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void isDead()
     {
-        if (hunger.GetValue() >= 1)
+        if (false && hunger.GetValue() >= 1)
         {
             Die(CauseOfDeath.Hunger);
         }
@@ -401,6 +412,7 @@ public class Animal : MonoBehaviour, IConsumable
 
     public void Reproduce(Animal mate)
     {
+        Debug.Log("r start");
         try
         {
             // checked if can mate
@@ -426,14 +438,16 @@ public class Animal : MonoBehaviour, IConsumable
                     {
                         double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
 
+                        Debug.Log("b start");
                         // deplete hunger for each child born
                         // stop when your hunger would run out
                         // if: hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue()
-                        if (size.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue())
+                        if (size.Add(-maxSize * this.infantFactor.GetValue()) != -maxSize * this.infantFactor.GetValue())
                         {
+                            Debug.Log("fk " + i);
                             return;
                         }
-
+                        Debug.Log("b emd");
                         double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
                         int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
                         double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
@@ -611,15 +625,18 @@ public class Animal : MonoBehaviour, IConsumable
             yield return StartCoroutine(SearchMate(species.ToString()));
             try
             {
+                Debug.Log("try");
                 mate = targetGameObject.GetComponent<Animal>();
             } catch (MissingReferenceException)
             {
+                Debug.Log("catch");
                 retry = true;
             }
         }
-        yield return StartCoroutine(SearchMate(species.ToString()));
+        //yield return StartCoroutine(SearchMate(species.ToString()));
+        Debug.Log("approch");
         yield return StartCoroutine(Approach(targetGameObject));
-
+        Debug.Log("frick");
         Act((IConsumable)mate); // frick
         yield return new WaitForSeconds(1);
 
@@ -640,6 +657,7 @@ public class Animal : MonoBehaviour, IConsumable
             if(targetGameObject != null)
                 SetDestination(targetGameObject.transform.position);
         }
+        Debug.Log("close");
         // To prevent the animal from not going further than necessary to perform its action.
         // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
         // has to resume the movement when you want the animal to walk again, so I did it this way instead.

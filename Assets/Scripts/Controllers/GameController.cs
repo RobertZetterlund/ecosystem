@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour
     [SerializeField]
     public bool respawn = true;
     private static bool respawnStatic = true;
-    private int nPlants = 5;
+    private int nPlants = 30;
     private static int nRabbits = 10;
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
 
@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         // spawn first rabbits
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.01, 0.002, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 1, 0, 2, 0.1, 0.002, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
         SpawnAnimal(rabbitTraits);
         // spawn first plants
         for (int i = 0; i < nPlants; i++)
