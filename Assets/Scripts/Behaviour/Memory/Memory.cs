@@ -92,4 +92,17 @@ public class Memory
     {
         return Mate;
     }
+    public GameObject GetTargObj(EntityAction act)
+    {
+        if(act == EntityAction.GoingToFood)
+        {
+            return ReadFoodFromMemory();
+        }else if(act == EntityAction.GoingToWater)
+        {
+            return ReadWaterFromMemory();
+        }else if(act == EntityAction.SearchingForMate)
+        {
+            return ReadMateFromMemory();
+        }return null;
+    }
 }

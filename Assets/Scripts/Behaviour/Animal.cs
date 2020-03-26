@@ -200,8 +200,10 @@ public class Animal : MonoBehaviour, IConsumable
 
         SensedEvent sE = senseProcessor.Process(sensedGameObjects);
         memory.WriteSensedEventToMemory(sE);
-
-        IDictionary<string, int> impactMap = sE.GetWeightMap();
+        if (state == ActionState.Searching) {
+            targetGameObject = memory.GetTargObj(currentAction);
+        }
+            IDictionary<string, int> impactMap = sE.GetWeightMap();
 
         fcmHandler.ProcessSensedObjects(this, sE);
     }
@@ -312,14 +314,18 @@ public class Animal : MonoBehaviour, IConsumable
             switch (currentAction)
             {
                 case EntityAction.GoingToWater:
-                    targetGameObject = memory.ReadWaterFromMemory();
+                    targetGameObject = memory.ReadWaterFromMemory();                 
                     StartCoroutine(GoToWater());
                     break;
 
                 case EntityAction.GoingToFood:
                     targetGameObject = memory.ReadFoodFromMemory();
-                    StartCoroutine(GoToFood());
+                    StartCoroutine(GoToFood());                   
                     break;
+                default:
+                    currentAction = EntityAction.Idle;
+                    break;
+
             }
         }
         else
@@ -534,11 +540,10 @@ public class Animal : MonoBehaviour, IConsumable
         return navMeshAgent;
     }
 
-    public IEnumerator GoToStationaryConsumable(ConsumptionType consumptionType)
+    public IEnumerator GoToStationaryConsumable(ConsumptionType consumptionType, Vector3 position)
     {
-        string gametag = consumptionType.ToString();
-        yield return StartCoroutine(Search(gametag));
-        yield return StartCoroutine(Approach(targetGameObject));
+        yield return StartCoroutine(Approach(targetGameObject, position));
+        Debug.Log(transform.position.ToString());
         yield return StartCoroutine(EatConsumable(consumptionType));
     }
 
@@ -572,12 +577,14 @@ public class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToFood()
     {
         state = ActionState.GoingToFood;
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Plant));
+        string gametag = ConsumptionType.Plant.ToString();
+        yield return StartCoroutine(Search(gametag));
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Plant, targetGameObject.transform.position));        
         state = ActionState.Idle;
         currentAction = EntityAction.Idle;
     }
 
-    public IEnumerator Approach(GameObject targetGameObject)
+    public IEnumerator Approach(GameObject targetGameObject, Vector3 position)
     {
         state = ActionState.Approaching;
 
@@ -585,7 +592,7 @@ public class Animal : MonoBehaviour, IConsumable
         {
             yield return new WaitForSeconds(0.2f);
             if (targetGameObject != null)
-                SetDestination(targetGameObject.transform.position);
+                SetDestination(position);
         }
         // To prevent the animal from not going further than necessary to perform its action.
         // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
@@ -597,7 +604,25 @@ public class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToWater()
     {
         state = ActionState.GoingToWater;
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water));
+        string gametag = ConsumptionType.Water.ToString();
+        yield return StartCoroutine(Search(gametag));
+    
+        MeshFilter mesh = (MeshFilter) targetGameObject.GetComponent(typeof(MeshFilter));
+        float minDistanceSqr = Mathf.Infinity;
+        Vector3 nearestVertex = Vector3.zero;
+        // scan all vertices to find nearest
+        foreach (Vector3 vertex in mesh.sharedMesh.vertices)
+        {
+            Vector3 diff = transform.position - vertex;
+            float distSqr = diff.sqrMagnitude;
+            if (distSqr < minDistanceSqr)
+            {
+                minDistanceSqr = distSqr;
+                nearestVertex = vertex;
+            }
+        }
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water, nearestVertex));
+        
         state = ActionState.Idle;
         currentAction = EntityAction.Idle;
     }
@@ -652,6 +677,7 @@ public class Animal : MonoBehaviour, IConsumable
         senseTimer.Start();
         while (targetGameObject == null)
         {
+            
             yield return StartCoroutine(Walk());
             yield return new WaitForSeconds(1);
         }

@@ -211,6 +211,7 @@ public class TerrainKernal : MonoBehaviour
         meshCollider.sharedMesh = msh;
         filter.mesh = msh;
 
+
         // Add WaterPond script to object
 
         newObject.AddComponent(typeof(WaterPond));
