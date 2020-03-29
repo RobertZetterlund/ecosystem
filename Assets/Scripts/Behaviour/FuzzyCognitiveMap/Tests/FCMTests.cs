@@ -10,7 +10,7 @@ namespace Tests
     {
         // A Test behaves as an ordinary method
         //[Ignore("dont want these mixed with real logs")]
-        [Test]
+        /*[Test]
         public void FcmCsvTest()
         {
             FCM fcm = FCMFactory.RabbitFCM();
@@ -22,7 +22,7 @@ namespace Tests
             fCMHandler.SaveFCM(s, "SavedFCM");
 
             
-        }
+        }*/
         [Test]
         public void NoFieldFoundTest()
         {

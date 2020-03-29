@@ -43,121 +43,29 @@ public abstract class FCMHandler
 
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 
-    /*public string GenerateJSON()
+    // Returns the translated weights
+    public double[,] GetWeights()
     {
-
-        double[,] weights = fcm.GetWeights();
-
-        //JSONWeight[] jsonWeights = new JSONWeight[weights.GetLength(0) * weights.GetLength(1)];
-        List<JSONWeight> jsonWeights = new List<JSONWeight>();
-
-        TwoWayMap<int, int> translation = fcm.GetTranslation();
-
-        for(int _from = 0, i = 0; _from < weights.GetLength(0); _from ++)
-        {
-            for (int _to = 0; _to < weights.GetLength(1); _to ++, i++)
-            {
-                double weight = weights[_from, _to];
-                if(weight == 0)
-                {
-                    continue;
-                }
-
-                JSONWeight w = new JSONWeight();
-
-                EntityField from = (EntityField)translation.Reverse[_from];
-                EntityField to = (EntityField)translation.Reverse[_to];
-
-                w.from = from.ToString();
-                w.to = to.ToString();
-                w.weight = weight;
-
-                jsonWeights.Add(w);
-            }
-        }
-
-        JSONWeightList jwl = new JSONWeightList();
-        jwl.weights = jsonWeights.ToArray();
-
-        return JsonUtility.ToJson(jwl);
-    }*/
-
-    public string ToJson()
-    {
-        EntityInput[] inputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
-        EntityAction[] actions = (EntityAction[])Enum.GetValues(typeof(EntityAction));
-        EntityField[] fields = new EntityField[inputs.Length + actions.Length];
-        Array.Copy(inputs, fields, inputs.Length);
-        Array.Copy(actions, 0, fields, inputs.Length, actions.Length);
-
-        string[] fieldsAsString = new string[fields.Length];
-
-        for(int i = 0; i < fields.Length; i++)
-        {
-            fieldsAsString[i] = fields[i].ToString();
-        }
-
-        JsonObject jwa = new JsonObject();
-        //jwa.fields = fieldsAsString;
-
-        double[,] weights = fcm.GetWeights();
-        double[,] convertedWeights = new double[fields.Length,fields.Length];
-
-        TwoWayMap<int, int> translation = fcm.GetTranslation();
-
-        for (int _from = 0; _from < weights.GetLength(0); _from++)
-        {
-            for (int _to = 0; _to < weights.GetLength(1); _to++)
-            {
-                double weight = weights[_from,_to];
-                convertedWeights[translation.Reverse[_from], translation.Reverse[_to]] = weight;
-            }
-        }
-
-        jwa.weights = convertedWeights;
-
-        return JsonUtility.ToJson(jwa);
+        return fcm.GetTranslatedWeights();
     }
 
     public StringBuilder ToCsv()
     {
+        return ToCsv(GetWeights());
+    }
+
+    public static StringBuilder ToCsv(double[,] weights)
+    {
         StringBuilder csv = new StringBuilder("");
-
-        EntityField[] fields = (EntityField[])Enum.GetValues(typeof(EntityField));
-
-        bool run = fields.Length > 0;
-        int i = 0;
         csv.Append("from,to,weight");
-        /*while (run)
-        {
-            csv.Append(fields[i].ToString());
-            if(i++ +1 < fields.Length)
-                csv.Append(",");
-            else
-                break;
-        }*/
         csv.AppendLine();
 
-        double[,] weights = fcm.GetWeights();
-        double[,] convertedWeights = new double[fields.Length, fields.Length];
-
-        TwoWayMap<int, int> translation = fcm.GetTranslation();
-
-
+        
         for (int _from = 0; _from < weights.GetLength(0); _from++)
         {
             for (int _to = 0; _to < weights.GetLength(1); _to++)
             {
                 double weight = weights[_from, _to];
-                convertedWeights[translation.Reverse[_from], translation.Reverse[_to]] = weight;
-            }
-        }
-
-        for (int _from = 0; _from < convertedWeights.GetLength(0); _from++)
-        {
-            for (int _to = 0; _to < convertedWeights.GetLength(1); _to++)
-            {
-                double weight = convertedWeights[_from, _to];
                 csv.Append(((EntityField)_from).ToString() + "," + ((EntityField)_to).ToString() + "," + weight);
                 csv.AppendLine();
             }      
@@ -165,52 +73,5 @@ public abstract class FCMHandler
 
         return csv;
        
-    }
-
-    [Serializable]
-    private class JsonObject
-    {
-        [SerializeField]
-        public double[,] weights;
-        //public string[] fields;
-    }
-
-    /*
-    [Serializable]
-    private class JSONWeight
-    {
-        public string from;
-        public string to;
-        public double weight;
-    }
-
-    [Serializable]
-    private class JSONWeightList
-    {
-        public JSONWeight[] weights;
-    }*/
-
-    public void SaveFCM(string content, string path)
-    {
-        string name = null;
-#if UNITY_EDITOR
-        name = path + ".txt";
-#endif
-#if UNITY_STANDALONE
-        // You cannot add a subfolder, at least it does not work for me
-        name = path + ".txt";
-#endif
-
-        string str = content;
-        using (FileStream fs = new FileStream(name, FileMode.Create))
-        {
-            using (StreamWriter writer = new StreamWriter(fs))
-            {
-                writer.Write(str);
-            }
-        }
-#if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-#endif
     }
 }
