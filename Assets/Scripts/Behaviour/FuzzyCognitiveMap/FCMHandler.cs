@@ -39,7 +39,7 @@ public abstract class FCMHandler
         return fcm;
     }
 
-    public abstract void ProcessSensedObjects(Animal animal, ArrayList gameObjects);
+    public abstract void ProcessSensedObjects(Animal animal, SensedEvent sE);
 
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 

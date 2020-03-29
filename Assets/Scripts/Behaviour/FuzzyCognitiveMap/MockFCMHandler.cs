@@ -15,9 +15,9 @@ class MockFCMHandler : FCMHandler
         return action;
     }
 
-    public override void ProcessSensedObjects(Animal animal, ArrayList gameObjects)
+    public override void ProcessSensedObjects(Animal animal, SensedEvent sE)
     {
-        fcmHandler.ProcessSensedObjects(animal, gameObjects);
+        fcmHandler.ProcessSensedObjects(animal, sE);
     }
 
     public override FCMHandler Reproduce(FCMHandler mateHandler)

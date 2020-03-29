@@ -32,6 +32,6 @@ public class WaterPond : MonoBehaviour, IConsumable
 
     double IConsumable.Consume(double amount)
     {
-        return amount; // don't need to do anything if we assume there's infinite amount of water
+        return -amount; // don't need to do anything if we assume there's infinite amount of water
     }
 }

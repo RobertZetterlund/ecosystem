@@ -122,6 +122,11 @@ public class TerrainKernal : MonoBehaviour
 
     }
 
+    public float[,] GetHeightMap()
+    {
+        return heightMap;
+    }
+
     /*
     public void AddWater(List<Vector2> cluster, GameObject puddle)
     {
@@ -205,6 +210,7 @@ public class TerrainKernal : MonoBehaviour
         MeshCollider meshCollider = newObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
         meshCollider.sharedMesh = msh;
         filter.mesh = msh;
+
 
         // Add WaterPond script to object
 
