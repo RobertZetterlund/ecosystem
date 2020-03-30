@@ -15,5 +15,5 @@
     FoeClose = EntityField.FoeClose,
     FoeFar = EntityField.FoeFar,
     FoePresenceHigh = EntityField.FoePresenceHigh,
-    FoePresenceLow = EntityField.FoodPresenceLow
+    FoePresenceLow = EntityField.FoePresenceLow
 }
