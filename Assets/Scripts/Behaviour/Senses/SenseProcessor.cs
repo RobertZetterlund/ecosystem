@@ -84,7 +84,7 @@ public class SenseProcessor
                 }
             }
             // check if water
-            else if ((gameObject.tag).Equals("Water"))
+            else if (tagOfSensedObject == "Water")
             {
                 waterCount++;
 
@@ -128,10 +128,13 @@ public class SenseProcessor
 
         // this is the count of sensed objects, it will dictate the strength of which the FCM will input the concept
         // collect all data and combine to a strength of various senses.
-        Dictionary<string, int> weightMap = new Dictionary<string, int>();
-        weightMap.Add("Foe", foeCount);
-        weightMap.Add("Food", foodCount);
-        weightMap.Add("Mate", mateCount);
+        Dictionary<string, int> weightMap = new Dictionary<string, int>
+        {
+            { "Foe", foeCount },
+            { "Food", foodCount },
+            { "Mate", mateCount },
+            { "Water", waterCount }
+        };
 
         // return a sensedEvent that can be written to memory.
         return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);
