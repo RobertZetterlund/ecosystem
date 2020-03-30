@@ -8,6 +8,8 @@ TagManager:
   - Water
   - Sappling
   - Rabbit
+  - Terrain
+  - Fox
   layers:
   - Default
   - TransparentFX
