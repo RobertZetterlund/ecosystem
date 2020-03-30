@@ -8,9 +8,9 @@ public class SensedEvent
     private GameObject Foe;
     private GameObject Mate;
     private GameObject Food;
-    private IDictionary<string,int> weightMap;
+    private Dictionary<string,int> weightMap;
 
-    public SensedEvent(IDictionary<string,int> weightMap, GameObject Water, GameObject Foe, GameObject Mate, GameObject Food)
+    public SensedEvent(Dictionary<string,int> weightMap, GameObject Water, GameObject Foe, GameObject Mate, GameObject Food)
     {
         this.weightMap = weightMap;
         this.Water= Water;
@@ -19,7 +19,7 @@ public class SensedEvent
         this.Food= Food;
     }
 
-    public IDictionary<string,int> GetWeightMap()
+    public Dictionary<string,int> GetWeightMap()
     {
         return weightMap;
     }
