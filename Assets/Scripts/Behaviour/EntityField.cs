@@ -1,13 +1,5 @@
 ﻿public enum EntityField
 {
-    Idle,
-    Resting,
-    GoingToFood,
-    GoingToWater,
-    Eating,
-    Drinking,
-    SearchingForMate,
-    Reproducing,
     FoodClose,
     FoodFar,
     FoodPresenceHigh,
@@ -23,5 +15,15 @@
     FoeClose,
     FoeFar,
     FoePresenceHigh,
-    FoePresenceLow
+    FoePresenceLow,
+
+    //Actions
+    Idle,
+    Resting,
+    GoingToFood,
+    GoingToWater,
+    Eating,
+    Drinking,
+    SearchingForMate,
+    Reproducing
 }
