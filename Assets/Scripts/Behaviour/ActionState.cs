@@ -8,6 +8,7 @@
     Drinking,
     SearchingForMate,
     Reproducing,
+    Escaping,
     Searching,
     Approaching,
     FoundTargetObject
