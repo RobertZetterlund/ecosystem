@@ -396,7 +396,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 !(isMale ^ mate.isMale) || // if same sex
                 !isFertile || !mate.isFertile) // if not fertile
             {
-                currentAction = EntityAction.Idle; // Set action to idle when done
+                //currentAction = EntityAction.Idle; // Set action to idle when done
                 return;
             }
         // mak babi
@@ -442,7 +442,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         {
             // mate died lol
         }
-        currentAction = EntityAction.Idle; // Set action to idle when done
+        //currentAction = EntityAction.Idle; // Set action to idle when done
     }
 
     // let this animal attempt to take a bite from the given consumable
