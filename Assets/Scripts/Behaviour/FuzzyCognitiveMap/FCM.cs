@@ -221,18 +221,6 @@ public class FCM
 
         FCM child = new FCM(childInputs, childActions);
 
-        // calculate how many weights child should have
-        /*
-        int weightedInputs = weights.GetLength(0);
-        int weightedActions = weights.GetLength(1);
-
-        int weightedMateInputs = mateFCM.weights.GetLength(0);
-        int weightedMateActions = mateFCM.weights.GetLength(1);
-
-        int maxWeightedInputs = Math.Max(weightedInputs, weightedMateInputs);
-        int maxWeightedActions = Math.Max(weightedActions, weightedMateActions);
-        */
-
         int childFields = childInputs.Length + childActions.Length;
         double[,] childWeights = new double[childFields, childFields];
         Dictionary<(EntityInput, EntityAction), double> childWeights2 = new Dictionary<(EntityInput, EntityAction), double>();
@@ -285,65 +273,7 @@ public class FCM
                 child.SetWeight(_from, _to, geneC);
             }
         }
-        /*
-        for (int i = 0; i < childFields; i++){
-            for (int j = 0; j < childFields; j++)
-            {
-                í_from = child
-                    // vill ha entityi / a / f i childweights
-                if (childWeights[i,j] != double.MinValue)
-                {
-                    child.SetWeight()
-                }
-            }
-        }
-        */
 
-        /*
-        // add my weights
-        for (int i = 0; i < weightedInputs; i++)
-        {
-            for (int j = 0; j < weightedActions; j++)
-            {
-                childWeights[i, j] = weights[i, j];
-            }
-        }
-        // add mate's weights
-        for (int i = 0; i < weightedMateInputs; i++)
-        {
-            for (int j = 0; j < weightedMateActions; j++)
-            {
-                // if weight already added, do crossover
-                if (childWeights[i, j] != double.MinValue)
-                {
-                    double geneA = weights[i, j];
-                    double geneB = mateFCM.weights[i, j];
-                    childWeights[i, j] = ReproductionUtility.Crossover(geneA, geneB);
-
-                }
-                else // else just add
-                {
-                    childWeights[i, j] = mateFCM.weights[i, j];
-                }
-            }
-        }
-        */
-        /*
-        Debug.Log("fan");
-        // mutate and add to child
-        for (int i = 0; i < maxWeightedInputs; i++)
-        {
-            for (int j = 0; j < childActions.Length; j++) //maxWeightedActions
-            {
-                Debug.Log(childActions.Length + " " + i + " " + childInputs.Length);
-                EntityField inputField = (EntityField)Enum.Parse(typeof(EntityField), childInputs[i].ToString());
-                Debug.Log(childActions.Length + " " + j + " " + childActions.Length);
-                EntityField actionField = (EntityField)Enum.Parse(typeof(EntityField), childActions[j].ToString());
-                child.SetWeight(inputField, actionField,
-                    ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights[i, j], -1, 1)).GetValue());
-            }
-        }
-        */
 
         // dont set states for now, maybe kid shouldnt know anything? idk
         /*

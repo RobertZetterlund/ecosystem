@@ -38,5 +38,17 @@ public class StatusBars : MonoBehaviour
 
     }
 
+    public void Destroy()
+    {
+        Destroy(hungerBar.gameObject);
+        Destroy(thirstBar.gameObject);
+        Destroy(heatBar.gameObject);
+
+        Destroy(gameObject.transform.GetChild(0).gameObject);
+        Destroy(gameObject.transform.GetChild(1).gameObject);
+        Destroy(gameObject.transform.GetChild(2).gameObject);
+
+        Destroy(gameObject);
+    }
 
 }
