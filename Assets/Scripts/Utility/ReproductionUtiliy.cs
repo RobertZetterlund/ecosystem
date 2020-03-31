@@ -1,9 +1,11 @@
 ﻿using System;
+using UnityEngine;
 
 public static class ReproductionUtility
 {
     private static double STD_DEVIATION_FACTOR = 0.2;
-    private static double MUTATION_CHANCE = 0.2;
+    private static double MUTATION_CHANCE = 0.7;
+    private static System.Random random = MathUtility.random;
 
 
     // Crossover and mutate
@@ -11,7 +13,6 @@ public static class ReproductionUtility
     {
         RangedDouble crossedGene = Crossover(geneA, geneB);
 
-        System.Random random = new System.Random();
         if (random.NextDouble() < MUTATION_CHANCE)
         {
             return MutateRangedDouble(crossedGene);
@@ -22,8 +23,6 @@ public static class ReproductionUtility
     // Crossover and mutate
     public static RangedDouble ReproduceRangedDouble(RangedDouble gene)
     {
-
-        System.Random random = new System.Random();
         if (random.NextDouble() < MUTATION_CHANCE)
         {
             return MutateRangedDouble(gene);
@@ -35,7 +34,6 @@ public static class ReproductionUtility
     {
         RangedInt crossedGene = Crossover(geneA, geneB);
 
-        System.Random random = new System.Random();
         if(random.NextDouble() < MUTATION_CHANCE)
         {
             return MutateRangedInt(crossedGene);
@@ -48,7 +46,6 @@ public static class ReproductionUtility
     {
         bool crossedGene = Crossover(geneA, geneB);
 
-        System.Random random = new System.Random();
         if (random.NextDouble() < MUTATION_CHANCE)
         {
             return MutateBool(crossedGene);
@@ -59,8 +56,7 @@ public static class ReproductionUtility
     // Crossover help function
     public static T Crossover<T>(T geneA, T geneB)
     {
-        System.Random rand = new System.Random();
-        if (rand.Next(2) == 1)
+        if (random.Next(2) == 1)
         {
             return geneA;
         }
@@ -91,7 +87,6 @@ public static class ReproductionUtility
     private static RangedInt MutateRangedInt(RangedInt gene)
     {
         int offset = 1; // +
-        System.Random random = new System.Random();
         if (random.NextDouble() < 0.5) // + or -
         {
             offset *= -1; // -

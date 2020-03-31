@@ -7,5 +7,9 @@
     MateClose = EntityField.MateClose,
     MateFar = EntityField.MateFar,
     FoeClose = EntityField.FoeClose,
-    FoeFar = EntityField.FoeFar
+    FoeFar = EntityField.FoeFar,
+    Fertile = EntityField.Fertile,
+    NotFertile = EntityField.NotFertile,
+    Hungry = EntityField.Hungry,
+    NotHungry = EntityField.NotHungry
 }

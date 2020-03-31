@@ -15,5 +15,9 @@
     MateClose,
     MateFar,
     FoeClose,
-    FoeFar
+    FoeFar,
+    Fertile,
+    NotFertile,
+    Hungry,
+    NotHungry
 }

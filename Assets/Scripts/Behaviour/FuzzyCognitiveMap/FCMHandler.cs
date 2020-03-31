@@ -42,6 +42,17 @@ public abstract class FCMHandler
 
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 
+    public void ProcessAnimal(double hunger, double thirst, double energy, double dietFactor, 
+        bool isMale, int nChildren, double size, double speed, bool isFertile)
+    {
+        double fertility = isFertile ? 1 : 0;
+        fcm.SetState(EntityField.Fertile, fertility);
+        fcm.SetState(EntityField.NotFertile, 1 - fertility);
+
+        fcm.SetState(EntityField.Hungry, hunger);
+        fcm.SetState(EntityField.NotHungry, 1-hunger);
+    }
+
     public string GenerateJSON()
     {
 
