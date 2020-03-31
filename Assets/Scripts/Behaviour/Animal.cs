@@ -97,8 +97,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
         memory = new Memory();
         senseProcessor = new SenseProcessor(this);
 
-
-        
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = (float)speed.GetValue();
         // calculate instead if possible
@@ -134,25 +132,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     // Update is called once per frame
     void Update()
     {
-        // calculate size growth
-        double growth = 0;
-        if (size.GetValue() < maxSize.GetValue()) // if not fully grown
-        {
-            growth = size.GetValue() * growthFactor.GetValue(); // used to be maxSize
-        }
-        // deplete hunger based on traits
-        double depletion = Time.deltaTime / timeToDeathByHunger * (size.GetValue() * speed.GetValue() + senseRadius);
-        double depleted = hunger.Add(depletion);
-        // if hunger ran out, deplete size also
-        if (depletion != depleted)
-        {
-            size.Add(depleted - depletion);
-        }
-        else // else, increase size according to grwoth until hunger runs out
-        {
-            size.Add(hunger.Add(growth)); // grow until hunger runs out
-        }
-        UpdateSize();
+        DepleteHungerAndSize();
 
         // update thirst
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
@@ -859,5 +839,34 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     }
 
+    /*
+     * Deplete hunger and size depending on traits
+     * First hunger will be depleted, if hunger ran out, deplete size also
+     * Else, increase size and deplete hunger further
+     */
+    private void DepleteHungerAndSize()
+    {
+        // calculate size growth
+        double growth = 0;
+        if (size.GetValue() < maxSize.GetValue()) // if not fully grown
+        {
+            // added constant term because size will grow too slow when small.
+            growth = (size.GetValue() + maxSize.GetValue() / 10) * growthFactor.GetValue(); // used to be maxSize
+        }
+        // deplete hunger based on traits
+        // added constant term because size will never deplete to 0 otherwise.
+        double depletion = Time.deltaTime / timeToDeathByHunger * ((size.GetValue() + maxSize.GetValue() / 20) * speed.GetValue() + senseRadius);
+        double depleted = hunger.Add(depletion);
+        // if hunger ran out, deplete size also
+        if (depletion != depleted)
+        {
+            size.Add(depleted - depletion);
+        }
+        else // else, increase size according to grwoth until hunger runs out
+        {
+            size.Add(hunger.Add(growth)); // grow until hunger runs out
+        }
+        UpdateSize();
+    }
 
 }
