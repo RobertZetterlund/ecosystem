@@ -164,11 +164,11 @@ namespace Tests
         [Test]
         public void DoubleMutationTest()
         {
-
+            // Couple of general cases
             for (int i = 0; i < 100; i++)
             {
                 double lower = MathUtility.RandomUniform(-100, 100);
-                double upper = MathUtility.RandomUniform(lower, lower + 100);
+                double upper = MathUtility.RandomUniform(lower, 100);
                 double value1 = MathUtility.RandomUniform(lower, upper);
                 double value2 = MathUtility.RandomUniform(lower, upper);
                 RangedDouble a = new RangedDouble(value1, lower, upper);
@@ -182,7 +182,24 @@ namespace Tests
                 double exploitation = Math.Abs(a.GetValue() - b.GetValue());
                 double exploration = exploitation * alpha;
                 Debug.Assert(c.GetValue() <= (a.GetUpper() + exploration) && c.GetValue() >= (a.GetLower() - exploration));
-                Debug.Log(c.GetValue());
+                //Debug.Log("Bounds: [" + lower + "," + upper + "]  Values: [" + value1 + ", " + value2 + "]  Result: " + c.GetValue());
+            }
+        }
+
+        [Test]
+        public void IntMutationDifferentBoundsTest()
+        {
+            RangedInt a = new RangedInt(3, 2, 4);
+            RangedInt b = new RangedInt(5, 3, 6);
+            RangedInt c;
+
+            try
+            {
+                c = ReproductionUtility.ReproduceRangedInt(a, b);
+                Assert.Fail();
+            }
+            catch (Exception)
+            {
 
             }
         }
@@ -190,15 +207,26 @@ namespace Tests
         [Test]
         public void IntMutationTest()
         {
-            RangedInt a = new RangedInt(3, 2, 4);
-            RangedInt b = new RangedInt(5, 3, 6);
+            // Couple of general cases
+            for (int i = 0; i < 100; i++)
+            {
+                int lower = (int)MathUtility.RandomUniform(-100, 100);
+                int upper = (int)MathUtility.RandomUniform(lower, 100);
+                int value1 = (int)MathUtility.RandomUniform(lower, upper);
+                int value2 = (int)MathUtility.RandomUniform(lower, upper);
+                RangedInt a = new RangedInt(value1, lower, upper);
+                RangedInt b = new RangedInt(value2, lower, upper);
+                RangedInt c = ReproductionUtility.ReproduceRangedInt(a, b);
 
-            RangedInt c = ReproductionUtility.ReproduceRangedInt(a, b);
+                Debug.Assert(c.GetLower() == a.GetLower() && c.GetLower() == b.GetLower());
+                Debug.Assert(c.GetUpper() == a.GetUpper() && c.GetUpper() == b.GetUpper());
 
-            Debug.Assert(c.GetLower() == a.GetLower() || c.GetLower() == b.GetLower());
-            Debug.Assert(c.GetUpper() == a.GetUpper() || c.GetUpper() == b.GetUpper());
-            Debug.Assert(c.GetValue() <= a.GetUpper() && c.GetValue() >= a.GetLower() ||
-                c.GetValue() <= b.GetUpper() && c.GetValue() >= b.GetLower());
+                double alpha = BlendCrossover.GetInstance().alpha;
+                double exploitation = Math.Abs(a.GetValue() - b.GetValue());
+                double exploration = exploitation * alpha;
+                Debug.Assert(c.GetValue() <= (a.GetUpper() + exploration) && c.GetValue() >= (a.GetLower() - exploration));
+                //Debug.Log("Bounds: [" + lower + "," + upper + "]  Values: [" + value1 + ", " + value2 + "]  Result: " + c.GetValue());
+            }
         }
 
         /*

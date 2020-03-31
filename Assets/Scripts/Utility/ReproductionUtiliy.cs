@@ -3,23 +3,11 @@ using UnityEngine;
 
 public static class ReproductionUtility
 {
-    private static double STD_DEVIATION_FACTOR = 0.2;
-    private static double MUTATION_CHANCE = 0.2;
+    //private static double STD_DEVIATION_FACTOR = 0.2;
+    //private static double MUTATION_CHANCE = 0.2;
     private static ICrossover CROSSOVER_OPERATOR = BlendCrossover.GetInstance();
 
 
-    // Crossover and mutate
-    /*public static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
-    {
-        RangedDouble crossedGene = Crossover(geneA, geneB);
-
-        System.Random random = new System.Random();
-        if (random.NextDouble() < MUTATION_CHANCE)
-        {
-            return MutateRangedDouble(crossedGene);
-        }
-        return crossedGene;
-    }*/
 
     public static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
     {
@@ -27,7 +15,7 @@ public static class ReproductionUtility
 
         if (geneA.GetLower() == geneB.GetLower() && geneA.GetUpper() == geneB.GetUpper())
         {
-            mutation = MathUtility.ClampDouble(mutation, geneA.GetLower(), geneB.GetUpper());
+            mutation = MathUtility.Clamp(mutation, geneA.GetLower(), geneB.GetUpper());
             return new RangedDouble(mutation, geneA.GetLower(), geneA.GetUpper());
         } 
         else
@@ -36,6 +24,27 @@ public static class ReproductionUtility
         }
     }
 
+    
+
+    
+
+    public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
+    {
+        int mutation = (int)CROSSOVER_OPERATOR.Crossover(geneA.GetValue(), geneB.GetValue());
+
+        if (geneA.GetLower() == geneB.GetLower() && geneA.GetUpper() == geneB.GetUpper())
+        {
+            mutation = (int)MathUtility.Clamp(mutation, geneA.GetLower(), geneB.GetUpper());
+            return new RangedInt(mutation, geneA.GetLower(), geneA.GetUpper());
+        }
+        else
+        {
+            throw new Exception("Attempted to reproduce genes with different bounds");
+        }
+    }
+
+
+    /*
     // Crossover and mutate
     public static RangedDouble ReproduceRangedDouble(RangedDouble gene)
     {
@@ -47,45 +56,6 @@ public static class ReproductionUtility
         }
         return gene;
     }
-
-    /*public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
-    {
-        RangedInt crossedGene = Crossover(geneA, geneB);
-
-        System.Random random = new System.Random();
-        if(random.NextDouble() < MUTATION_CHANCE)
-        {
-            return MutateRangedInt(crossedGene);
-        }
-        return crossedGene;
-    }*/
-
-    public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
-    {
-        double mutation = CROSSOVER_OPERATOR.Crossover(geneA.GetValue(), geneB.GetValue());
-
-        if (geneA.GetLower() == geneB.GetLower() && geneA.GetUpper() == geneB.GetUpper())
-        {
-            return new RangedInt((int)mutation, geneA.GetLower(), geneA.GetUpper());
-        }
-        else
-        {
-            throw new Exception("Attempted to reproduce genes with different bounds");
-        }
-    }
-
-    // Crossover and mutate
-    /*public static bool ReproduceBool(bool geneA, bool geneB)
-    {
-        bool crossedGene = Crossover(geneA, geneB);
-
-        System.Random random = new System.Random();
-        if (random.NextDouble() < MUTATION_CHANCE)
-        {
-            return MutateBool(crossedGene);
-        }
-        return crossedGene;
-    }*/
 
     // Crossover help function
     public static T Crossover<T>(T geneA, T geneB)
@@ -139,5 +109,43 @@ public static class ReproductionUtility
     {
         return !gene;
     }
+
+    // Crossover and mutate
+    /*public static bool ReproduceBool(bool geneA, bool geneB)
+    {
+        bool crossedGene = Crossover(geneA, geneB);
+
+        System.Random random = new System.Random();
+        if (random.NextDouble() < MUTATION_CHANCE)
+        {
+            return MutateBool(crossedGene);
+        }
+        return crossedGene;
+    }*/
+
+    // Crossover and mutate
+    /*public static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
+    {
+        RangedDouble crossedGene = Crossover(geneA, geneB);
+
+        System.Random random = new System.Random();
+        if (random.NextDouble() < MUTATION_CHANCE)
+        {
+            return MutateRangedDouble(crossedGene);
+        }
+        return crossedGene;
+    }*/
+
+    /*public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
+    {
+        RangedInt crossedGene = Crossover(geneA, geneB);
+
+        System.Random random = new System.Random();
+        if(random.NextDouble() < MUTATION_CHANCE)
+        {
+            return MutateRangedInt(crossedGene);
+        }
+        return crossedGene;
+    }*/
 
 }

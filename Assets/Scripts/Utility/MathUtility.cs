@@ -18,7 +18,7 @@ public static class MathUtility
         return lower + (upper - lower) * random.NextDouble();
     }
 
-    public static double ClampDouble(double value, double lower, double upper)
+    public static double Clamp(double value, double lower, double upper)
     {
         if (value > upper)
             return upper;

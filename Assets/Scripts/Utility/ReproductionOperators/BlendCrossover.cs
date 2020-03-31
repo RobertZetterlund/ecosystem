@@ -2,7 +2,7 @@
 
 public class BlendCrossover : ICrossover
 {
-    public double alpha { get; set; } = 0.5;
+    public double alpha { get; } = 0.5;
 
     private static BlendCrossover instance = new BlendCrossover();
 

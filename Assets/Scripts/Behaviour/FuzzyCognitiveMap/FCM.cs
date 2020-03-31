@@ -276,9 +276,9 @@ public class FCM
                 // if weight already added, do crossover
                 if (childWeights[i, j] != double.MinValue)
                 {
-                    double geneA = weights[i, j];
-                    double geneB = mateFCM.weights[i, j];
-                    childWeights[i, j] = ReproductionUtility.Crossover(geneA, geneB);
+                    RangedDouble geneA = new RangedDouble(weights[i, j], -1, 1);
+                    RangedDouble geneB = new RangedDouble(mateFCM.weights[i, j], -1, 1); 
+                    childWeights[i, j] = ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue();
 
                 }
                 else // else just add
@@ -289,7 +289,7 @@ public class FCM
         }
 
         // mutate and add to child
-        for (int i = 0; i < maxWeightedInputs; i++)
+        /*for (int i = 0; i < maxWeightedInputs; i++)
         {
             for (int j = 0; j < maxWeightedActions; j++)
             {
@@ -297,7 +297,7 @@ public class FCM
                     ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights[i, j], -1, 1)).GetValue());
             }
         }
-
+        */
         // dont set states for now, maybe kid shouldnt know anything? idk
         /*
         // set states
