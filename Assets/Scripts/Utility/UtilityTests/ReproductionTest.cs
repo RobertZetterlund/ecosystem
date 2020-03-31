@@ -144,17 +144,47 @@ namespace Tests
         }
 
         [Test]
-        public void DoubleMutationTest()
+        public void DoubleMutationDifferentBoundsTest()
         {
             RangedDouble a = new RangedDouble(3, 2, 4);
             RangedDouble b = new RangedDouble(5, 3, 6);
+            RangedDouble c;
 
-            RangedDouble c = ReproductionUtility.ReproduceRangedDouble(a, b);
+            try
+            {
+                c = ReproductionUtility.ReproduceRangedDouble(a, b);
+                Assert.Fail();
+            }
+            catch (Exception)
+            {
 
-            Debug.Assert(c.GetLower() == a.GetLower() || c.GetLower() == b.GetLower());
-            Debug.Assert(c.GetUpper() == a.GetUpper() || c.GetUpper() == b.GetUpper());
-            Debug.Assert(c.GetValue() <= a.GetUpper() && c.GetValue() >= a.GetLower() ||
-                c.GetValue() <= b.GetUpper() && c.GetValue() >= b.GetLower());
+            }
+        }
+
+        [Test]
+        public void DoubleMutationTest()
+        {
+
+            for (int i = 0; i < 100; i++)
+            {
+                double lower = MathUtility.RandomUniform(-100, 100);
+                double upper = MathUtility.RandomUniform(lower, lower + 100);
+                double value1 = MathUtility.RandomUniform(lower, upper);
+                double value2 = MathUtility.RandomUniform(lower, upper);
+                RangedDouble a = new RangedDouble(value1, lower, upper);
+                RangedDouble b = new RangedDouble(value2, lower, upper);
+                RangedDouble c = ReproductionUtility.ReproduceRangedDouble(a, b);
+
+                Debug.Assert(c.GetLower() == a.GetLower() && c.GetLower() == b.GetLower());
+                Debug.Assert(c.GetUpper() == a.GetUpper() && c.GetUpper() == b.GetUpper());
+
+                double alpha = BlendCrossover.GetInstance().alpha;
+                double exploitation = Math.Abs(a.GetValue() - b.GetValue());
+                double exploration = exploitation * alpha;
+                Debug.Assert(c.GetValue() <= (a.GetUpper() + exploration) && c.GetValue() >= (a.GetLower() - exploration));
+                Debug.Log(c.GetValue());
+
+            }
         }
 
         [Test]
