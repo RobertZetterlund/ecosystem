@@ -148,9 +148,30 @@ public class FCM
         return states;
     }
 
-    public double[,] GetWeights()
+    // Getting these weights does not really mean anything since you need the translation table to see for instance what
+    // _to and _from is in the case of weights[_to,_from]. It's different for different fcms
+    public double[,] GetRawWeights()
     {
         return weights;
+    }
+
+    // Translates the weights and represents them in an array containing all possible fields. In this case we know that
+    // if _from = 1, then that must mean the _from = FoodFar since FoodFar enum has the value 1
+    public double[,] GetTranslatedWeights()
+    {
+        EntityField[] fields = (EntityField[])Enum.GetValues(typeof(EntityField));
+        double[,] convertedWeights = new double[fields.Length, fields.Length];
+
+        for (int _from = 0; _from < weights.GetLength(0); _from++)
+        {
+            for (int _to = 0; _to < weights.GetLength(1); _to++)
+            {
+                double weight = weights[_from, _to];
+                convertedWeights[translation.Reverse[_from], translation.Reverse[_to]] = weight;
+            }
+        }
+
+        return convertedWeights;
     }
 
     public TwoWayMap<int, int> GetTranslation()

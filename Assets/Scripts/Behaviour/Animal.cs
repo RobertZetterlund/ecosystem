@@ -217,7 +217,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         if (state == ActionState.Searching) {
             targetGameObject = memory.GetTargObj(currentAction);
         }
-            IDictionary<string, int> impactMap = sE.GetWeightMap();
+        //Dictionary<string, int> impactMap = sE.GetWeightMap();
 
         fcmHandler.ProcessSensedObjects(this, sE);
     }
