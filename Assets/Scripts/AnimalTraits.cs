@@ -43,11 +43,15 @@ namespace Assets.Scripts
             traits[6] = (heatTimer, "heat Timer");
             return traits;
         }
-
-        public AnimalTraits copyMe(){
-            return new AnimalTraits(this.species, this.maxSize, this.dietFactor, this.nChildren, this.infantFactor, this.growthFactor, this.speed, this.heatTimer, FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(this.species), this.species));        
+        // but we probably wont need this method later if we  randomize different traits for
+        // each animal
+        public AnimalTraits Duplicate()
+        {
+            AnimalTraits copy = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(this.species), this.species));
+            return copy;
         }
     }
+
 
 
 }
