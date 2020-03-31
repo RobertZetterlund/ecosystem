@@ -36,4 +36,5 @@ public enum EntityField
     Drinking,
     SearchingForMate,
     Reproducing,
+    Escaping
 }

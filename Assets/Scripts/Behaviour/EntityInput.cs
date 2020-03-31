@@ -20,5 +20,4 @@
     NotHungry = EntityField.NotHungry,
     FoePresenceHigh = EntityField.FoePresenceHigh,
     FoePresenceLow = EntityField.FoePresenceLow,
-    Evasion = EntityField.Evasion
 }

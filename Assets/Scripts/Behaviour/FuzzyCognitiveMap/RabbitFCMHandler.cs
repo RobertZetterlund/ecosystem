@@ -2,12 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-<<<<<<< HEAD
-||||||| merged common ancestors
-using static System.Collections.Generic.Dictionary<TKey, TValue>;
-=======
-//using static System.Collections.Generic.Dictionary<TKey, TValue>;
->>>>>>> dev
 
 public class RabbitFCMHandler : FCMHandler
 {
