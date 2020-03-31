@@ -12,8 +12,14 @@ public static class FCMFactory
 
         fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 0.05);
         fcm.SetWeight(EntityField.FoodFar, EntityField.GoingToFood, -0.05);
+        fcm.SetWeight(EntityField.FoodPresenceHigh, EntityField.GoingToFood, 0.02);
+        fcm.SetWeight(EntityField.FoodPresenceLow, EntityField.GoingToFood, -0.02);
+
         fcm.SetWeight(EntityField.WaterClose, EntityField.GoingToWater, 0.05);
         fcm.SetWeight(EntityField.WaterFar, EntityField.GoingToWater, -0.05);
+        fcm.SetWeight(EntityField.WaterPresenceHigh, EntityField.GoingToWater, 0.02);
+        fcm.SetWeight(EntityField.WaterPresenceLow, EntityField.GoingToWater, -0.02);
+
 
         //This should start of has being far away, unless anything else has been sensed
         fcm.SetState(EntityField.FoodFar, 1);

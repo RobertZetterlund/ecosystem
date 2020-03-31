@@ -15,5 +15,6 @@
     FoeClose = EntityField.FoeClose,
     FoeFar = EntityField.FoeFar,
     FoePresenceHigh = EntityField.FoePresenceHigh,
-    FoePresenceLow = EntityField.FoePresenceLow
+    FoePresenceLow = EntityField.FoePresenceLow,
+    Evasion = EntityField.Evasion
 }
