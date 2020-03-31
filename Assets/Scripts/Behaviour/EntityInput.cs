@@ -19,5 +19,5 @@
     Hungry = EntityField.Hungry,
     NotHungry = EntityField.NotHungry,
     FoePresenceHigh = EntityField.FoePresenceHigh,
-    FoePresenceLow = EntityField.FoePresenceLow
+    FoePresenceLow = EntityField.FoePresenceLow,
 }
