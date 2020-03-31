@@ -120,6 +120,11 @@ public class Memory
         }else if(act == EntityAction.SearchingForMate)
         {
             return ReadMateFromMemory();
-        }return null;
+        }
+        else if (act == EntityAction.Escaping)
+        {
+            return ReadFoeFromMemory();
+        }
+        return null;
     }
 }

@@ -194,10 +194,11 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
         SensedEvent sE = senseProcessor.Process(sensedGameObjects);
         memory.WriteSensedEventToMemory(sE);
-        if (state == ActionState.Searching) {
+        
             targetGameObject = memory.GetTargObj(currentAction);
-        }
-        //Dictionary<string, int> impactMap = sE.GetWeightMap();
+        
+            IDictionary<string, int> impactMap = sE.GetWeightMap();
+
 
         fcmHandler.ProcessSensedObjects(this, sE);
     }
@@ -321,6 +322,10 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 case EntityAction.GoingToFood:
                     targetGameObject = memory.ReadFoodFromMemory();
                     StartCoroutine(GoToFood());                   
+                    break;
+                case EntityAction.Escaping:
+                    targetGameObject = memory.ReadFoeFromMemory();
+                    StartCoroutine(Escape());
                     break;
                 default:
                     currentAction = EntityAction.Idle;
@@ -705,14 +710,39 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     }
 
-    public IEnumerator EscapeAnimal(Animal animal)
+    public Vector3 EscapeAnimal(Vector3 targetPos)
     {
-        throw new NotImplementedException();
+        Vector3 dir = transform.position - targetPos;
+        float angle = Vector3.SignedAngle(dir, Vector3.forward, Vector3.up);
+        Vector3 new_directon = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * angle), 0, Mathf.Cos(Mathf.Deg2Rad * angle));
+
+        
+        Vector3 myNewPos = transform.position + new_directon*10;
+        
+        
+        return myNewPos;
+        
+
     }
 
-    IEnumerator Walk()
+    private IEnumerator Escape()
     {
-        Vector3 pos = ChooseNewDestination();
+        state = ActionState.Escaping;
+        while (targetGameObject != null)
+        {
+
+            GoToStationaryPosition(EscapeAnimal(targetGameObject.transform.position));
+            yield return new WaitForSeconds(1);
+        }
+        
+        state = ActionState.Idle;
+        currentAction = EntityAction.Idle;
+        yield return null;
+
+    }
+
+    private void GoToStationaryPosition(Vector3 pos)
+    {
         NavMeshPath path = new NavMeshPath();
         bool canPath = navMeshAgent.CalculatePath(pos, path);
 
@@ -730,8 +760,12 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 SetDestination(myNavHit.position);
             }
         }
+    }
 
-        yield return null;
+    public void Roam()
+    {
+        Vector3 pos = ChooseNewDestination();
+        GoToStationaryPosition(pos);
     }
 
     public IEnumerator Search(string gametag)
@@ -746,7 +780,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         while (targetGameObject == null)
         {
             
-            yield return StartCoroutine(Walk());
+            Roam();
             yield return new WaitForSeconds(1);
         }
         yield return null;
