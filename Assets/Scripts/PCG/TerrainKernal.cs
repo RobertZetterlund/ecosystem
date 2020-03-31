@@ -7,8 +7,6 @@ using DelaunatorSharp.Models;
 
 public class TerrainKernal : MonoBehaviour
 {
-
-    
     public int side;
     public int resolution;
     [Range(1, 10)]

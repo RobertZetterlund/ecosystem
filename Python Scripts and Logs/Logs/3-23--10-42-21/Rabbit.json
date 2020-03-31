@@ -1,1 +1,0 @@
-{"weights":[{"from":"FoodClose","to":"GoingToFood","weight":0.05},{"from":"FoodFar","to":"GoingToFood","weight":-0.05},{"from":"WaterClose","to":"GoingToWater","weight":0.05},{"from":"WaterFar","to":"GoingToWater","weight":-0.05}]}

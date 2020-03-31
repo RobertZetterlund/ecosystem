@@ -84,7 +84,7 @@ public class SenseProcessor
                 }
             }
             // check if water
-            else if ((gameObject.tag).Equals("Water"))
+            else if (tagOfSensedObject == "Water")
             {
                 waterCount++;
 
@@ -109,9 +109,10 @@ public class SenseProcessor
             // check if mate
             else if (Array.Exists(mates, mate => mate.Equals(tagOfSensedObject)))
             {
-                mateCount++;
-                if (closestMateDist > distanceBetween)
+                Animal animal = gameObject.GetComponent<Animal>();
+                if (animal.isFertile && (self.isMale ^ animal.isMale)) // closestMateDist > distanceBetween &&
                 {
+                    mateCount++;
                     closestMateObj = gameObject;
                     closestMateDist = distanceBetween;
                 }
@@ -123,15 +124,27 @@ public class SenseProcessor
             }
         }
         // end of foreach loop
-
-
+        /*
+        if(closestMateObj != null)
+        {
+            Animal animal = closestMateObj.GetComponent<Animal>();
+            if (!animal.isFertile)
+            {
+                closestMateObj = null;
+                closestMateDist = Int32.MaxValue;
+            }
+        }
+        */
 
         // this is the count of sensed objects, it will dictate the strength of which the FCM will input the concept
         // collect all data and combine to a strength of various senses.
-        IDictionary<string, int> weightMap = new Dictionary<string, int>();
-        weightMap.Add("Foe", foeCount);
-        weightMap.Add("Food", foodCount);
-        weightMap.Add("Mate", mateCount);
+        Dictionary<string, int> weightMap = new Dictionary<string, int>
+        {
+            { "Foe", foeCount },
+            { "Food", foodCount },
+            { "Mate", mateCount },
+            { "Water", waterCount }
+        };
 
         // return a sensedEvent that can be written to memory.
         return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);

@@ -39,22 +39,26 @@ public class Memory
 
     private void WriteWaterToMemory(GameObject Water)
     {
-        this.Water = Water;
+        if (!CheckIfRejected(Water.GetInstanceID()))
+            this.Water = Water;
     }
 
     private void WriteFoeToMemory(GameObject Foe)
     {
-        this.Foe = Foe;
+        if (!CheckIfRejected(Foe.GetInstanceID()))
+            this.Foe = Foe;
     }
 
     private void WriteMateToMemory(GameObject Mate)
     {
-        this.Mate = Mate;
+        if (!CheckIfRejected(Mate.GetInstanceID()))
+            this.Mate = Mate;
     }
 
     private void WriteFoodToMemory(GameObject Food)
     {
-        this.Food = Food;
+        if (!CheckIfRejected(Food.GetInstanceID()))
+            this.Food = Food;
     }
 
     public void AddRejection(int id)
@@ -64,6 +68,19 @@ public class Memory
             rejectedByIDs.RemoveAt(0);
         }
         rejectedByIDs.Add(id);
+        if ( Water != null && Water.GetInstanceID() == id)
+        {
+            Water = null;
+        }else if (Foe != null && Foe.GetInstanceID() == id)
+        {
+            Foe = null;
+        }else if (Mate != null && Mate.GetInstanceID() == id)
+        {
+            Mate = null;
+        }else if (Food != null && Food.GetInstanceID() == id)
+        {
+            Food = null;
+        }
     }
 
     public Boolean CheckIfRejected(int id)
