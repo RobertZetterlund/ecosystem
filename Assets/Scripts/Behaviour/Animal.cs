@@ -145,8 +145,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
         // can only mate if in heat and fully grown
         isFertile = heat.GetValue() == 1 && size.GetValue() == maxSize.GetValue();
-        if (isFertile)
-            Debug.Log("Fucking fertile");
+
 
         if (senseTimer.IsDone())
         {
