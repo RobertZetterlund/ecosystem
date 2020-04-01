@@ -221,8 +221,6 @@ public class FCM
     internal FCM Reproduce(FCM mateFCM)
     {
         // assume both mates have the same fields
-        //EntityInput[] childInputs = GetInputs();
-        //EntityAction[] childActions = GetActions();
         EntityInput[] childInputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
         EntityAction[] childActions = (EntityAction[])Enum.GetValues(typeof(EntityAction));
 
