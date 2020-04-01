@@ -142,6 +142,7 @@ public class GameController : MonoBehaviour
     private void OnValidate()
     {
         Time.timeScale = gameSpeed;
+        Time.fixedDeltaTime = 0.02f * gameSpeed;
         spawnWithManualActions = _spawnWithManualActions;
         animalCanDie = _animalCanDie;
     }
