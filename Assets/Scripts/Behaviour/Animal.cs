@@ -67,6 +67,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private Vector3 lastPos;
     private Animator animator;
 
+    //Fitness
+    private float timeAtBirth;
+
 
     public virtual void Init(AnimalTraits traits)
     {
@@ -87,7 +90,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
         targetGameObject = null;
         gameObject.tag = species.ToString();
 
-        GameController.Register(species);
+        timeAtBirth = Time.time;
+        SimulationController.Instance().Register(this);
     }
 
     // Start is called before the first frame update
@@ -171,8 +175,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         chooseNextAction();
 
         //check if the animal is dead
-        if (GameController.animalCanDie)
-            isDead();
+        isDead();
 
         //Animation
 
@@ -294,7 +297,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         {
             dead = true;
             //Something.log(cause);
-            GameController.Unregister(traits);
+            SimulationController.Instance().Unregister(this);
             statusBars.Destroy();
             Destroy(gameObject);
         }
@@ -903,6 +906,16 @@ public abstract class Animal : MonoBehaviour, IConsumable
             size.Add(hunger.Add(growth)); // grow until hunger runs out
         }
         UpdateSize();
+    }
+
+    public AnimalTraits GetTraits()
+    {
+        return traits;
+    }
+
+    public float GetTimeAlive()
+    {
+        return Time.time - timeAtBirth;
     }
 
 }

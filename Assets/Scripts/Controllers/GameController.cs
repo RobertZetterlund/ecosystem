@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using Assets.Scripts;
+using System.Collections.Generic;
 
 public class GameController : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameController : MonoBehaviour
     static TerrainKernal terrainKernal;
     static float[,] heightMap;
     static int sideLength;
+    private static List<Animal>[] animals = new List<Animal>[Species.GetValues(typeof(Species)).Length];
 
     [Range(1f,100)]
     public float gameSpeed = 1;
@@ -36,6 +38,10 @@ public class GameController : MonoBehaviour
         heightMap = terrainKernal.GetHeightMap();
         sideLength = terrainKernal.resolution;
         
+        for(int i = 0; i < animals.Length; i++)
+        {
+            animals[i] = new List<Animal>();
+        }
 
         System.Random random = new System.Random();
 
@@ -115,19 +121,24 @@ public class GameController : MonoBehaviour
                     break;
             }
             OrganismFactory.CreateAnimal(trait, new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z));
-            OrganismFactory.CreateAnimal(trait, NavMeshUtil.GetRandomLocation());
         }
     }
 
     // register new animal
-    public static void Register(Species species)
+    public static void Register(Animal animal)
     {
+        Species species = animal.GetTraits().species;
         nAliveAnimals[(int)species]++;
+
+        animals[(int)species].Add(animal);
     }
 
     // register animal death, spawn new ones if all died
-    public static void Unregister(AnimalTraits traits)
+    public static void Unregister(Animal animal)
     {
+        AnimalTraits traits = animal.GetTraits();
+        animals[(int)traits.species].Remove(animal);
+
         nAliveAnimals[(int)traits.species]--;
         if (respawnStatic)
         {
@@ -136,7 +147,6 @@ public class GameController : MonoBehaviour
                 SpawnAnimal(traits);
             }
         }
-
     }
 
     private void OnValidate()
