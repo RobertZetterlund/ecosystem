@@ -24,12 +24,14 @@ public class GameController : MonoBehaviour
 
     public static bool animalCanDie = true;
     public bool _animalCanDie = true;
+    public int nrOfRabbits;
+    public int nrOfFoxes;
 
 
     void Start()
     {
-        nAnimals[(int)Species.Rabbit] = 20;
-        nAnimals[(int)Species.Fox] = 0;
+        nAnimals[(int)Species.Rabbit] = nrOfRabbits;
+        nAnimals[(int)Species.Fox] = nrOfFoxes;
 
         GameObject gameMaster = GameObject.Find("Game Master");
         terrainKernal = gameMaster.GetComponent<TerrainKernal>();

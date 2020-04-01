@@ -549,7 +549,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToStationaryConsumable(ConsumptionType consumptionType, Vector3 position)
     {
         yield return StartCoroutine(Approach(targetGameObject, position));
+        if(!(targetGameObject == null)) { 
         yield return StartCoroutine(EatConsumable(consumptionType));
+        }
     }
 
     public IEnumerator EatConsumable(ConsumptionType consumptionType)

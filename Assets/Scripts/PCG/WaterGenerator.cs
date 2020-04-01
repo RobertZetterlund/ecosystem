@@ -30,7 +30,7 @@ public class WaterGenerator
 		}
 
         clusterList = countIslands(waterMap, x, z);
-
+        
 
         return clusterList;
 
@@ -68,9 +68,13 @@ public class WaterGenerator
         // Recur for all 
         // connected neighbours 
         for (int k = 0; k < 8; ++k)
+        {
             if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited, xSize, ySize))
+            {
                 DFS(M, row + rowNbr[k],
                     col + colNbr[k], visited, xSize, ySize, clusterList);
+            }
+        }
     }
 
     // The main function that 
@@ -90,7 +94,9 @@ public class WaterGenerator
 
         List<List<Vector2>> clusterList1 = new List<List<Vector2>>();
         for (int i = 0; i < xSize; ++i)
+        {
             for (int j = 0; j < ySize; ++j)
+            {
                 if (M[i, j] && !visited[i, j])
                 {
                     List<Vector2> clusterList = new List<Vector2>();
@@ -99,10 +105,23 @@ public class WaterGenerator
                     // found, Visit all cells in this 
                     // island and increment island count 
                     DFS(M, i, j, visited, xSize, ySize, clusterList);
-                    clusterList1.Add(clusterList);
+                    // I Remove smaller clusters
+                    if(clusterList.Count > 50)
+                        clusterList1.Add(clusterList);
 
                 }
-
+            }
+            
+        }
+        /*
+        int min = 10000;
+        foreach (List<Vector2> list in clusterList1)
+        {
+            if (list.Count < min)
+                min = list.Count;
+        }
+        Debug.Log(min);
+        */
         return clusterList1;
     }
 
