@@ -25,9 +25,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     double timeToDeathByHunger = 600;
-    double timeToDeathByThirst = 70;
+    double timeToDeathByThirst = 50;
     private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
-    double lifespan = 300;
+    double lifespan = 150;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;

@@ -29,6 +29,8 @@ public static class FCMFactory
         fcm.SetWeight(EntityField.NotFertile, EntityField.SearchingForMate, -1);
         fcm.SetWeight(EntityField.Hungry, EntityField.GoingToFood, 0.3);
         fcm.SetWeight(EntityField.NotHungry, EntityField.GoingToFood, -0.2);
+        fcm.SetWeight(EntityField.Thirsty, EntityField.GoingToWater, 0.3);
+        fcm.SetWeight(EntityField.NotThirsty, EntityField.GoingToWater, -0.2);
 
         fcm.SetWeight(EntityField.Hungry, EntityField.SearchingForMate, -0.1);
         fcm.SetWeight(EntityField.NotHungry, EntityField.SearchingForMate, 0.1);

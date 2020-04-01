@@ -289,4 +289,31 @@ public class FCM
         return child;
     }
 
+    internal FCM Reproduce2(FCM mateFCM)
+    {
+        // assume both mates have the same fields
+        EntityInput[] childInputs = GetInputs();
+        EntityAction[] childActions = GetActions();
+
+        FCM child = new FCM(childInputs, childActions);
+
+        foreach (EntityInput ei in childInputs)
+        {
+            foreach (EntityAction ea in childActions)
+            {
+                EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
+                EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
+                int i_from = translation.Forward[(int)_from];
+                int i_to = translation.Forward[(int)_to];
+
+                // get weights and mutate
+                RangedDouble geneA = new RangedDouble(weights[i_from, i_to], -1 , 1);
+                RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1 , 1);
+                child.SetWeight(_from, _to, ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue());
+            }
+        }
+
+        return child;
+    }
+
 }

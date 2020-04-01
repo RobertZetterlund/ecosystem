@@ -1,0 +1,25 @@
+Rabbit-population,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-infant factor,Rabbit-growth factor,Rabbit-speed,Rabbit-heat Timer
+48,3.03908389937949,0,1.95833333333333,0.103897794778535,0.199381457590502,2.99813545348649,19.6466949365414
+22,3.03727362455879,0,2.09090909090909,0.101304626583825,0.198727427603005,3.0491681725262,20.0703379194025
+13,3.02084721921863,0,2.23076923076923,0.100281827146559,0.198997598834172,2.97291804331951,19.6097661680613
+12,3.1828738139789,0,2.33333333333333,0.0994670563312594,0.186195193318295,3.03692057945526,20.1055111200612
+7,3.09337409449718,0,2.42857142857143,0.10048657952799,0.183294973166114,3.09240058972681,19.4596955128459
+2,3.32680933074013,0,3.5,0.101703028347966,0.141532406081397,3.32340206404385,18.1089342949608
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity

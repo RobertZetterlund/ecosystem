@@ -79,6 +79,6 @@ public class RabbitFCMHandler : FCMHandler
 
     public override FCMHandler Reproduce(FCMHandler mateHandler)
     {
-        return new RabbitFCMHandler(fcm.Reproduce(((RabbitFCMHandler)mateHandler).fcm));
+        return new RabbitFCMHandler(fcm.Reproduce2(((RabbitFCMHandler)mateHandler).fcm));
     }
 }
