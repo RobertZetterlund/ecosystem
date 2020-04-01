@@ -10,9 +10,11 @@ public class StatusBars : MonoBehaviour
     private Image hungerBar;
     private Image thirstBar;
     private Image heatBar;
+    private Image energyBar;
     private float hunger = 1f;
     private float thirst = 1f;
     private float heat = 0f;
+    private float energy = 0f;
 
     // Start is called before the first frame update
     void Start()
@@ -20,6 +22,7 @@ public class StatusBars : MonoBehaviour
         hungerBar = gameObject.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Image>();
         thirstBar = gameObject.transform.GetChild(1).GetChild(0).gameObject.GetComponent<Image>();
         heatBar = gameObject.transform.GetChild(2).GetChild(0).gameObject.GetComponent<Image>();
+        energyBar = gameObject.transform.GetChild(3).GetChild(0).gameObject.GetComponent<Image>();
     }
 
     // Update is called once per frame
@@ -28,13 +31,15 @@ public class StatusBars : MonoBehaviour
         hungerBar.fillAmount = hunger;
         thirstBar.fillAmount = thirst;
         heatBar.fillAmount = heat;
+        energyBar.fillAmount = energy;
     }
 
-    public void UpdateStatus(float hunger, float thirst, double energy, float heat)
+    public void UpdateStatus(float hunger, float thirst, float energy, float heat)
     {
         this.hunger = 1f - hunger;
         this.thirst = 1f - thirst;
         this.heat = heat;
+        this.energy = energy;
 
     }
 
@@ -43,10 +48,12 @@ public class StatusBars : MonoBehaviour
         Destroy(hungerBar.gameObject);
         Destroy(thirstBar.gameObject);
         Destroy(heatBar.gameObject);
+        Destroy(energyBar.gameObject);
 
         Destroy(gameObject.transform.GetChild(0).gameObject);
         Destroy(gameObject.transform.GetChild(1).gameObject);
         Destroy(gameObject.transform.GetChild(2).gameObject);
+        Destroy(gameObject.transform.GetChild(3).gameObject);
 
         Destroy(gameObject);
     }

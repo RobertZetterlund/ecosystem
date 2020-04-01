@@ -1,0 +1,7 @@
+Rabbit-population,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-infant factor,Rabbit-growth factor,Rabbit-speed,Rabbit-heat Timer
+37,3.05230032725283,0,1.94594594594595,0.101057090018884,0.199823172719167,2.98902824299576,20.1199235837419
+3,3.27599005988151,0,1.66666666666667,0.107531833551971,0.224314564006356,3.24684409493473,21.8506869820974
+2,3.11270610003926,0,1.5,0.107889171064002,0.220786879953672,3.18831263056828,20.936198685606
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity
+0,Infinity,NaN,Infinity,Infinity,Infinity,Infinity,Infinity

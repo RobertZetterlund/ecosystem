@@ -25,9 +25,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     double timeToDeathByHunger = 600;
-    double timeToDeathByThirst = 200;
+    double timeToDeathByThirst = 70;
     private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
-    double lifespan = 2000;
+    double lifespan = 300;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
@@ -140,7 +140,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         //age the animal
         energy -= Time.deltaTime * 1 / lifespan;
 
-        heat.Add(1 / heatTimer.GetValue());
+        heat.Add(Time.deltaTime / heatTimer.GetValue());
 
         // can only mate if in heat and fully grown
         isFertile = heat.GetValue() == 1 && size.GetValue() == maxSize.GetValue();
@@ -417,6 +417,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                         FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
 
                         AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+                        //child.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
                         OrganismFactory.CreateAnimal(child, mother.transform.position);
                     }
                     mother.UpdateSize();
@@ -885,7 +886,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         if (size.GetValue() < maxSize.GetValue()) // if not fully grown
         {
             // added constant term because size will grow too slow when small.
-            growth = (size.GetValue() + maxSize.GetValue() / 10) * growthFactor.GetValue(); // used to be maxSize
+            growth = Time.deltaTime * (size.GetValue() + maxSize.GetValue() / 10) * growthFactor.GetValue(); // used to be maxSize
         }
         // deplete hunger based on traits
         // added constant term because size will never deplete to 0 otherwise.
