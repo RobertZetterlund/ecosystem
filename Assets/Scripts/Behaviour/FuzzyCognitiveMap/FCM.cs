@@ -282,19 +282,30 @@ public class FCM
                     }
                     else
                     {
-                        double geneA = childWeights2[(ei, ea)];
-                        double geneB = mateFCM.weights[i_from, i_to];
-                        childWeights2[(ei, ea)] = ReproductionUtility.Crossover(geneA, geneB);
+                        RangedDouble geneA = new RangedDouble(childWeights2[(ei, ea)], -1, 1);
+                        RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1, 1);
+                        childWeights2[(ei, ea)] = ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue();
                     }
                 } catch (Exception)
                 {
                     // ignore if field doesnt exist
                 }
-                double geneC = ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights2[(ei, ea)], -1, 1)).GetValue();
+                double geneC = childWeights2[(ei, ea)];
                 child.SetWeight(_from, _to, geneC);
             }
         }
 
+        return child;
+        // mutate and add to child
+        /*for (int i = 0; i < maxWeightedInputs; i++)
+        {
+            for (int j = 0; j < maxWeightedActions; j++)
+            {
+                child.SetWeight((EntityField)i, (EntityField)j,
+                    ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights[i, j], -1, 1)).GetValue());
+            }
+        }
+        */
 
         // dont set states for now, maybe kid shouldnt know anything? idk
         /*
@@ -310,8 +321,6 @@ public class FCM
             fcm.SetState(EntityField.WaterFar, 1);
         }
         */
-
-        return child;
     }
 
 }

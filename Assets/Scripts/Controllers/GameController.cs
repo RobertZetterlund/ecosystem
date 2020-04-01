@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour
     [SerializeField]
     public bool respawn = true;
     private static bool respawnStatic = true;
-    private int nPlants = 200;
+    private int nPlants = 500;
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
     static TerrainKernal terrainKernal;
@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        nAnimals[(int)Species.Rabbit] = 20;
+        nAnimals[(int)Species.Rabbit] = 5;
         nAnimals[(int)Species.Fox] = 0;
 
         GameObject gameMaster = GameObject.Find("Game Master");
@@ -142,6 +142,7 @@ public class GameController : MonoBehaviour
     private void OnValidate()
     {
         Time.timeScale = gameSpeed;
+        //Time.fixedDeltaTime = fixedDeltaTime * Time.timeScale;
         spawnWithManualActions = _spawnWithManualActions;
         animalCanDie = _animalCanDie;
     }

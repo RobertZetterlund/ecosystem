@@ -10,7 +10,7 @@ using Assets.Scripts;
 public abstract class Animal : MonoBehaviour, IConsumable
 {
     // traits that could be in fcm:
-    private RangedDouble hunger = new RangedDouble(1, 0, 1);
+    private RangedDouble hunger = new RangedDouble(0, 0, 1);
     private RangedDouble thirst = new RangedDouble(0, 0, 1);
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
@@ -44,7 +44,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private AbstractSensor[] sensors;
     private AbstractSensor touchSensor;
     private float sightLength = 25;
-    private float smellRadius = 7;
+    private float smellRadius = 30;
     private float horisontalFOV = 120;
     private float verticalFOV = 90;
     protected GameObject targetGameObject;
@@ -134,6 +134,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         DepleteHungerAndSize();
 
+
         // update thirst
         thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
 
@@ -144,6 +145,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
         // can only mate if in heat and fully grown
         isFertile = heat.GetValue() == 1 && size.GetValue() == maxSize.GetValue();
+
 
         if (senseTimer.IsDone())
         {
@@ -332,7 +334,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                     break;
 
                 case EntityAction.SearchingForMate:
-                    StartCoroutine(GoToPartner());
+                    StartCoroutine(GoToMate());
                     break;
             }
         }
@@ -527,7 +529,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         {
             Gizmos.DrawLine(transform.position, targetDestinationGizmo);
         }
-        Handles.Label(transform.position + new Vector3(0, 3, 0), state.ToString());
+        Handles.Label(transform.position + new Vector3(0, 3, 0), currentAction.ToString() + "   " + state.ToString());
     }
     void OnDrawGizmosSelected()
     {
@@ -570,10 +572,11 @@ public abstract class Animal : MonoBehaviour, IConsumable
         state = ActionState.Eating;
         for (int i = 0; i < 5; i++)
         {
+            yield return new WaitForSeconds(1);
             if (consumable == null || consumable.GetAmount() == 0)
                 break;
             Eat(consumable); // take one bite
-            yield return new WaitForSeconds(1);
+            
         }
         state = ActionState.Idle;
         yield return null;
@@ -695,10 +698,10 @@ public abstract class Animal : MonoBehaviour, IConsumable
         currentAction = EntityAction.Idle;
     }
 
-    public IEnumerator GoToPartner()
+    /*public IEnumerator GoToPartner()
     {
         yield return StartCoroutine(GoToMate());
-    }
+    }*/
 
     public IEnumerator ChaseAnimal(GameObject animal)
     {
@@ -779,7 +782,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
         senseTimer.Start();
         while (targetGameObject == null)
         {
-            
             Roam();
             yield return new WaitForSeconds(1);
         }
