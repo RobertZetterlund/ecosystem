@@ -32,9 +32,6 @@ public enum EntityField
     Resting,
     GoingToFood,
     GoingToWater,
-    Eating,
-    Drinking,
     SearchingForMate,
-    Reproducing,
     Escaping
 }

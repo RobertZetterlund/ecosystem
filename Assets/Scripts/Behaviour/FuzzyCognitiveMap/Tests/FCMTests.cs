@@ -23,12 +23,7 @@ namespace Tests
 
             
         }*/
-        [Test]
-        public void NoFieldFoundTest()
-        {
-            FCM fcm = CreateFCM();
-            fcm.SetState(EntityField.Reproducing, 1);
-        }
+
 
         private FCM CreateFCM()
         {
