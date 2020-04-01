@@ -241,18 +241,9 @@ public class FCM
 
 
         FCM child = new FCM(childInputs, childActions);
-
         int childFields = childInputs.Length + childActions.Length;
-        double[,] childWeights = new double[childFields, childFields];
+
         Dictionary<(EntityInput, EntityAction), double> childWeights2 = new Dictionary<(EntityInput, EntityAction), double>();
-        // set flag for weights that dont exist
-        for (int i = 0; i < childWeights.GetLength(0); i++)
-        {
-            for (int j = 0; j < childWeights.GetLength(1); j++)
-            {
-                childWeights[i, j] = double.MinValue;
-            }
-        }
 
         foreach (EntityInput ei in childInputs)
         {
@@ -294,22 +285,6 @@ public class FCM
                 child.SetWeight(_from, _to, geneC);
             }
         }
-
-
-        // dont set states for now, maybe kid shouldnt know anything? idk
-        /*
-        // set states
-        int states = this.states.Length;
-        int mateStates = mateFCM.states.Length;
-
-        int maxStates = Math.Max(states, mateStates);
-        double[] childstates = new double[maxStates];
-
-        foreach (double state in states)
-        {
-            fcm.SetState(EntityField.WaterFar, 1);
-        }
-        */
 
         return child;
     }
