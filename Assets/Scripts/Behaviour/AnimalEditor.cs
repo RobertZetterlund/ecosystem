@@ -35,5 +35,19 @@ public class ObjectBuilderEditor : Editor
             else
                 fcmHandler.SetAction(EntityAction.GoingToWater);
         }
+        if (GUILayout.Button("Escape"))
+        {
+            if (fcmHandler == null)
+                Debug.LogWarning("You need to switch to manual control before you trigger this action");
+            else
+                fcmHandler.SetAction(EntityAction.Escaping);
+        }
+        if (GUILayout.Button("Breed"))
+        {
+            if (fcmHandler == null)
+                Debug.LogWarning("You need to switch to manual control before you trigger this action");
+            else
+                fcmHandler.SetAction(EntityAction.SearchingForMate);
+        }
     }
 }

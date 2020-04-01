@@ -14,6 +14,10 @@
     MatePresenceLow = EntityField.MatePresenceLow,
     FoeClose = EntityField.FoeClose,
     FoeFar = EntityField.FoeFar,
+    Fertile = EntityField.Fertile,
+    NotFertile = EntityField.NotFertile,
+    Hungry = EntityField.Hungry,
+    NotHungry = EntityField.NotHungry,
     FoePresenceHigh = EntityField.FoePresenceHigh,
     FoePresenceLow = EntityField.FoePresenceLow
 }

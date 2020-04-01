@@ -43,6 +43,17 @@ public abstract class FCMHandler
 
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 
+    public void ProcessAnimal(double hunger, double thirst, double energy, double dietFactor, 
+        bool isMale, int nChildren, double size, double speed, bool isFertile)
+    {
+        double fertility = isFertile ? 1 : 0;
+        fcm.SetState(EntityField.Fertile, fertility);
+        fcm.SetState(EntityField.NotFertile, 1 - fertility);
+
+        fcm.SetState(EntityField.Hungry, hunger);
+        fcm.SetState(EntityField.NotHungry, 1-hunger);
+    }
+
     // Returns the translated weights
     public double[,] GetWeights()
     {
@@ -66,7 +77,7 @@ public abstract class FCMHandler
             for (int _to = 0; _to < weights.GetLength(1); _to++)
             {
                 double weight = weights[_from, _to];
-                csv.Append(((EntityField)_from).ToString() + "," + ((EntityField)_to).ToString() + "," + weight);
+                csv.Append(((EntityField)_from).ToString() + "," + ((EntityField)_to).ToString() + "," + weight.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 csv.AppendLine();
             }      
         }

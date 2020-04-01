@@ -54,7 +54,7 @@ public class Plant : MonoBehaviour, IConsumable
             try
             {
                 TransformToSappling();
-            } catch (MissingReferenceException e)
+            } catch (MissingReferenceException)
             {
                 Debug.LogWarning("The animals tried to access a consumable that was already destroyed");
             }

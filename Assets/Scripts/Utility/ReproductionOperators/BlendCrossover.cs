@@ -23,7 +23,7 @@ public class BlendCrossover : ICrossover
 
         double exploitation = Math.Abs(upper - lower);
         double exploration = alpha * exploitation;
-        return MathUtility.RandomUniform(lower - exploration, upper + exploration);
+        return MathUtility.RandomUniform(lower - exploration - 0.05, upper + exploration + 0.05);
     }
 }
 

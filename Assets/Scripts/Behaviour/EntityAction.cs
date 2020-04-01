@@ -7,5 +7,6 @@
     Eating = EntityField.Eating,
     Drinking = EntityField.Drinking,
     SearchingForMate = EntityField.SearchingForMate,
-    Reproducing = EntityField.Reproducing
+    Reproducing = EntityField.Reproducing,
+    Escaping = EntityField.Escaping
 }
