@@ -44,11 +44,11 @@ public class GameController : MonoBehaviour
         System.Random random = new System.Random();
 
         // spawn first foxes
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 1, 1, 3, 0.1, 0.02, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM())); //ght need a foxFCM later on
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, new FoxFCMHandler(FCMFactory.FoxFCM())); //ght need a foxFCM later on
         SpawnAnimal(foxTraits);
 
         // spawn first rabbits
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.002, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
         SpawnAnimal(rabbitTraits);
         // spawn first plants
         
@@ -115,11 +115,21 @@ public class GameController : MonoBehaviour
                         trait.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
                     }
                     break;
+                case Species.Fox:
+                    if (spawnWithManualActions)
+                    {
+                        trait.fcmHandler = new MockFCMHandler(new FoxFCMHandler(FCMFactory.FoxFCM()));
+                    }
+                    else
+                    {
+                        trait.fcmHandler = new FoxFCMHandler(FCMFactory.FoxFCM());
+                    }
+                    break;
                 default:
                     break;
             }
+
             OrganismFactory.CreateAnimal(trait, new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z));
-            OrganismFactory.CreateAnimal(trait, NavMeshUtil.GetRandomLocation());
         }
     }
 
@@ -146,7 +156,7 @@ public class GameController : MonoBehaviour
     private void OnValidate()
     {
         Time.timeScale = gameSpeed;
-        //Time.fixedDeltaTime = fixedDeltaTime * Time.timeScale;
+        Time.fixedDeltaTime = 0.02f * gameSpeed;
         spawnWithManualActions = _spawnWithManualActions;
         animalCanDie = _animalCanDie;
     }
