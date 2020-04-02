@@ -234,20 +234,24 @@ public abstract class Animal : MonoBehaviour, IConsumable
         return collider1.bounds.Intersects(collider2.bounds);
     }*/
 
-    protected void Act(IConsumable currentTarget)
+    protected bool Act(IConsumable currentTarget)
     {
         switch (currentAction)
         {
             case EntityAction.GoingToFood:
                 Eat(currentTarget);
+                return true;
                 break;
             case EntityAction.GoingToWater:
                 Drink(currentTarget);
+                return true;
                 break;
             case EntityAction.SearchingForMate:
                 Animal mate = (Animal)currentTarget;
-                Reproduce(mate);
+                return Reproduce(mate);
                 break;
+            default:
+                return false;
         }
     }
 
@@ -374,9 +378,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
         return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
-    public void Reproduce(Animal mate)
+    public bool Reproduce(Animal mate)
     {
-        Debug.Log("mating");
         try
         {
             // checked if can mate
@@ -385,10 +388,12 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 !isFertile || !mate.isFertile) // if not fertile
             {
                 //currentAction = EntityAction.Idle; // Set action to idle when done
-                return;
+                return false;
             }
-        // mak babi
-        if (true || (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6))
+            Debug.Log("mating");
+            // mak babi
+            state = ActionState.Reproducing;
+            if (true || (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6))
             {
                 if (true || energy > 0.4)
                 {
@@ -409,7 +414,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                         if (sizeRemoved != -maxSize * mother.infantFactor.GetValue())
                         {
                             mother.size.Add(-sizeRemoved); // restore because child wasnt born.
-                            return;
+                            return true;
                         }
                         double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
                         int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
@@ -432,6 +437,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
             // mate died lol
         }
         //currentAction = EntityAction.Idle; // Set action to idle when done
+        return true;
     }
 
     // let this animal attempt to take a bite from the given consumable
@@ -627,19 +633,23 @@ public abstract class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToMate()
     {
         Animal mate = null;
-        bool retry;
+        bool retry = true;
         do
         {
             yield return StartCoroutine(SearchAndApproachMate());
             try
             {
                 mate = targetGameObject.GetComponent<Animal>();
-                retry = false;
-                state = ActionState.Reproducing;
-                Act((IConsumable)mate);
+                
+                // if mate wasnt fertile, search for new
+                if (Act((IConsumable)mate))
+                {
+                    retry = false;
+                }
             }
             catch (MissingReferenceException)
             {
+                // if mate died, search for new
                 retry = true;
             }
         } while (retry);
@@ -658,16 +668,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
         // check if valid mate
         while (targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
-            Animal mate = targetGameObject.GetComponent<Animal>();
-            if (!mate.isFertile)
-            {
-                // ignore mate until you find it again when it is fertile
-                // (it wont get re-added immediately because it is infertile now)
-                memory.AddRejection(targetGameObject.GetInstanceID());
-                memory.forgetRejection(targetGameObject.GetInstanceID());
-                // serach again
-                yield return StartCoroutine(Search(species.ToString()));
-            }
             yield return new WaitForSeconds(0.2f);
             if (targetGameObject != null)
             {
