@@ -713,7 +713,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         //this is where we need to implement a sort of following the animal code;
         //yield return StartCoroutine()
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Animal, targetGameObject.transform.position));
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Animal, animal.transform.position));
         state = ActionState.Idle;
         currentAction = EntityAction.Idle;
 
