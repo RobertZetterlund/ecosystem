@@ -18,7 +18,12 @@ namespace Assets.Scripts
         public double heatTimer;
         public FCMHandler fcmHandler;
 
-        public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, FCMHandler fcmHandler)
+        public String[] diet;
+        public String[] foe;
+        public String[] mate;
+
+
+        public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, FCMHandler fcmHandler, String[] diet, String[] foe, String[] mate)
         {
             this.species = species;
             this.maxSize = maxSize;
@@ -29,6 +34,9 @@ namespace Assets.Scripts
             this.speed = speed;
             this.heatTimer = heatTimer;
             this.fcmHandler = fcmHandler;
+            this.diet = diet;
+            this.foe = foe;
+            this.mate = mate;
         }
 
         public (double, string)[] GetNumericalTraits()
@@ -41,13 +49,14 @@ namespace Assets.Scripts
             traits[4] = (growthFactor, "growth factor");
             traits[5] = (speed, "speed");
             traits[6] = (heatTimer, "heat Timer");
+
             return traits;
         }
         // but we probably wont need this method later if we  randomize different traits for
         // each animal
         public AnimalTraits Duplicate()
         {
-            AnimalTraits copy = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(this.species), this.species));
+            AnimalTraits copy = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(this.species), this.species), this.diet, this.foe, this.mate);
             return copy;
         }
     }

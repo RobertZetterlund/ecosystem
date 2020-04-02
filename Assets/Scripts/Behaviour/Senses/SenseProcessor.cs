@@ -23,7 +23,7 @@ public class SenseProcessor
     private string[] mates;
 
 
-    public SenseProcessor(string[] diet, string[] foes, string[] mates, Animal self)
+    public SenseProcessor(Animal self, string[] diet, string[] foes, string[] mates)
     {
         this.self = self;
         this.diet = diet;

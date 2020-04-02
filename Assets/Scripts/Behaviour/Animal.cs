@@ -85,6 +85,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         this.heatTimer = new RangedDouble(traits.heatTimer, 1);
 
         this.traits = traits;
+        senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
 
         targetGameObject = null;
         gameObject.tag = species.ToString();
@@ -97,7 +98,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
 
         memory = new Memory();
-        senseProcessor = new SenseProcessor(this);
 
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
         navMeshAgent.speed = (float)speed.GetValue();
