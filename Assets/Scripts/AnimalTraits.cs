@@ -19,11 +19,11 @@ namespace Assets.Scripts
         public FCMHandler fcmHandler;
 
         public String[] diet;
-        public String[] foe;
-        public String[] mate;
+        public String[] foes;
+        public String[] mates;
 
 
-        public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, FCMHandler fcmHandler, String[] diet, String[] foe, String[] mate)
+        public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, FCMHandler fcmHandler, String[] diet, String[] foes, String[] mates)
         {
             this.species = species;
             this.maxSize = maxSize;
@@ -35,8 +35,8 @@ namespace Assets.Scripts
             this.heatTimer = heatTimer;
             this.fcmHandler = fcmHandler;
             this.diet = diet;
-            this.foe = foe;
-            this.mate = mate;
+            this.foes = foes;
+            this.mates = mates;
         }
 
         public (double, string)[] GetNumericalTraits()
@@ -56,7 +56,7 @@ namespace Assets.Scripts
         // each animal
         public AnimalTraits Duplicate()
         {
-            AnimalTraits copy = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(this.species), this.species), this.diet, this.foe, this.mate);
+            AnimalTraits copy = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(this.species), this.species), this.diet, this.foes, this.mates);
             return copy;
         }
     }

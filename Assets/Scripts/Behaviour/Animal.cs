@@ -417,7 +417,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                         double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
                         FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
 
-                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler, traits.diet, traits.foes, traits.mates);
                         //child.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
                         OrganismFactory.CreateAnimal(child, mother.transform.position);
                     }
