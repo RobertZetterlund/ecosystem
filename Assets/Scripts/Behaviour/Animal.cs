@@ -368,6 +368,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         return thirst.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
+
     public bool isCriticallyHungry()
     {
         return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
@@ -375,6 +376,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public void Reproduce(Animal mate)
     {
+        Debug.Log("mating");
         try
         {
             // checked if can mate
@@ -435,6 +437,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     // let this animal attempt to take a bite from the given consumable
     private void Consume(IConsumable consumable)
     {
+        Debug.LogWarning("eating");
         // do eating calculations
         double biteSize = size.GetValue() * BITE_FACTOR;
         ConsumptionType type = consumable.GetConsumptionType();
