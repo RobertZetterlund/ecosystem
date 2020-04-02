@@ -6,7 +6,7 @@ public class GameController : MonoBehaviour
     [SerializeField]
     public bool respawn = true;
     private static bool respawnStatic = true;
-    private int nPlants = 0;
+    private int nPlants = 400;
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
     static TerrainKernal terrainKernal;
