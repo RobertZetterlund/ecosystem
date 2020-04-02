@@ -25,6 +25,13 @@ public static class FCMFactory
         fcm.SetWeight(EntityField.MatePresenceHigh, EntityField.SearchingForMate, 0.02);
         fcm.SetWeight(EntityField.MatePresenceLow, EntityField.SearchingForMate, -0.02);
 
+        fcm.SetWeight(EntityField.FoeClose, EntityField.Escaping, 0.3);
+        fcm.SetWeight(EntityField.FoeFar, EntityField.Escaping, -0.1);
+        fcm.SetWeight(EntityField.FoePresenceHigh, EntityField.Escaping, 0.15);
+        fcm.SetWeight(EntityField.FoePresenceLow, EntityField.Escaping, -0.05);
+
+        // TODO: Eventually make FoeClose and FoePresenceHigh inhibit other actions, such as GoingToFood.
+
         fcm.SetWeight(EntityField.Fertile, EntityField.SearchingForMate, 0.2);
         fcm.SetWeight(EntityField.NotFertile, EntityField.SearchingForMate, -1);
         fcm.SetWeight(EntityField.Hungry, EntityField.GoingToFood, 0.3);
