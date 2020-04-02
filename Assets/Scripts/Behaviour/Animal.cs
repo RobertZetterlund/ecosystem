@@ -5,7 +5,6 @@ using System.Drawing;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
-using Assets.Scripts;
 
 public abstract class Animal : MonoBehaviour, IConsumable
 {
@@ -74,16 +73,16 @@ public abstract class Animal : MonoBehaviour, IConsumable
     public virtual void Init(AnimalTraits traits)
     {
         this.species = traits.species;
-        this.dietFactor = new RangedDouble(traits.dietFactor, 0, 1);
-        this.maxSize = new RangedDouble(traits.maxSize, 0);
-        this.size = new RangedDouble(traits.maxSize*traits.infantFactor, 0, traits.maxSize);
-        this.nChildren = new RangedInt(traits.nChildren, 1);
-        this.infantFactor = new RangedDouble(traits.infantFactor, 0, 1);
-        this.growthFactor = new RangedDouble(traits.growthFactor, 0, 1);
-        this.speed = new RangedDouble(traits.speed, 0);
+        this.dietFactor = traits.dietFactor;
+        this.maxSize = traits.maxSize;
+        this.size = new RangedDouble(traits.maxSize.GetValue()*traits.infantFactor.GetValue(), 0, traits.maxSize.GetValue());
+        this.nChildren = traits.nChildren;
+        this.infantFactor = traits.infantFactor;
+        this.growthFactor = traits.growthFactor;
+        this.speed = traits.speed;
         this.fcmHandler = traits.fcmHandler;
         isMale = rand.NextDouble() >= 0.5;
-        this.heatTimer = new RangedDouble(traits.heatTimer, 1);
+        this.heatTimer = traits.heatTimer;
 
         this.traits = traits;
 
@@ -122,7 +121,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
         touchSensor = SensorFactory.TouchSensor(0.5f);
 
         senseTimer = new Timer(0.25f);
+        senseTimer.Start();
         fcmTimer = new Timer(0.25f);
+        fcmTimer.Start();
 
         // update ui and visual traits
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
@@ -296,6 +297,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         if (!dead)
         {
             dead = true;
+            StopAllCoroutines();
             //Something.log(cause);
             SimulationController.Instance().Unregister(this);
             statusBars.Destroy();
@@ -402,26 +404,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                     Animal mother = isMale ? mate : this;
                     for (int i = 0; i < mother.nChildren.GetValue(); i++)
                     {
-                        double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
-
-                        // deplete hunger for each child born
-                        // stop when your hunger would run out
-                        // if: hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue()
-                        double sizeRemoved = mother.size.Add(-maxSize * mother.infantFactor.GetValue());
-                        if (sizeRemoved != -maxSize * mother.infantFactor.GetValue())
-                        {
-                            mother.size.Add(-sizeRemoved); // restore because child wasnt born.
-                            return;
-                        }
-                        double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
-                        int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
-                        double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
-                        double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
-                        double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
-                        double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
-                        FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
-
-                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+                        AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.GetTraits());
                         OrganismFactory.CreateAnimal(child, mother.transform.position);
                     }
                     mother.UpdateSize();

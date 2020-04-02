@@ -6,7 +6,7 @@ public class Timer
     float interval;
     float startTime;
     bool done = false;
-    bool paused = false;
+    bool paused = true;
 
     public Timer(float interval)
     {

@@ -1,5 +1,4 @@
-﻿using Assets.Scripts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,12 +22,12 @@ abstract class SimulationController : MonoBehaviour
     
 
     //Spawn location specific
-    private System.Random random = new System.Random();
+    protected System.Random random = new System.Random();
     private TerrainKernal terrainKernal;
     private float[,] heightMap;
     private int sideLength;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if (_instance == null)
         {
@@ -41,26 +40,19 @@ abstract class SimulationController : MonoBehaviour
             Destroy(this);
         }
     }
-    private void Start()
+    protected virtual void Start()
     {
         GameObject gameMaster = GameObject.Find("Game Master");
         terrainKernal = gameMaster.GetComponent<TerrainKernal>();
         heightMap = terrainKernal.GetHeightMap();
         sideLength = terrainKernal.resolution;
-        StartSimulation();
-    }
-
-    private void Update()
-    {
-
-    }
-
-    protected virtual void StartSimulation()
-    {
         InitLists();
         InitAmountOfOrganisms();
         InitBaseTraits();
+        StartSimulation();
     }
+
+    protected abstract void StartSimulation();
 
     protected virtual void InitLists()
     {
@@ -75,7 +67,7 @@ abstract class SimulationController : MonoBehaviour
         nOrganisms[(int)Species.Fox] = nFoxes;
     }
 
-    private Vector3 GetSpawnLocation()
+    protected Vector3 GetSpawnLocation()
     {
         //Uses an fcmHandler that overrides the GetAction method in the RabbitFCMHandler
         int x;
@@ -115,12 +107,12 @@ abstract class SimulationController : MonoBehaviour
         }
     }
 
-    private void SpawnAnimal(AnimalTraits traits, Vector3 spawnPoint)
+    protected void SpawnAnimal(AnimalTraits traits, Vector3 spawnPoint)
     {
         OrganismFactory.CreateAnimal(traits, spawnPoint);
     }
 
-    private void SpawnPlant(Vector3 spawnPoint)
+    protected void SpawnPlant(Vector3 spawnPoint)
     {
         OrganismFactory.CreatePlant(100, spawnPoint);
     }
@@ -141,14 +133,14 @@ abstract class SimulationController : MonoBehaviour
     }
 
     // register new animal
-    protected virtual void Register(Animal animal)
+    public virtual void Register(Animal animal)
     {
         Species species = animal.GetTraits().species;
         organisms[(int)species].Add(animal);
     }
 
     // register animal death, spawn new ones if all died
-    protected virtual void Unregister(Animal animal)
+    public virtual void Unregister(Animal animal)
     {
         AnimalTraits traits = animal.GetTraits();
         organisms[(int)traits.species].Remove(animal);
