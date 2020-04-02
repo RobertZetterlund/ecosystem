@@ -1,0 +1,7 @@
+Rabbit-population,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-infant factor,Rabbit-growth factor,Rabbit-speed,Rabbit-heat Timer,Fox-population,Fox-max size,Fox-diet factor,Fox-#children,Fox-infant factor,Fox-growth factor,Fox-speed,Fox-heat Timer
+20,3,0,2,0.1,0.2,3,20,20,3,0,2,0.1,0.2,3,20
+20,3,0,2,0.1,0.2,3,20,20,3,0,2,0.1,0.2,3,20
+20,3,0,2,0.1,0.2,3,20,20,3,0,2,0.1,0.2,3,20
+20,3,0,2,0.1,0.2,3,20,20,3,0,2,0.1,0.2,3,20
+20,3,0,2,0.1,0.2,3,20,20,3,0,2,0.1,0.2,3,20
+28,2.99914681430301,0.0051015231674012,1.85714285714286,0.0962277558830829,0.202882386128363,3.00466377433008,20.0017518527016,20,3,0,2,0.1,0.2,3,20

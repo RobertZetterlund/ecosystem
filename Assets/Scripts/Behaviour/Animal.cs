@@ -40,7 +40,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
     // senses
     private Timer senseTimer, fcmTimer;
-    private float senseRadius;
     private AbstractSensor[] sensors;
     private AbstractSensor touchSensor;
     private float sightLength = 25;
@@ -57,7 +56,10 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private Component[] childRenderers;
     //Debugging
     public bool showFCMGizmo = true;
-    public bool showSenseRadiusGizmo, showSightGizmo, showSmellGizmo, showTargetDestinationGizmo = false;
+    public bool showSenseRadiusGizmo;
+    public bool showSightGizmo = false;
+    public bool showSmellGizmo = false;
+    public bool showTargetDestinationGizmo = false;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
     Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
     // trait copy for easier logging etc
@@ -108,9 +110,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
         gameObject.layer = 8;
         lastPos = transform.position;
         animator = GetComponent<Animator>();
-
-        //The concept of senseRadius does not make any sense anymore, but the variable is used still.
-        senseRadius = 10;
 
         sensors = new AbstractSensor[2];
         sensors[0] = SensorFactory.SightSensor(sightLength, horisontalFOV, verticalFOV);
@@ -476,11 +475,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
     }
 
 
-    public float GetSenseRadius()
-    {
-        return senseRadius;
-    }
-
     //Draws a sphere corresponding to its sense radius
     void OnDrawGizmos()
     {
@@ -589,8 +583,22 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         state = ActionState.GoingToFood;
         string gametag = ConsumptionType.Plant.ToString();
-        yield return StartCoroutine(Search(gametag));
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Plant, targetGameObject.transform.position));
+        Vector3 pos = new Vector3(0,0,0);
+        bool retry;
+        do
+        {
+            yield return StartCoroutine(Search(gametag));
+            try
+            {
+                pos = targetGameObject.transform.position;
+                retry = false;
+            }
+            catch (MissingReferenceException)
+            {
+                retry = true;
+            }
+        } while (retry);
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Plant, pos));
         state = ActionState.Idle;
         currentAction = EntityAction.Idle;
     }
@@ -615,9 +623,23 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator GoToMate()
     {
-        yield return StartCoroutine(SearchAndApproachMate());
-        state = ActionState.Reproducing;
-        Act((IConsumable)targetGameObject.GetComponent<Animal>());
+        Animal mate = null;
+        bool retry;
+        do
+        {
+            yield return StartCoroutine(SearchAndApproachMate());
+            try
+            {
+                mate = targetGameObject.GetComponent<Animal>();
+                retry = false;
+                state = ActionState.Reproducing;
+                Act((IConsumable)mate);
+            }
+            catch (MissingReferenceException)
+            {
+                retry = true;
+            }
+        } while (retry);
 
         yield return new WaitForSeconds(1);
         currentAction = EntityAction.Idle;
@@ -627,25 +649,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
     // search and approach moving mate
     public IEnumerator SearchAndApproachMate()
     {
-        // search
-        /*
-        bool retry = true;
-        Animal mate = null;
-        while (retry == true)
-        {
-            retry = false;
-            yield return StartCoroutine(SearchMate(species.ToString()));
-            try
-            {
-                mate = targetGameObject.GetComponent<Animal>();
-            }
-            catch (MissingReferenceException)
-            {
-                retry = true;
-            }
-        }
-        */
-
         // search
         yield return StartCoroutine(Search(species.ToString()));
 
@@ -894,7 +897,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         }
         // deplete hunger based on traits
         // added constant term because size will never deplete to 0 otherwise.
-        double depletion = Time.deltaTime / timeToDeathByHunger * ((size.GetValue() + maxSize.GetValue() / 20) * speed.GetValue() + senseRadius);
+        double depletion = Time.deltaTime / timeToDeathByHunger * ((size.GetValue() + maxSize.GetValue() / 20) * speed.GetValue());
         double depleted = hunger.Add(depletion);
         // if hunger ran out, deplete size also
         if (depletion != depleted)
