@@ -1,13 +1,12 @@
 ﻿using System;
 using UnityEngine;
-using Assets.Scripts;
 
 public class GameController : MonoBehaviour
 {
     [SerializeField]
     public bool respawn = true;
     private static bool respawnStatic = true;
-    private int nPlants = 500;
+    private int nPlants = 0;
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     private static int[] nAliveAnimals = new int[Species.GetValues(typeof(Species)).Length];
     static TerrainKernal terrainKernal;
@@ -44,11 +43,11 @@ public class GameController : MonoBehaviour
         System.Random random = new System.Random();
 
         // spawn first foxes
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, new FoxFCMHandler(FCMFactory.FoxFCM())); //ght need a foxFCM later on
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM())); //ght need a foxFCM later on
         SpawnAnimal(foxTraits);
-
+        
         // spawn first rabbits
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
         SpawnAnimal(rabbitTraits);
         // spawn first plants
         
