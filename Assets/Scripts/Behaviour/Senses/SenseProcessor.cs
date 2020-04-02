@@ -109,9 +109,28 @@ public class SenseProcessor
             // check if mate
             else if (Array.Exists(mates, mate => mate.Equals(tagOfSensedObject)))
             {
-                Animal animal = gameObject.GetComponent<Animal>();
-                if (animal.isFertile && (self.isMale ^ animal.isMale)) // closestMateDist > distanceBetween &&
+                Animal sensedMate = gameObject.GetComponent<Animal>();
+                if (self.isMale ^ sensedMate.isMale) // closestMateDist > distanceBetween &&
                 {
+                    if (sensedGameObjects.Contains(closestMateObj))
+                    {
+                        Animal memoryMate = closestMateObj.GetComponent<Animal>();
+                        // if same fertility, take closest one
+                        if (!(memoryMate.isFertile ^ sensedMate.isFertile))
+                        {
+                            if ( closestMateDist > distanceBetween)
+                            {
+                                closestMateDist = distanceBetween;
+                                closestMateObj = gameObject;
+                            }
+                        } 
+                        else if (sensedMate.isFertile) // if only new mate fertile, take it
+                        {
+                            closestMateDist = distanceBetween;
+                            closestMateObj = gameObject;
+                        }
+                        // else, keep mate in memory
+                    }
                     mateCount++;
                     closestMateObj = gameObject;
                     closestMateDist = distanceBetween;
@@ -124,17 +143,6 @@ public class SenseProcessor
             }
         }
         // end of foreach loop
-        /*
-        if(closestMateObj != null)
-        {
-            Animal animal = closestMateObj.GetComponent<Animal>();
-            if (!animal.isFertile)
-            {
-                closestMateObj = null;
-                closestMateDist = Int32.MaxValue;
-            }
-        }
-        */
 
         // this is the count of sensed objects, it will dictate the strength of which the FCM will input the concept
         // collect all data and combine to a strength of various senses.

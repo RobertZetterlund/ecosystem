@@ -1,4 +1,4 @@
-﻿using Assets.Scripts;
+﻿
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ public class TraitLogger : MonoBehaviour
     public bool enable = false; // set true to log
     
     private static (double,string)[][] currentTraitTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
+    private static double[][] previousAverages = new double[Species.GetValues(typeof(Species)).Length][];
     private static List<FCMHandler>[] recentFCMs = new List<FCMHandler>[Species.GetValues(typeof(Species)).Length];
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     // current total might not exist when all animals are dead, but we still want to log so we need this
@@ -150,13 +151,23 @@ public class TraitLogger : MonoBehaviour
     // draw and or log current averages;
     private void Save()
     {
-        StringBuilder row = MakeRow(false);
+        StringBuilder row = new StringBuilder("");
         // save traits
         if (firstSave)
         {
-            row = MakeRow(true).Append("\n").Append(row);
+            // instantiate previous averages with zeros
+            for (int i = 0; i < loggableSpecies.Length; i++)
+            {
+                if (loggableSpecies[i] == 1)
+                {
+                    previousAverages[i] = new double[currentTraitTotals[i].Length];
+                }
+            }
+            // make header
+            row = MakeRow(true).Append("\n");
             firstSave = false;
         }
+        row.Append(MakeRow(false));
         //File.WriteAllText(filename, row.ToString());
         using (StreamWriter writeText = new StreamWriter(folder + '/' + "Traits" + ".txt", true))
         {
@@ -195,13 +206,21 @@ public class TraitLogger : MonoBehaviour
                     } else
                     {
                         // average
-                        row.Append((currentTraitTotals[i][j].Item1/nAnimals[i]).ToString(System.Globalization.CultureInfo.InvariantCulture)); 
+                        if (nAnimals[i] != 0)
+                        {
+                            double average = currentTraitTotals[i][j].Item1 / nAnimals[i];
+                            previousAverages[i][j] = average;
+                        }
+                        row.Append(previousAverages[i][j].ToString(System.Globalization.CultureInfo.InvariantCulture)); 
                     }
                     row.Append(",");
                 }
             }
         }
-        row.Length -= 1; // remove ","
+        if (row.Length > 0)
+        {
+            row.Length -= 1; // remove ","
+        }
         return row;
     }
 }

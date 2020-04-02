@@ -5,12 +5,11 @@ using System.Drawing;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
-using Assets.Scripts;
 
 public abstract class Animal : MonoBehaviour, IConsumable
 {
     // traits that could be in fcm:
-    private RangedDouble hunger = new RangedDouble(0, 0, 1);
+    private RangedDouble hunger = new RangedDouble(1, 0, 1);
     private RangedDouble thirst = new RangedDouble(0, 0, 1);
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
@@ -24,7 +23,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double timeToDeathByHunger = 600;
+    double bellySize = 400; // basically how slow hunger depletes.
     double timeToDeathByThirst = 50;
     private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
     double lifespan = 150;
@@ -42,8 +41,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private Timer senseTimer, fcmTimer;
     private AbstractSensor[] sensors;
     private AbstractSensor touchSensor;
-    private float sightLength = 25;
-    private float smellRadius = 30;
+    private RangedDouble sightLength;
+    private RangedDouble smellRadius;
     private float horisontalFOV = 120;
     private float verticalFOV = 90;
     protected GameObject targetGameObject;
@@ -83,6 +82,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
         this.fcmHandler = traits.fcmHandler;
         isMale = rand.NextDouble() >= 0.5;
         this.heatTimer = new RangedDouble(traits.heatTimer, 1);
+        this.sightLength = new RangedDouble(traits.sightLength, 0);
+        this.smellRadius = new RangedDouble(traits.smellRadius, 0);
 
         this.traits = traits;
 
@@ -112,8 +113,8 @@ public abstract class Animal : MonoBehaviour, IConsumable
         animator = GetComponent<Animator>();
 
         sensors = new AbstractSensor[2];
-        sensors[0] = SensorFactory.SightSensor(sightLength, horisontalFOV, verticalFOV);
-        sensors[1] = SensorFactory.SmellSensor(smellRadius);
+        sensors[0] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
+        sensors[1] = SensorFactory.SmellSensor((float)smellRadius.GetValue());
         touchSensor = SensorFactory.TouchSensor(0.5f);
 
         senseTimer = new Timer(0.25f);
@@ -234,23 +235,26 @@ public abstract class Animal : MonoBehaviour, IConsumable
         return collider1.bounds.Intersects(collider2.bounds);
     }*/
 
-    protected void Act(IConsumable currentTarget)
+    protected bool Act(IConsumable currentTarget)
     {
         switch (currentAction)
         {
             case EntityAction.GoingToFood:
                 Eat(currentTarget);
+                return true;
                 break;
             case EntityAction.GoingToWater:
                 Drink(currentTarget);
+                return true;
                 break;
             case EntityAction.SearchingForMate:
                 Animal mate = (Animal)currentTarget;
-                Reproduce(mate);
+                return Reproduce(mate);
                 break;
+            default:
+                return false;
         }
     }
-
     private void Drink(IConsumable target)
     {
         Consume(target);
@@ -368,12 +372,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
         return thirst.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
+
     public bool isCriticallyHungry()
     {
         return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
-    public void Reproduce(Animal mate)
+    public bool Reproduce(Animal mate)
     {
         try
         {
@@ -383,10 +388,12 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 !isFertile || !mate.isFertile) // if not fertile
             {
                 //currentAction = EntityAction.Idle; // Set action to idle when done
-                return;
+                return false;
             }
-        // mak babi
-        if (true || (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6))
+            Debug.Log("mating");
+            // mak babi
+            state = ActionState.Reproducing;
+            if (true || (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6))
             {
                 if (true || energy > 0.4)
                 {
@@ -407,7 +414,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                         if (sizeRemoved != -maxSize * mother.infantFactor.GetValue())
                         {
                             mother.size.Add(-sizeRemoved); // restore because child wasnt born.
-                            return;
+                            return true;
                         }
                         double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
                         int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
@@ -415,9 +422,11 @@ public abstract class Animal : MonoBehaviour, IConsumable
                         double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
                         double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
                         double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
+                        double sightLength = ReproductionUtility.ReproduceRangedDouble(this.sightLength.Duplicate(), mate.sightLength.Duplicate()).GetValue();
+                        double smellRadius = ReproductionUtility.ReproduceRangedDouble(this.smellRadius.Duplicate(), mate.smellRadius.Duplicate()).GetValue();
                         FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
 
-                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler);
                         //child.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
                         OrganismFactory.CreateAnimal(child, mother.transform.position);
                     }
@@ -430,11 +439,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
             // mate died lol
         }
         //currentAction = EntityAction.Idle; // Set action to idle when done
+        return true;
     }
 
     // let this animal attempt to take a bite from the given consumable
     private void Consume(IConsumable consumable)
     {
+        Debug.LogWarning("eating");
         // do eating calculations
         double biteSize = size.GetValue() * BITE_FACTOR;
         ConsumptionType type = consumable.GetConsumptionType();
@@ -490,9 +501,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
         {
             float hFOV = horisontalFOV;
             //float vFOV = verticalFOV;
-            var pos1 = transform.position + Quaternion.AngleAxis(hFOV / 2, transform.up) * transform.forward * sightLength;
+            var pos1 = transform.position + Quaternion.AngleAxis(hFOV / 2, transform.up) * transform.forward * (float)sightLength.GetValue();
             //var pos2 = transform.position + Quaternion.AngleAxis(vFOV / 2, transform.right) * transform.forward * radius;
-            var pos2 = transform.position + Quaternion.AngleAxis(-hFOV / 2, transform.up) * transform.forward * sightLength;
+            var pos2 = transform.position + Quaternion.AngleAxis(-hFOV / 2, transform.up) * transform.forward * (float)sightLength.GetValue();
             //var pos4 = transform.position + Quaternion.AngleAxis(-vFOV / 2, transform.right) * transform.forward * radius;
 
             Gizmos.DrawLine(transform.position, pos1);
@@ -503,19 +514,19 @@ public abstract class Animal : MonoBehaviour, IConsumable
             int end = (int)(hFOV / 2);
             for (int i = start; i <= end; i += 10)
             {
-                var newpos = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * sightLength;
+                var newpos = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * (float)sightLength.GetValue();
                 Gizmos.DrawLine(prev, newpos);
                 prev = newpos;
             }
         }
         if (showSmellGizmo)
         {
-            var pos1 = transform.position + Quaternion.AngleAxis(0, transform.up) * transform.forward * smellRadius;
+            var pos1 = transform.position + Quaternion.AngleAxis(0, transform.up) * transform.forward * (float)smellRadius.GetValue();
 
             var prev = pos1;
             for (int i = 20; i <= 360; i += 20)
             {
-                var newpos = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * smellRadius;
+                var newpos = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * (float)smellRadius.GetValue();
                 Gizmos.DrawLine(prev, newpos);
                 prev = newpos;
             }
@@ -624,19 +635,23 @@ public abstract class Animal : MonoBehaviour, IConsumable
     public IEnumerator GoToMate()
     {
         Animal mate = null;
-        bool retry;
+        bool retry = true;
         do
         {
             yield return StartCoroutine(SearchAndApproachMate());
             try
             {
                 mate = targetGameObject.GetComponent<Animal>();
-                retry = false;
-                state = ActionState.Reproducing;
-                Act((IConsumable)mate);
+                
+                // if mate wasnt fertile, search for new
+                if (Act((IConsumable)mate))
+                {
+                    retry = false;
+                }
             }
             catch (MissingReferenceException)
             {
+                // if mate died, search for new
                 retry = true;
             }
         } while (retry);
@@ -655,16 +670,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
         // check if valid mate
         while (targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
-            Animal mate = targetGameObject.GetComponent<Animal>();
-            if (!mate.isFertile)
-            {
-                // ignore mate until you find it again when it is fertile
-                // (it wont get re-added immediately because it is infertile now)
-                memory.AddRejection(targetGameObject.GetInstanceID());
-                memory.forgetRejection(targetGameObject.GetInstanceID());
-                // serach again
-                yield return StartCoroutine(Search(species.ToString()));
-            }
             yield return new WaitForSeconds(0.2f);
             if (targetGameObject != null)
             {
@@ -888,25 +893,28 @@ public abstract class Animal : MonoBehaviour, IConsumable
      */
     private void DepleteHungerAndSize()
     {
+        double sizeToHungerFactor = bellySize * 1/1000;
+        double constantHunger = maxSize.GetValue() / 20;
+        double smellCost = smellRadius.GetValue() * horisontalFOV / 360 / 20 * 2; // 2 cuz op
+        double sightCost = sightLength.GetValue() / 20;
+
         // calculate size growth
         double growth = 0;
         if (size.GetValue() < maxSize.GetValue()) // if not fully grown
         {
-            // added constant term because size will grow too slow when small.
-            growth = Time.deltaTime * (size.GetValue() + maxSize.GetValue() / 10) * growthFactor.GetValue(); // used to be maxSize
+            growth = Time.deltaTime * size.GetValue() * growthFactor.GetValue(); // used to be maxSize
         }
-        // deplete hunger based on traits
-        // added constant term because size will never deplete to 0 otherwise.
-        double depletion = Time.deltaTime / timeToDeathByHunger * ((size.GetValue() + maxSize.GetValue() / 20) * speed.GetValue());
+        // deplete hunger based on traits.
+        double depletion = Time.deltaTime / bellySize * ((size.GetValue() + constantHunger) * speed.GetValue() + smellCost + sightCost);
         double depleted = hunger.Add(depletion);
         // if hunger ran out, deplete size also
         if (depletion != depleted)
         {
-            size.Add(depleted - depletion);
+            size.Add((depleted - depletion)/sizeToHungerFactor);
         }
         else // else, increase size according to grwoth until hunger runs out
         {
-            size.Add(hunger.Add(growth)); // grow until hunger runs out
+            size.Add(hunger.Add(growth/sizeToHungerFactor)*sizeToHungerFactor); // grow until hunger runs out
         }
         UpdateSize();
     }
