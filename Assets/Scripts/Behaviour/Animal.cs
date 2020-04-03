@@ -204,21 +204,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
         fcmHandler.ProcessSensedObjects(this, sE);
     }
 
-    void FollowMyCurrentTarget(GameObject gameObject)
-    {
-        while (currentTargetTransform != null ^ Vector3.Distance(currentTargetTransform.position, this.transform.position) < 15)
-        {
-            // move to that thing lol
-
-            //If they are next to each other or the same position
-            if (CloseEnoughToAct(currentTargetTransform.gameObject))
-            {
-                IConsumable target = (IConsumable)gameObject.GetType();
-                Act(target);
-            }
-        }
-    }
-
     protected bool CloseEnoughToAct(GameObject gameObject)
     {
         return touchSensor.IsSensingObject(transform, gameObject);
@@ -293,6 +278,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         {
             dead = true;
             //Something.log(cause);
+            StopAllCoroutines();
             GameController.Unregister(traits);
             statusBars.Destroy();
             Destroy(gameObject);
@@ -469,10 +455,13 @@ public abstract class Animal : MonoBehaviour, IConsumable
         }
     }
 
-    public void SetDestination(Vector3 destination)
+    public void SetDestination(Vector3 pos)
     {
-        currentAction = EntityAction.Resting;
-        navMeshAgent.SetDestination(destination);
+        NavMeshHit myNavHit;
+        if (NavMesh.SamplePosition(pos, out myNavHit, 100, NavMesh.AllAreas))
+        {
+            navMeshAgent.SetDestination(myNavHit.position);
+        }
     }
 
 
@@ -568,14 +557,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 break;
         }
         state = ActionState.Eating;
-        //for (int i = 0; i < 5; i++)
-        //{
-            //yield return new WaitForSeconds(1);
-            //if (consumable == null || consumable.GetAmount() == 0)
-               // break;
+        for (int i = 0; i < 1; i++)
+        {
+            yield return new WaitForSeconds(1);
+            if (consumable == null || consumable.GetAmount() == 0)
+                break;
             Eat(consumable); // take one bite
             
-        //}
+        }
         state = ActionState.Idle;
         yield return null;
     }
