@@ -241,7 +241,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         Consume(target);
     }
 
-    private void Eat(IConsumable target)
+    public void Eat(IConsumable target)
     {
         Consume(target);
     }
@@ -544,7 +544,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         }
     }
 
-    public IEnumerator EatConsumable(ConsumptionType consumptionType)
+    public virtual IEnumerator EatConsumable(ConsumptionType consumptionType)
     {
         IConsumable consumable = null;
         switch (consumptionType)
@@ -560,7 +560,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 break;
         }
         state = ActionState.Eating;
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 5; i++)
         {
             yield return new WaitForSeconds(1);
             if (consumable == null || consumable.GetAmount() == 0)

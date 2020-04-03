@@ -1,13 +1,6 @@
 ﻿using Assets.Scripts;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-
-
 
 class Fox : Animal
 {
@@ -68,6 +61,36 @@ class Fox : Animal
         }
         state = ActionState.Idle;
         currentAction = EntityAction.Idle;
-
     }
+
+
+    public override IEnumerator EatConsumable(ConsumptionType consumptionType)
+    {
+        IConsumable consumable = null;
+        switch (consumptionType)
+        {
+            case ConsumptionType.Animal:
+                consumable = targetGameObject.GetComponent<Animal>();
+                break;
+            case ConsumptionType.Plant:
+                consumable = targetGameObject.GetComponent<Plant>();
+                break;
+            case ConsumptionType.Water:
+                consumable = targetGameObject.GetComponent<WaterPond>();
+                break;
+        }
+        state = ActionState.Eating;
+        // foxes eat once
+        for (int i = 0; i < 1; i++)
+        {
+            yield return new WaitForSeconds(1);
+            if (consumable == null || consumable.GetAmount() == 0)
+                break;
+            Eat(consumable); // take one bite
+
+        }
+        state = ActionState.Idle;
+        yield return null;
+    }
+
 }
