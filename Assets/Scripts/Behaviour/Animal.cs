@@ -219,7 +219,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         }
     }
 
-    private bool CloseEnoughToAct(GameObject gameObject)
+    protected bool CloseEnoughToAct(GameObject gameObject)
     {
         return touchSensor.IsSensingObject(transform, gameObject);
     }
@@ -471,6 +471,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public void SetDestination(Vector3 destination)
     {
+        currentAction = EntityAction.Resting;
         navMeshAgent.SetDestination(destination);
     }
 
@@ -567,14 +568,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 break;
         }
         state = ActionState.Eating;
-        for (int i = 0; i < 5; i++)
-        {
-            yield return new WaitForSeconds(1);
-            if (consumable == null || consumable.GetAmount() == 0)
-                break;
+        //for (int i = 0; i < 5; i++)
+        //{
+            //yield return new WaitForSeconds(1);
+            //if (consumable == null || consumable.GetAmount() == 0)
+               // break;
             Eat(consumable); // take one bite
             
-        }
+        //}
         state = ActionState.Idle;
         yield return null;
     }
@@ -603,7 +604,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         currentAction = EntityAction.Idle;
     }
 
-    public IEnumerator Approach(GameObject targetGameObject, Vector3 position)
+    public virtual IEnumerator Approach(GameObject targetGameObject, Vector3 position)
     {
         
         state = ActionState.Approaching;
@@ -612,7 +613,12 @@ public abstract class Animal : MonoBehaviour, IConsumable
         {
             yield return new WaitForSeconds(0.2f);
             if (targetGameObject != null)
+            {
+               
                 SetDestination(position);
+
+            }
+                
         }
         // To prevent the animal from not going further than necessary to perform its action.
         // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
@@ -709,15 +715,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
         yield return StartCoroutine(GoToMate());
     }*/
 
-    public IEnumerator ChaseAnimal(GameObject animal)
-    {
-        //this is where we need to implement a sort of following the animal code;
-        //yield return StartCoroutine()
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Animal, animal.transform.position));
-        state = ActionState.Idle;
-        currentAction = EntityAction.Idle;
-
-    }
+    
 
     public Vector3 EscapeAnimal(Vector3 targetPos)
     {
@@ -779,6 +777,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator Search(string gametag)
     {
+        Debug.Log(gametag);
         state = ActionState.Searching;
         targetGametag = gametag;
         //Make it search before actually walking, since it otherwise might walk away from a plant
