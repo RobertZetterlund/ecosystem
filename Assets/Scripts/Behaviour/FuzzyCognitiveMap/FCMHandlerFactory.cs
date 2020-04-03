@@ -21,7 +21,8 @@ public static class FCMHandlerFactory
         }
         else
         {
-            return null;
+            //Temporärt tills nån gör en åt den
+            return CreateRabbitFCMHandler(fcm);
         }
     }
        

@@ -41,6 +41,25 @@ public static class ReproductionUtility
         }
     }
 
+    public static AnimalTraits ReproduceAnimal(AnimalTraits traitsA, AnimalTraits traitsB)
+    {
+        Species species = traitsA.species;
+        double maxSize = ReproduceRangedDouble(traitsA.maxSize.Duplicate(), traitsB.maxSize.Duplicate()).GetValue();
+        double dietFactor = ReproduceRangedDouble(traitsA.dietFactor.Duplicate(), traitsB.dietFactor.Duplicate()).GetValue();
+        int nChildren = ReproduceRangedInt(traitsA.nChildren.Duplicate(), traitsB.nChildren.Duplicate()).GetValue();
+        double infantFactor = ReproduceRangedDouble(traitsA.infantFactor.Duplicate(), traitsB.infantFactor.Duplicate()).GetValue();
+        double growthFactor = ReproduceRangedDouble(traitsA.growthFactor.Duplicate(), traitsB.growthFactor.Duplicate()).GetValue();
+        double speed = ReproduceRangedDouble(traitsA.speed.Duplicate(), traitsB.speed.Duplicate()).GetValue();
+        double heatTimer = ReproduceRangedDouble(traitsA.heatTimer.Duplicate(), traitsB.heatTimer.Duplicate()).GetValue();
+        double sightLength = ReproduceRangedDouble(traitsA.sightLength.Duplicate(), traitsB.sightLength.Duplicate()).GetValue();
+        double smellRadius = ReproduceRangedDouble(traitsA.smellRadius.Duplicate(), traitsB.smellRadius.Duplicate()).GetValue();
+        FCMHandler fcmHandler = traitsA.fcmHandler.Reproduce(traitsB.fcmHandler);
+
+        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler);
+
+        return child;
+    }
+
 
     /*
     // Crossover and mutate
