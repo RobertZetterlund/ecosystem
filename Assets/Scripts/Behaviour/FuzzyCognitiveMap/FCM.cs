@@ -68,7 +68,7 @@ public class FCM
     {
         double[] new_states = (double[])states.Clone();
 
-        for(int _from = 0; _from < NOFields; _from++)
+        for (int _from = 0; _from < NOFields; _from++)
         {
             for (int _to = 0; _to < NOFields; _to++)
             {
@@ -122,7 +122,7 @@ public class FCM
                 best = states[i];
                 best_action = i;
             }
-                
+
         }
 
         return (EntityAction)translation.Reverse[best_action];
@@ -219,14 +219,45 @@ public class FCM
         EntityAction[] actions = new EntityAction[NOActions];
         for (int i = NOInputs; i < NOFields; i++)
         {
-            actions[i-NOInputs] = (EntityAction)translation.Reverse[i];
+            actions[i - NOInputs] = (EntityAction)translation.Reverse[i];
         }
         return actions;
     }
 
-
-
     internal FCM Reproduce(FCM mateFCM)
+    {
+        // assume both mates have the same fields
+        EntityInput[] childInputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
+        EntityAction[] childActions = (EntityAction[])Enum.GetValues(typeof(EntityAction));
+
+        FCM child = new FCM(childInputs, childActions);
+
+        foreach (EntityInput ei in childInputs)
+        {
+            foreach (EntityAction ea in childActions)
+            {
+                EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
+                EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
+                int i_from = translation.Forward[(int)_from];
+                int i_to = translation.Forward[(int)_to];
+
+                // get weights and mutate
+                RangedDouble geneA = new RangedDouble(weights[i_from, i_to], -1, 1);
+                RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1, 1);
+                child.SetWeight(_from, _to, ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue());
+            }
+        }
+        child.SetState(EntityField.FoodFar, 1);
+        child.SetState(EntityField.WaterFar, 1);
+        child.SetState(EntityField.MateFar, 1);
+
+        return child;
+    }
+
+
+    // alternate version, is more general but does the same if it works, not using for now since 
+    // it is hard to tell if it works and this solution is not needed atm
+    internal FCM Reproduce2(FCM mateFCM)
     {
         // make entity parameters for child
         // basically take union of both parents
@@ -247,22 +278,13 @@ public class FCM
 
 
         FCM child = new FCM(childInputs, childActions);
-
         int childFields = childInputs.Length + childActions.Length;
-        double[,] childWeights = new double[childFields, childFields];
+
         Dictionary<(EntityInput, EntityAction), double> childWeights2 = new Dictionary<(EntityInput, EntityAction), double>();
-        // set flag for weights that dont exist
-        for (int i = 0; i < childWeights.GetLength(0); i++)
-        {
-            for (int j = 0; j < childWeights.GetLength(1); j++)
-            {
-                childWeights[i, j] = double.MinValue;
-            }
-        }
 
         foreach (EntityInput ei in childInputs)
         {
-            foreach(EntityAction ea in childActions)
+            foreach (EntityAction ea in childActions)
             {
                 EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
                 EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
@@ -272,8 +294,9 @@ public class FCM
                     int i_from = translation.Forward[(int)_from];
                     int i_to = translation.Forward[(int)_to];
                     // childweights[ei,ea]=
-                    childWeights2.Add((ei,ea), weights[i_from, i_to]);
-                } catch (Exception)
+                    childWeights2.Add((ei, ea), weights[i_from, i_to]);
+                }
+                catch (Exception)
                 {
                     // ignore if field doesnt exist
                 }
@@ -292,7 +315,8 @@ public class FCM
                         RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1, 1);
                         childWeights2[(ei, ea)] = ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue();
                     }
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     // ignore if field doesnt exist
                 }
@@ -302,31 +326,6 @@ public class FCM
         }
 
         return child;
-        // mutate and add to child
-        /*for (int i = 0; i < maxWeightedInputs; i++)
-        {
-            for (int j = 0; j < maxWeightedActions; j++)
-            {
-                child.SetWeight((EntityField)i, (EntityField)j,
-                    ReproductionUtility.ReproduceRangedDouble(new RangedDouble(childWeights[i, j], -1, 1)).GetValue());
-            }
-        }
-        */
-
-        // dont set states for now, maybe kid shouldnt know anything? idk
-        /*
-        // set states
-        int states = this.states.Length;
-        int mateStates = mateFCM.states.Length;
-
-        int maxStates = Math.Max(states, mateStates);
-        double[] childstates = new double[maxStates];
-
-        foreach (double state in states)
-        {
-            fcm.SetState(EntityField.WaterFar, 1);
-        }
-        */
     }
 
     public FCM Duplicate()
@@ -347,3 +346,4 @@ public class FCM
         return new FCM(inputs, actions, weights);
     }
 }
+

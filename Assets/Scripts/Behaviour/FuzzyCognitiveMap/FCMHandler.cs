@@ -52,6 +52,9 @@ public abstract class FCMHandler
 
         fcm.SetState(EntityField.Hungry, hunger);
         fcm.SetState(EntityField.NotHungry, 1-hunger);
+
+        fcm.SetState(EntityField.Thirsty, thirst);
+        fcm.SetState(EntityField.NotThirsty, 1-thirst);
     }
 
     // Returns the translated weights

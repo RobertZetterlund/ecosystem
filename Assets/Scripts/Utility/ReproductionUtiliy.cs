@@ -51,9 +51,11 @@ public static class ReproductionUtility
         double growthFactor = ReproduceRangedDouble(traitsA.growthFactor.Duplicate(), traitsB.growthFactor.Duplicate()).GetValue();
         double speed = ReproduceRangedDouble(traitsA.speed.Duplicate(), traitsB.speed.Duplicate()).GetValue();
         double heatTimer = ReproduceRangedDouble(traitsA.heatTimer.Duplicate(), traitsB.heatTimer.Duplicate()).GetValue();
+        double sightLength = ReproduceRangedDouble(traitsA.sightLength.Duplicate(), traitsB.sightLength.Duplicate()).GetValue();
+        double smellRadius = ReproduceRangedDouble(traitsA.smellRadius.Duplicate(), traitsB.smellRadius.Duplicate()).GetValue();
         FCMHandler fcmHandler = traitsA.fcmHandler.Reproduce(traitsB.fcmHandler);
 
-        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, fcmHandler);
+        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler);
 
         return child;
     }

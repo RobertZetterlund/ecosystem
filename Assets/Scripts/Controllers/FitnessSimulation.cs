@@ -10,22 +10,24 @@ class FitnessSimulation : SimulationController
     private SortedList<TraitsComparable, double>[] finishedTraits = new SortedList<TraitsComparable, double>[Species.GetValues(typeof(Species)).Length];
     private List<Species> speciesToEvolve = new List<Species>();
     private Timer roundTimer;
-    private int finishedRounds = 0;
-
+    public int secondsPerRounds = 10;
     public int parentsPerRound = 10;
+
+    private int finishedRounds = 0;
+    private int evolvingAnimalsAlive = 0;
 
     protected override void Start()
     {
         speciesToEvolve.Add(Species.Rabbit);
         speciesToEvolve.Add(Species.Fox);
-        roundTimer = new Timer(5);
+        roundTimer = new Timer(secondsPerRounds);
 
         base.Start();
     }
 
     private void Update()
     {
-        if(roundTimer.IsDone()) {
+        if(roundTimer.IsDone() || evolvingAnimalsAlive == 0) {
             EndRound();
             roundTimer.Reset();
             roundTimer.Start();
@@ -52,9 +54,8 @@ class FitnessSimulation : SimulationController
 
     public void StartRound()
     {
-        roundTimer.Reset();
-        roundTimer.Start();
 
+        evolvingAnimalsAlive = 0;
         List<AnimalTraits>[] traitsToBeSpawned = new List<AnimalTraits>[Species.GetValues(typeof(Species)).Length];
 
         for(int i = 0; i < organisms.Length; i++)
@@ -81,6 +82,8 @@ class FitnessSimulation : SimulationController
         }
 
         ResetFinishedTraits();
+        roundTimer.Reset();
+        roundTimer.Start();
 
 
     }
@@ -95,7 +98,10 @@ class FitnessSimulation : SimulationController
 
     private List<AnimalTraits> NewGeneration(Species s)
     {
-        List<AnimalTraits> parents = new List<AnimalTraits>();
+        List<AnimalTraits> parents;
+        if (nOrganisms[(int)s] == 0)
+            return new List<AnimalTraits>();
+
         List<AnimalTraits> population = new List<AnimalTraits>();
         foreach (TraitsComparable tc in finishedTraits[(int)s].Keys)
         {
@@ -109,7 +115,7 @@ class FitnessSimulation : SimulationController
     private List<AnimalTraits> BreedChildren(List<AnimalTraits> parents, int amount)
     {
         List<AnimalTraits> children = new List<AnimalTraits>();
-        if (amount < 2)
+        if (parents.Count < 2)
             throw new Exception("Can't breed with less than 2 parents");
 
         while(true)
@@ -161,6 +167,19 @@ class FitnessSimulation : SimulationController
         AnimalTraits traits = animal.GetTraits();
         double fitness = CalculateFitness(animal);
         finishedTraits[(int)traits.species].Add(new TraitsComparable(traits, fitness), fitness);
+
+        if(speciesToEvolve.Contains(traits.species)) {
+            evolvingAnimalsAlive -= 1;
+        }
+    }
+
+    public override void Register(Animal animal)
+    {
+        base.Register(animal);
+        if (speciesToEvolve.Contains(animal.GetTraits().species))
+        {
+            evolvingAnimalsAlive += 1;
+        }
     }
 
     private double CalculateFitness(Animal animal)

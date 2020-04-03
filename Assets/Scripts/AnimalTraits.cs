@@ -15,9 +15,11 @@ public class AnimalTraits
     public RangedDouble growthFactor;
     public RangedDouble speed;
     public RangedDouble heatTimer;
+    public RangedDouble sightLength;
+    public RangedDouble smellRadius;
     public FCMHandler fcmHandler;
 
-    public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, FCMHandler fcmHandler)
+    public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, double sightLength, double smellRadius, FCMHandler fcmHandler)
     {
         this.species = species;
         this.maxSize = new RangedDouble(maxSize, 0);
@@ -27,12 +29,14 @@ public class AnimalTraits
         this.growthFactor = new RangedDouble(growthFactor, 0, 1);
         this.speed = new RangedDouble(speed, 0);
         this.heatTimer = new RangedDouble(heatTimer, 1);
+        this.sightLength = new RangedDouble(sightLength, 0);
+        this.smellRadius = new RangedDouble(smellRadius, 0);
         this.fcmHandler = fcmHandler;
     }
 
     public (double, string)[] GetNumericalTraits()
     {
-        (double, string)[] traits = new (double, string)[7];
+        (double, string)[] traits = new (double, string)[9];
         traits[0] = (maxSize.GetValue(), "max size");
         traits[1] = (dietFactor.GetValue(), "diet factor");
         traits[2] = ((double)nChildren.GetValue(), "#children");
@@ -40,6 +44,8 @@ public class AnimalTraits
         traits[4] = (growthFactor.GetValue(), "growth factor");
         traits[5] = (speed.GetValue(), "speed");
         traits[6] = (heatTimer.GetValue(), "heat Timer");
+        traits[7] = (sightLength.GetValue(), "sight length");
+        traits[8] = (smellRadius.GetValue(), "smell radius");
         return traits;
     }
     // but we probably wont need this method later if we  randomize different traits for
@@ -48,10 +54,8 @@ public class AnimalTraits
     {
         FCMHandler fcmHandlerCopy = FCMHandlerFactory.getFCMHandlerSpecies(fcmHandler.GetFCM().Duplicate(), species);
         AnimalTraits copy = new AnimalTraits(species, maxSize.GetValue(), dietFactor.GetValue(), nChildren.GetValue(), 
-            infantFactor.GetValue(), growthFactor.GetValue(), speed.GetValue(), heatTimer.GetValue(), fcmHandlerCopy);
+            infantFactor.GetValue(), growthFactor.GetValue(), speed.GetValue(), heatTimer.GetValue(), sightLength.GetValue(), smellRadius.GetValue(), fcmHandlerCopy);
         return copy;
     }
 }
-
-
 

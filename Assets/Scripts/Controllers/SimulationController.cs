@@ -16,6 +16,7 @@ abstract class SimulationController : MonoBehaviour
     public bool animalsCanDie = true;
 
 
+
     protected List<Animal>[] organisms = new List<Animal>[Species.GetValues(typeof(Species)).Length];
     protected int[] nOrganisms = new int[Species.GetValues(typeof(Species)).Length];
     protected  AnimalTraits[] baseTraits = new AnimalTraits[Species.GetValues(typeof(Species)).Length];
@@ -125,8 +126,8 @@ abstract class SimulationController : MonoBehaviour
 
     private void InitBaseTraits()
     {
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.002, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 1, 1, 3, 0.1, 0.02, 3, 600, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()));
 
         baseTraits[(int)Species.Rabbit] = rabbitTraits;
         baseTraits[(int)Species.Fox] = foxTraits;

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DelaunatorSharp.Interfaces;
 using DelaunatorSharp.Models;
+using UnityEngine.AI;
 
 public class TerrainKernal : MonoBehaviour
 {
@@ -198,8 +199,11 @@ public class TerrainKernal : MonoBehaviour
 
         // Set up game object with mesh;
 
-
+        newObject.layer = 4;
         newObject.AddComponent(typeof(MeshRenderer));
+        
+        
+
         var rend = newObject.GetComponent<MeshRenderer>();
         Material[] mat = new Material[1];
         mat[0] = waterTempMaterial;
@@ -208,7 +212,10 @@ public class TerrainKernal : MonoBehaviour
         MeshCollider meshCollider = newObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
         meshCollider.sharedMesh = msh;
         filter.mesh = msh;
-
+        newObject.AddComponent(typeof(NavMeshModifier));
+        NavMeshModifier nMM = (NavMeshModifier)newObject.GetComponent(typeof(NavMeshModifier));
+        nMM.overrideArea = true;
+        nMM.area = 1;
 
         // Add WaterPond script to object
 
