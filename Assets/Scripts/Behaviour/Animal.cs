@@ -421,11 +421,14 @@ public abstract class Animal : MonoBehaviour, IConsumable
     // let this animal attempt to take a bite from the given consumable
     private void Consume(IConsumable consumable)
     {
-        // do eating calculations
-        double biteSize = size.GetValue() * BITE_FACTOR;
-        ConsumptionType type = consumable.GetConsumptionType();
+        if(consumable != null)
+        {
+            // do eating calculations
+            double biteSize = size.GetValue() * BITE_FACTOR;
+            ConsumptionType type = consumable.GetConsumptionType();
 
-        swallow(consumable.Consume(biteSize), type);
+            swallow(consumable.Consume(biteSize), type);
+        }   
     }
 
     // eat this animal
