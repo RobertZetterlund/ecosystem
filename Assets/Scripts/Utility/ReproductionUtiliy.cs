@@ -55,7 +55,7 @@ public static class ReproductionUtility
         double smellRadius = ReproduceRangedDouble(traitsA.smellRadius.Duplicate(), traitsB.smellRadius.Duplicate()).GetValue();
         FCMHandler fcmHandler = traitsA.fcmHandler.Reproduce(traitsB.fcmHandler);
 
-        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler);
+        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler, traitsA.diet, traitsA.foes, traitsA.mates);
 
         return child;
     }

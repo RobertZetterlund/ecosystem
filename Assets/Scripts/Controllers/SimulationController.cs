@@ -126,8 +126,13 @@ abstract class SimulationController : MonoBehaviour
 
     private void InitBaseTraits()
     {
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()));
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()));
+        String[] rabbitArr = new String[] {"Rabbit" };
+        String[] foxArr = new String[] { "Rabbit" };
+        String[] plantArr = new String[] { "Rabbit" };
+
+
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, new[] {""}, foxArr);
 
         baseTraits[(int)Species.Rabbit] = rabbitTraits;
         baseTraits[(int)Species.Fox] = foxTraits;
