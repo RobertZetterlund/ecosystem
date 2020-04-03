@@ -779,7 +779,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
 
     public IEnumerator Search(string gametag)
     {
-        Debug.Log(gametag);
         state = ActionState.Searching;
         targetGametag = gametag;
         //Make it search before actually walking, since it otherwise might walk away from a plant
