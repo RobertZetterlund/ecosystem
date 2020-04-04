@@ -16,7 +16,6 @@ public class AreaSensor : AbstractSensor
     public List<Vector3> rightHitList;
     public List<Vector3> wrongHitList;
     public List<Vector3> hitList;
-    public Vector3[] publicVerts;
 
     public AreaSensor(float senseRadius, float fovHorisontal, float fovVertical, bool blockable, SensorType sensorType)
     {
@@ -88,7 +87,6 @@ public class AreaSensor : AbstractSensor
             {
                 Vector3[] verts = MeshMap.GetVerts(Entity.GetEntity(sensedObject));
 
-
                 //Try and send a Raycast from the host to the target. If the hit object
                 //is the same as the sensed object, this means that we can see the object.
                 
@@ -101,7 +99,6 @@ public class AreaSensor : AbstractSensor
                         hitList.Add(hit.point);
                         if(hit.transform.gameObject == sensedObject) {
                             rightHitList.Add(hit.point);
-                            Debug.Log("Hitting " + hit.collider.gameObject.tag + " at position " + hit.point);
                             sensedGameObjects.Add(sensedObject);
 
                             break;

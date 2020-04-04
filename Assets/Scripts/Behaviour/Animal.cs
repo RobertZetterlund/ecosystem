@@ -476,6 +476,9 @@ public abstract class Animal : Entity, IConsumable
     {
 
         if(drawRaycast) {
+            
+            
+            
             foreach(Vector3 vec in ((AreaSensor)sensors[0]).pointList) {
                 Gizmos.color = UnityEngine.Color.gray;
                 Gizmos.DrawSphere(vec, 0.05f);
