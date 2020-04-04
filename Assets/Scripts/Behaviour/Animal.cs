@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class Animal : MonoBehaviour, IConsumable
+public abstract class Animal : Entity, IConsumable
 {
     // traits that could be in fcm:
     private RangedDouble hunger = new RangedDouble(1, 0, 1);
@@ -15,7 +15,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     public bool isMale;
     private RangedInt nChildren; // how many kids you will have
-    private RangedDouble size;
     private RangedDouble speed;
     public bool isFertile;
     // internal traits
@@ -32,7 +31,6 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private FCMHandler fcmHandler;
     private string targetGametag = "";
     private ArrayList sensedGameObjects;
-    private Species species;
     private RangedDouble maxSize;
     private RangedDouble infantFactor; // how big the child is in %
     private RangedDouble growthFactor; // how much you grow each tick
@@ -71,6 +69,9 @@ public abstract class Animal : MonoBehaviour, IConsumable
     //Fitness
     private float timeAtBirth;
 
+    // Raycast debuging
+    public bool drawRaycast;
+    public bool allRaycastHits;
 
     public virtual void Init(AnimalTraits traits)
     {
@@ -473,7 +474,34 @@ public abstract class Animal : MonoBehaviour, IConsumable
     //Draws a sphere corresponding to its sense radius
     void OnDrawGizmos()
     {
-        
+
+        if(drawRaycast) {
+            foreach(Vector3 vec in ((AreaSensor)sensors[0]).pointList) {
+                Gizmos.color = UnityEngine.Color.gray;
+                Gizmos.DrawSphere(vec, 0.05f);
+                Gizmos.color = UnityEngine.Color.white;
+                Gizmos.DrawLine(gameObject.transform.position, vec);
+            }
+
+            foreach(Vector3 vec in ((AreaSensor)sensors[0]).wrongHitList) {
+                Gizmos.color = UnityEngine.Color.red;
+                Gizmos.DrawLine(gameObject.transform.position, vec);
+            }
+            foreach(Vector3 vec in ((AreaSensor)sensors[0]).rightHitList) {
+                Gizmos.color = UnityEngine.Color.blue;
+                Gizmos.DrawLine(gameObject.transform.position, vec);
+
+            }
+
+            if(allRaycastHits) {
+                foreach(Vector3 vec in ((AreaSensor)sensors[0]).hitList) {
+                    Gizmos.color = UnityEngine.Color.green;
+                    Gizmos.DrawLine(gameObject.transform.position, vec);
+                }
+            }
+
+            Gizmos.color = UnityEngine.Color.white;
+        }
 
         /*if (showSenseRadiusGizmo)
         {

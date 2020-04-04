@@ -221,7 +221,7 @@ public class TerrainKernal : MonoBehaviour
 
         newObject.AddComponent(typeof(WaterPond));
 
-        
+        newObject.GetComponent<WaterPond>().SetVerts(vertices);
     }
     public void GenerateMap(){
         

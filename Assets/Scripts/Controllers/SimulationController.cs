@@ -30,6 +30,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected virtual void Awake()
     {
+        MeshMap.LoadData();
         if (_instance == null)
         {
 
@@ -115,7 +116,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected void SpawnPlant(Vector3 spawnPoint)
     {
-        OrganismFactory.CreatePlant(100, spawnPoint);
+        OrganismFactory.CreatePlant(1, spawnPoint);
     }
 
 
@@ -143,6 +144,7 @@ abstract class SimulationController : MonoBehaviour
     // register animal death, spawn new ones if all died
     public virtual void Unregister(Animal animal)
     {
+        return;
         AnimalTraits traits = animal.GetTraits();
         organisms[(int)traits.species].Remove(animal);
     }
