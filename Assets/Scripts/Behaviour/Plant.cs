@@ -16,7 +16,7 @@ public class Plant : Entity, IConsumable
     {
         this.species = Species.Plant;
         this.size = new RangedDouble(size, 0);
-        amountRemaining = new RangedDouble(size, 0, size);
+        amountRemaining = new RangedDouble(size*100, 0, size*100);
     }
 
     // Start is called before the first frame update
