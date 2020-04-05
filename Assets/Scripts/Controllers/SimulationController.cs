@@ -30,7 +30,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected virtual void Awake()
     {
-        MeshMap.LoadData();
+        ComponentNavigator.LoadData();
         if (_instance == null)
         {
 

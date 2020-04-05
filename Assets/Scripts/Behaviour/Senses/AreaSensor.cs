@@ -42,6 +42,11 @@ public class AreaSensor : AbstractSensor
 
             GameObject sensedObject = colliders[i].gameObject;
 
+            if(sensedObject.tag.Equals("Untagged") || sensedObject.tag.Equals("Ground"))
+            {
+                continue;
+            }
+
             Vector3 dir;
             Vector3 forward;
 
@@ -85,7 +90,7 @@ public class AreaSensor : AbstractSensor
             //If the sensor can be blocked by other objects
             if(blockable)
             {
-                Vector3[] verts = MeshMap.GetVerts(Entity.GetEntity(sensedObject));
+                Vector3[] verts = ComponentNavigator.GetVerts(ComponentNavigator.GetEntity(sensedObject));
 
                 //Try and send a Raycast from the host to the target. If the hit object
                 //is the same as the sensed object, this means that we can see the object.
