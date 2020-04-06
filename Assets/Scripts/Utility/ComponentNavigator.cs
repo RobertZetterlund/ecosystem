@@ -9,7 +9,7 @@ public class ComponentNavigator
     public static Vector3[] foxMeshVerts;
     public static Vector3[] treeMeshVerts;
 
-    public static void LoadData(){
+    public static void LoadData(List<GameObject> puddleList){
 
         GameObject entity;
         Vector3[] baseVerts;
@@ -43,6 +43,11 @@ public class ComponentNavigator
         }
         treeMeshVerts = new Vector3[baseVerts.Length];
         baseVerts.CopyTo(treeMeshVerts, 0);
+
+        foreach(GameObject waterpuddle in puddleList)
+        {
+            ((WaterPond)GetEntity(waterpuddle)).SetVerts(waterpuddle.GetComponent<MeshFilter>().sharedMesh.vertices);
+        }
 
     }
 
@@ -79,7 +84,7 @@ public class ComponentNavigator
     {
         
         if(entity.GetSpecies().Equals(Species.Water))
-        {
+        {   
             return ((WaterPond)entity).GetVerts();
         }
         return GetVerts(entity.GetSpecies(), entity.gameObject.transform.position, entity.GetSize());

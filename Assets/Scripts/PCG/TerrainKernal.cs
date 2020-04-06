@@ -236,6 +236,11 @@ public class TerrainKernal : MonoBehaviour
         previewPlane.GetComponent<MeshRenderer>().material = mat;
     }
 
+    public List<GameObject> GetPuddleList()
+    {
+        return puddleList;
+    }
+
     private void OnApplicationQuit()
     {
         Debug.Log("hej");

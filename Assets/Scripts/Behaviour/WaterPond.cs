@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class WaterPond : Entity, IConsumable
 {
@@ -13,12 +11,6 @@ public class WaterPond : Entity, IConsumable
         gameObject.tag = "WaterPond";
         species = Species.Water;
         size = new RangedDouble(1f, 0f, 1f);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public ConsumptionType GetConsumptionType()

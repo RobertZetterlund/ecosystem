@@ -3,7 +3,7 @@ using UnityEngine;
 
 // An object with only an areasensor I used to debug sences and raycast because the rabbits were to unpredictable 
 
-public class TestSencor : MonoBehaviour
+public class TestSensor : MonoBehaviour
 {
     public bool allRaycastHits;
     private bool drawRaycast = true;

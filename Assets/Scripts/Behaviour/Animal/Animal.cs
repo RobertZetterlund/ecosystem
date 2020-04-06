@@ -140,7 +140,7 @@ public abstract class Animal : Entity, IConsumable
     // Update is called once per frame
     void Update()
     {
-        DepleteHungerAndSize();
+        //DepleteHungerAndSize();
 
 
         // update thirst

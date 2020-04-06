@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /**
  * Senses an area around the transform of a radius "senseRadius" and returns the results if
@@ -94,7 +95,8 @@ public class AreaSensor : AbstractSensor
 
                 //Try and send a Raycast from the host to the target. If the hit object
                 //is the same as the sensed object, this means that we can see the object.
-                
+                try
+                {
                 foreach(Vector3 targetPosition in verts) {
                     pointList.Add(targetPosition);
                     RaycastHit hit;
@@ -116,6 +118,11 @@ public class AreaSensor : AbstractSensor
                     {
                         continue;
                     }
+                }
+                }catch(NullReferenceException)
+                {
+                    Debug.Log("Error when sensing " + sensedObject.tag);
+                    return sensedGameObjects.ToArray();
                 }
             }   
             //Debug.Log("Found " + sensedObject.tag + " with " + sensorType);

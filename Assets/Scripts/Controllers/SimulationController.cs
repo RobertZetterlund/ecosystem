@@ -30,7 +30,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected virtual void Awake()
     {
-        ComponentNavigator.LoadData();
+        
         if (_instance == null)
         {
 
@@ -46,6 +46,7 @@ abstract class SimulationController : MonoBehaviour
     {
         GameObject gameMaster = GameObject.Find("Game Master");
         terrainKernal = gameMaster.GetComponent<TerrainKernal>();
+        ComponentNavigator.LoadData(terrainKernal.GetPuddleList());
         heightMap = terrainKernal.GetHeightMap();
         sideLength = terrainKernal.resolution;
         InitLists();
@@ -144,7 +145,6 @@ abstract class SimulationController : MonoBehaviour
     // register animal death, spawn new ones if all died
     public virtual void Unregister(Animal animal)
     {
-        return;
         AnimalTraits traits = animal.GetTraits();
         organisms[(int)traits.species].Remove(animal);
     }
