@@ -109,15 +109,23 @@ public static class FCMFactory
 
 
 
-    public static FCM getSpeciesFCM(Species species){
+    public static FCM getSpeciesFCM(Species species)
+    {
 
-        if(species == Species.Rabbit){
+        if (species == Species.Rabbit)
+        {
 
-            return RabbitFCM();  
-        }else{
+            return RabbitFCM();
+        }
+        else if (species == Species.Fox)
+        {
+            return FoxFCM();
+        }
+        else
+        {
             return null;
         }
-        
+
     }
 }
 
