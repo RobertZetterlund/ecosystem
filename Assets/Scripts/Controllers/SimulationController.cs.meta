@@ -1,3 +1,17 @@
+<<<<<<< HEAD
+fileFormatVersion: 2
+guid: 8849484a28f8448169bad6bea72c3124
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+||||||| merged common ancestors
+=======
 fileFormatVersion: 2
 guid: 507466dd701d57e45af74b84fcc1722a
 MonoImporter:
@@ -9,3 +23,4 @@ MonoImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+>>>>>>> dev
