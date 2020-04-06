@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.AI;
-using Assets.Scripts;
 /*
  * Class for creating animals
  */

@@ -3,5 +3,6 @@
     Hunger,
     Thirst,
     Age,
-    Eaten
+    Eaten,
+    ForceDeleted
 }

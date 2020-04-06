@@ -32,6 +32,12 @@ public class FCM
         MapStates(fields);
     }
 
+    private FCM(EntityInput[] inputs, EntityAction[] actions, double[,] weights) : this(inputs, actions)
+    {
+        this.weights = weights;
+    }
+
+
     /**
      * Maps each EntityField value to a unique index in the fcm.
      * 
@@ -322,4 +328,22 @@ public class FCM
         return child;
     }
 
+    public FCM Duplicate()
+    {
+        EntityInput[] inputs = new EntityInput[NOInputs];
+        EntityAction[] actions = new EntityAction[NOActions];
+
+        for (int i = 0; i < NOInputs; i++)
+        {
+            inputs[i] = (EntityInput)translation.Reverse[i];
+        }
+
+        for (int i = NOInputs; i < NOFields; i++)
+        {
+            actions[i - NOInputs] = (EntityAction)translation.Reverse[i];
+        }
+
+        return new FCM(inputs, actions, weights);
+    }
 }
+

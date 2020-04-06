@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using Assets.Scripts;
 
 public class GameController : MonoBehaviour
 {
@@ -45,12 +44,11 @@ public class GameController : MonoBehaviour
 
         // spawn first foxes
 
-
         String[] foxDiet = new String[] { "Rabbit" };
         String[] foxFoe = new String[] { "" };
         String[] foxMate = new string[] { "Fox" };
 
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, new FoxFCMHandler(FCMFactory.FoxFCM()), foxDiet, foxFoe, foxMate); //ght need a foxFCM later on
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 0.2, 3, 20, 30,25, new FoxFCMHandler(FCMFactory.FoxFCM()), foxDiet, foxFoe, foxMate); //ght need a foxFCM later on
         SpawnAnimal(foxTraits);
 
         String[] rabbitDiet = new String[] { "Plant" };
@@ -58,8 +56,10 @@ public class GameController : MonoBehaviour
         String[] rabbitMate = new string[] { "Rabbit" };
 
 
+
         // spawn first rabbits
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, new RabbitFCMHandler(FCMFactory.RabbitFCM()), rabbitDiet, rabbitFoe, rabbitMate);
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2, 0.1, 0.2, 3, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()), rabbitDiet, rabbitFoe, rabbitMate);
+
         SpawnAnimal(rabbitTraits);
         // spawn first plants
         
