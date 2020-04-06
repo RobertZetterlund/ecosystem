@@ -1,23 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class WaterPond : MonoBehaviour, IConsumable
-
+public class WaterPond : Entity, IConsumable
 {
-    public Species specie = Species.Water;
-
+    
+    protected Vector3[] verts;
 
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.tag = "Water";
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        gameObject.tag = "WaterPond";
+        species = Species.Water;
+        size = new RangedDouble(1f, 0f, 1f);
     }
 
     public ConsumptionType GetConsumptionType()
@@ -34,4 +27,14 @@ public class WaterPond : MonoBehaviour, IConsumable
     {
         return -amount; // don't need to do anything if we assume there's infinite amount of water
     }
+
+    public void SetVerts(Vector3[] newVerts)
+    {
+        verts = newVerts;
+    }
+
+    public Vector3[] GetVerts() {
+        return verts;
+    }
+
 }

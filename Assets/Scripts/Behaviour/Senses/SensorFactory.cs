@@ -1,5 +1,5 @@
 ﻿
-static class SensorFactory
+public static class SensorFactory
 {
     public static AbstractSensor SightSensor(float sightLength, float horisontalFOV, float verticalFOV)
     {

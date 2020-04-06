@@ -30,6 +30,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected virtual void Awake()
     {
+        
         if (_instance == null)
         {
 
@@ -45,6 +46,7 @@ abstract class SimulationController : MonoBehaviour
     {
         GameObject gameMaster = GameObject.Find("Game Master");
         terrainKernal = gameMaster.GetComponent<TerrainKernal>();
+        ComponentNavigator.LoadData(terrainKernal.GetPuddleList());
         heightMap = terrainKernal.GetHeightMap();
         sideLength = terrainKernal.resolution;
         InitLists();
@@ -115,7 +117,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected void SpawnPlant(Vector3 spawnPoint)
     {
-        OrganismFactory.CreatePlant(100, spawnPoint);
+        OrganismFactory.CreatePlant(1, spawnPoint);
     }
 
 
