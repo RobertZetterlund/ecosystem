@@ -10,6 +10,7 @@ TagManager:
   - Rabbit
   - Terrain
   - Fox
+  - WaterPond
   layers:
   - Default
   - TransparentFX
