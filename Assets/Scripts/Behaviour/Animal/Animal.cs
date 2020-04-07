@@ -14,7 +14,7 @@ public abstract class Animal : Entity, IConsumable
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     public bool isMale;
-    private RangedInt nChildren; // how many kids you will have
+    private RangedDouble nChildren; // how many kids you will have
     private RangedDouble speed;
     public bool isFertile;
     // internal traits
@@ -22,10 +22,10 @@ public abstract class Animal : Entity, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double bellySize = 400; // basically how slow hunger depletes.
-    double timeToDeathByThirst = 50;
-    private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
-    double lifespan = 150;
+    double bellySize = 700; // basically how slow hunger depletes.
+    double timeToDeathByThirst = 100;
+    private static double BITE_FACTOR = 50; // use to calculate how much you eat in one bite
+    double lifespan = 200;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
@@ -287,6 +287,7 @@ public abstract class Animal : Entity, IConsumable
     {
         if (!dead)
         {
+            Debug.Log("Death by: " + cause.ToString());
             dead = true;
             StopAllCoroutines();
             SimulationController.Instance().Unregister(this);
@@ -395,7 +396,11 @@ public abstract class Animal : Entity, IConsumable
                     isFertile = false;
                     //make #nChildren children
                     Animal mother = isMale ? mate : this;
-                    for (int i = 0; i < mother.nChildren.GetValue(); i++)
+
+                    double children = mother.nChildren.GetValue();
+                    double oddsOfExtraChild = children - Math.Truncate(children);
+                    children = MathUtility.RandomChance(oddsOfExtraChild) ? children + 1 : children;
+                    for (int i = 0; i < children; i++)
                     {
                         double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
 
@@ -409,7 +414,7 @@ public abstract class Animal : Entity, IConsumable
                             return false;
                         }
                         double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
-                        int nChildren = ReproductionUtility.ReproduceRangedInt(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
+                        double nChildren = ReproductionUtility.ReproduceRangedDouble(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
                         double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
                         double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
                         double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
@@ -439,13 +444,13 @@ public abstract class Animal : Entity, IConsumable
     {
         Debug.LogWarning("eating");
         // do eating calculations
-        if(consumable != null)
+        if (consumable != null)
         {
-            // do eating calculations
-            double biteSize = size.GetValue() * BITE_FACTOR;
+            double biteSize = Time.deltaTime * size.GetValue() * BITE_FACTOR;
             ConsumptionType type = consumable.GetConsumptionType();
             swallow(consumable.Consume(biteSize), type);
-        }   
+        }
+
     }
 
     // eat this animal
@@ -603,7 +608,7 @@ public abstract class Animal : Entity, IConsumable
                 consumable = targetGameObject.GetComponent<Plant>();
                 break;
             case ConsumptionType.Water:
-                consumable = targetGameObject.GetComponent<WaterPond>();
+                consumable = targetGameObject.GetComponent<Water>();
                 break;
         }
         state = ActionState.Eating;
@@ -678,7 +683,7 @@ public abstract class Animal : Entity, IConsumable
                 mate = targetGameObject.GetComponent<Animal>();
                 
                 // if mate wasnt fertile, search for new
-                if (Act((IConsumable)mate))
+                if (Act(mate))
                 {
                     retry = false;
                 }
@@ -859,7 +864,7 @@ public abstract class Animal : Entity, IConsumable
 
         Renderer rend = (Renderer)childRenderers[0];
         float radius = rend.bounds.extents.magnitude;
-        touchSensor.setRadius(radius * 1.1f);
+        touchSensor.setRadius(1 + radius * 1.1f);
         //statusBars.transform.localScale = StatusBars.scale;
     }
 

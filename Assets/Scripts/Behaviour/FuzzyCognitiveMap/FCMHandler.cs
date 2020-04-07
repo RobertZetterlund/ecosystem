@@ -44,7 +44,7 @@ public abstract class FCMHandler
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 
     public void ProcessAnimal(double hunger, double thirst, double energy, double dietFactor, 
-        bool isMale, int nChildren, double size, double speed, bool isFertile)
+        bool isMale, double nChildren, double size, double speed, bool isFertile)
     {
         double fertility = isFertile ? 1 : 0;
         fcm.SetState(EntityField.Fertile, fertility);

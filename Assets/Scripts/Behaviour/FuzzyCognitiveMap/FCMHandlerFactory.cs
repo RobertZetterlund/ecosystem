@@ -12,6 +12,11 @@ public static class FCMHandlerFactory
         return new RabbitFCMHandler(fcm);
     }
 
+    public static FoxFCMHandler CreateFoxFCMHandler(FCM fcm)
+    {
+        return new FoxFCMHandler(fcm);
+    }
+
 
     public static FCMHandler getFCMHandlerSpecies(FCM fcm, Species species)
     {
@@ -19,10 +24,13 @@ public static class FCMHandlerFactory
         {
             return CreateRabbitFCMHandler(fcm);
         }
+        else if (species == Species.Fox)
+        {
+            return CreateFoxFCMHandler(fcm);
+        }
         else
         {
-            //Temporärt tills nån gör en åt den
-            return CreateRabbitFCMHandler(fcm);
+            throw new Exception("Unable to find an FCMHandler for species " + species.ToString());
         }
     }
        

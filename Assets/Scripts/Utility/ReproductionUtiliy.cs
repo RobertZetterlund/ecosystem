@@ -5,28 +5,21 @@ public static class ReproductionUtility
 {
     //private static double STD_DEVIATION_FACTOR = 0.2;
     //private static double MUTATION_CHANCE = 0.2;
-    private static ICrossover CROSSOVER_OPERATOR = BlendCrossover.GetInstance();
+    private static ICrossover CROSSOVER_OPERATOR = SimulationController.CROSSOVER_OPERATOR;
+    private static IMutation MUTATION_OPERATOR = SimulationController.MUTATION_OPERATOR;
 
 
 
 
     public static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
     {
-        double mutation = CROSSOVER_OPERATOR.Crossover(geneA.GetValue(), geneB.GetValue());
-
-        if (geneA.GetLower() == geneB.GetLower() && geneA.GetUpper() == geneB.GetUpper())
-        {
-            mutation = MathUtility.Clamp(mutation, geneA.GetLower(), geneB.GetUpper());
-            return new RangedDouble(mutation, geneA.GetLower(), geneA.GetUpper());
-        } 
-        else
-        {
-            throw new Exception("Attempted to reproduce genes with different bounds");
-        }
+        RangedDouble mutation = CROSSOVER_OPERATOR.Crossover(geneA, geneB);
+        mutation = MUTATION_OPERATOR.Mutate(mutation);
+        return mutation;
     }
 
 
-    public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
+    /*public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
     {
         int mutation = (int)CROSSOVER_OPERATOR.Crossover(geneA.GetValue(), geneB.GetValue());
 
@@ -40,20 +33,21 @@ public static class ReproductionUtility
             throw new Exception("Attempted to reproduce genes with different bounds");
         }
     }
-
+    */
     public static AnimalTraits ReproduceAnimal(AnimalTraits traitsA, AnimalTraits traitsB)
     {
+        SimulationController sc = SimulationController.Instance();
         Species species = traitsA.species;
-        double maxSize = ReproduceRangedDouble(traitsA.maxSize.Duplicate(), traitsB.maxSize.Duplicate()).GetValue();
-        double dietFactor = ReproduceRangedDouble(traitsA.dietFactor.Duplicate(), traitsB.dietFactor.Duplicate()).GetValue();
-        int nChildren = ReproduceRangedInt(traitsA.nChildren.Duplicate(), traitsB.nChildren.Duplicate()).GetValue();
-        double infantFactor = ReproduceRangedDouble(traitsA.infantFactor.Duplicate(), traitsB.infantFactor.Duplicate()).GetValue();
-        double growthFactor = ReproduceRangedDouble(traitsA.growthFactor.Duplicate(), traitsB.growthFactor.Duplicate()).GetValue();
-        double speed = ReproduceRangedDouble(traitsA.speed.Duplicate(), traitsB.speed.Duplicate()).GetValue();
-        double heatTimer = ReproduceRangedDouble(traitsA.heatTimer.Duplicate(), traitsB.heatTimer.Duplicate()).GetValue();
-        double sightLength = ReproduceRangedDouble(traitsA.sightLength.Duplicate(), traitsB.sightLength.Duplicate()).GetValue();
-        double smellRadius = ReproduceRangedDouble(traitsA.smellRadius.Duplicate(), traitsB.smellRadius.Duplicate()).GetValue();
-        FCMHandler fcmHandler = traitsA.fcmHandler.Reproduce(traitsB.fcmHandler);
+        double maxSize = sc.EvovleMaxSize ? ReproduceRangedDouble(traitsA.maxSize, traitsB.maxSize).GetValue(): traitsA.maxSize.GetValue();
+        double dietFactor = sc.EvolveDietFactor ? ReproduceRangedDouble(traitsA.dietFactor, traitsB.dietFactor).GetValue() : traitsA.dietFactor.GetValue();
+        double nChildren = sc.EvolveNChildren ? ReproduceRangedDouble(traitsA.nChildren, traitsB.nChildren).GetValue() : traitsA.nChildren.GetValue();
+        double infantFactor = sc.EvolveInfantFactor ? ReproduceRangedDouble(traitsA.infantFactor, traitsB.infantFactor).GetValue() : traitsA.infantFactor.GetValue();
+        double growthFactor = sc.EvolveGrowthFactor ? ReproduceRangedDouble(traitsA.growthFactor, traitsB.growthFactor).GetValue() : traitsA.growthFactor.GetValue();
+        double speed = sc.EvolveSpeed ? ReproduceRangedDouble(traitsA.speed, traitsB.speed).GetValue(): traitsA.speed.GetValue();
+        double heatTimer = sc.EvolveHeatTimer ? ReproduceRangedDouble(traitsA.heatTimer, traitsB.heatTimer).GetValue() : traitsA.heatTimer.GetValue();
+        double sightLength = sc.EvolveSightLength ? ReproduceRangedDouble(traitsA.sightLength, traitsB.sightLength).GetValue() : traitsA.sightLength.GetValue();
+        double smellRadius = sc.EvovleSmellRadius ? ReproduceRangedDouble(traitsA.smellRadius, traitsB.smellRadius).GetValue() : traitsA.smellRadius.GetValue();
+        FCMHandler fcmHandler = sc.EvolveFcm ? traitsA.fcmHandler.Reproduce(traitsB.fcmHandler) : FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(species), species);
 
         AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler, traitsA.diet, traitsA.foes, traitsA.mates);
 

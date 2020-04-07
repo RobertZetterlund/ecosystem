@@ -10,18 +10,20 @@ class FitnessSimulation : SimulationController
     private SortedList<TraitsComparable, double>[] finishedTraits = new SortedList<TraitsComparable, double>[Species.GetValues(typeof(Species)).Length];
     private List<Species> speciesToEvolve = new List<Species>();
     private Timer roundTimer;
-    public int secondsPerRounds = 10;
+    public int secondsPerRounds = 500;
     public int parentsPerRound = 10;
 
     private int finishedRounds = 0;
     private int evolvingAnimalsAlive = 0;
+
+    private static ISelection SELECTION_OPERATOR = RouletteSelection.Instance;
+
 
     protected override void Start()
     {
         speciesToEvolve.Add(Species.Rabbit);
         speciesToEvolve.Add(Species.Fox);
         roundTimer = new Timer(secondsPerRounds);
-
         base.Start();
     }
 
@@ -56,7 +58,7 @@ class FitnessSimulation : SimulationController
     {
 
         evolvingAnimalsAlive = 0;
-        List<AnimalTraits>[] traitsToBeSpawned = new List<AnimalTraits>[Species.GetValues(typeof(Species)).Length];
+        AnimalTraits[][] traitsToBeSpawned = new AnimalTraits[Species.GetValues(typeof(Species)).Length][];
 
         for(int i = 0; i < organisms.Length; i++)
         {
@@ -96,33 +98,36 @@ class FitnessSimulation : SimulationController
         }
     }
 
-    private List<AnimalTraits> NewGeneration(Species s)
+    private AnimalTraits[] NewGeneration(Species s)
     {
-        List<AnimalTraits> parents;
         if (nOrganisms[(int)s] == 0)
-            return new List<AnimalTraits>();
+            return new AnimalTraits[0];
 
         List<AnimalTraits> population = new List<AnimalTraits>();
         foreach (TraitsComparable tc in finishedTraits[(int)s].Keys)
         {
             population.Add(tc.traits);
         }
-        parents = SelectParents(population, finishedTraits[(int)s].Values.ToList(), parentsPerRound);
+        AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[(int)s].Values.ToArray<double>(), parentsPerRound);
 
         return BreedChildren(parents, nOrganisms[(int)s]);
     }
 
-    private List<AnimalTraits> BreedChildren(List<AnimalTraits> parents, int amount)
+    private AnimalTraits[] BreedChildren(AnimalTraits[] parents, int amount)
     {
-        List<AnimalTraits> children = new List<AnimalTraits>();
-        if (parents.Count < 2)
+        AnimalTraits[] children = new AnimalTraits[amount];
+        if (parents.Length < 2)
             throw new Exception("Can't breed with less than 2 parents");
 
+        int i = 0;
         while(true)
         {
-            for (int parent1Index = 0; parent1Index < parents.Count; parent1Index++)
+            for (int parent1Index = 0; parent1Index < parents.Length; parent1Index++, i++)
             {
-                int parent2Index = random.Next(parents.Count);
+                if (i == amount)
+                    return children;
+
+                int parent2Index = random.Next(parents.Length);
 
                 //No inbreeding allowed
                 if (parent2Index == parent1Index)
@@ -136,10 +141,7 @@ class FitnessSimulation : SimulationController
                 AnimalTraits parent1 = parents[parent1Index];
                 AnimalTraits parent2 = parents[parent2Index];
 
-                children.Add(ReproductionUtility.ReproduceAnimal(parent1, parent2));
-
-                if (children.Count == amount)
-                    return children;
+                children[i] = ReproductionUtility.ReproduceAnimal(parent1, parent2);
             }
         }
     }
@@ -184,58 +186,8 @@ class FitnessSimulation : SimulationController
 
     private double CalculateFitness(Animal animal)
     {
-        return animal.GetTimeAlive();
-    }
-
-    private int RouletteWheelSelection<T> (IList<T> pool, IList<double> fitness)
-    {
-        double totalFitness = 0;
-        foreach (double _fitness in fitness)
-        {
-            totalFitness += _fitness;
-        }
-
-        int populationSize = pool.Count;
-
-        double randomFitness = random.NextDouble() * totalFitness;
-        int idx = -1;
-        int mid;
-        int first = 0;
-        int last = populationSize - 1;
-        mid = (last - first) / 2;
-
-        //  ArrayList's BinarySearch is for exact values only
-        //  so do this by hand.
-        while (idx == -1 && first <= last)
-        {
-            if (randomFitness < fitness[mid])
-            {
-                last = mid;
-            }
-            else if (randomFitness > fitness[mid])
-            {
-                first = mid;
-            }
-            mid = (first + last) / 2;
-
-            //  lies between i and i+1
-            if ((last - first) <= 1)
-                idx = last;
-        }
-        return idx;
-    }
-
-    private List<T> SelectParents<T>(IList<T> pool, IList<double> fitness, int amount)
-    {
-        List<T> newGeneration = new List<T>();
-        for(int i = 0; i < amount && pool.Count != 0; i++)
-        {
-            int selectedIndex = RouletteWheelSelection<T>(pool, fitness);
-            newGeneration.Add(pool[selectedIndex]);
-            pool.RemoveAt(selectedIndex);
-            fitness.RemoveAt(selectedIndex);
-        }
-        return newGeneration;
+        //return animal.GetTimeAlive();
+        return roundTimer.TimeSinceStart();
     }
 
 }

@@ -26,4 +26,9 @@ public static class MathUtility
             return lower;
         return value;
     }
+
+    public static bool RandomChance(double odds)
+    {
+        return random.NextDouble() <= odds;
+    }
 }

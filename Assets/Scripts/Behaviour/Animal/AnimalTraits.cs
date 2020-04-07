@@ -6,7 +6,7 @@ public class AnimalTraits
 	public Species species;
 	public RangedDouble maxSize;
 	public RangedDouble dietFactor;
-	public RangedInt nChildren;
+	public RangedDouble nChildren;
 	public RangedDouble infantFactor;
 	public RangedDouble growthFactor;
 	public RangedDouble speed;
@@ -18,12 +18,13 @@ public class AnimalTraits
 	public string[] foes;
 	public string[] mates;
 
-	public AnimalTraits(Species species, double maxSize, double dietFactor, int nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, double sightLength, double smellRadius, FCMHandler fcmHandler, String[] diet, String[] foes, String[] mates)
+
+	public AnimalTraits(Species species, double maxSize, double dietFactor, double nChildren, double infantFactor, double growthFactor, double speed, double heatTimer, double sightLength, double smellRadius, FCMHandler fcmHandler, String[] diet, String[] foes, String[] mates)
 	{
 		this.species = species;
 		this.maxSize = new RangedDouble(maxSize, 0);
 		this.dietFactor = new RangedDouble(dietFactor, 0, 1);
-		this.nChildren = new RangedInt(nChildren, 1);
+		this.nChildren = new RangedDouble(nChildren, 0);
 		this.infantFactor = new RangedDouble(infantFactor, 0, 1);
 		this.growthFactor = new RangedDouble(growthFactor, 0, 1);
 		this.speed = new RangedDouble(speed, 0);
