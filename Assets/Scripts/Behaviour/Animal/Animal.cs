@@ -9,7 +9,6 @@ using UnityEngine.AI;
 public abstract class Animal : Entity, IConsumable
 {
     // traits that could be in fcm:
-    private RangedDouble hunger = new RangedDouble(1, 0, 1);
     private RangedDouble thirst = new RangedDouble(0, 0, 1);
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
@@ -22,10 +21,10 @@ public abstract class Animal : Entity, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double bellySize = 700; // basically how slow hunger depletes.
-    double timeToDeathByThirst = 100;
-    private static double BITE_FACTOR = 50; // use to calculate how much you eat in one bite
-    double lifespan = 200;
+    double timeToDeathByThirst = 80;
+    private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
+    private const double AdultSizeFactor = 0.6; // how big you have to be to mate
+    double lifespan = 150;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
@@ -33,7 +32,6 @@ public abstract class Animal : Entity, IConsumable
     private ArrayList sensedGameObjects;
     private RangedDouble maxSize;
     private RangedDouble infantFactor; // how big the child is in %
-    private RangedDouble growthFactor; // how much you grow each tick
     private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
     // senses
     private Timer senseTimer, fcmTimer;
@@ -82,7 +80,6 @@ public abstract class Animal : Entity, IConsumable
         this.size = new RangedDouble(traits.maxSize.GetValue()*traits.infantFactor.GetValue(), 0, traits.maxSize.GetValue());
         this.nChildren = traits.nChildren;
         this.infantFactor = traits.infantFactor;
-        this.growthFactor = traits.growthFactor;
         this.speed = traits.speed;
         this.fcmHandler = traits.fcmHandler;
         isMale = rand.NextDouble() >= 0.5;
@@ -131,6 +128,7 @@ public abstract class Animal : Entity, IConsumable
         statusBars = canvas.GetComponent(typeof(StatusBars)) as StatusBars;
         childRenderers = GetComponentsInChildren<Renderer>();
         UpdateSize();
+        statusBars.Init((float)AdultSizeFactor);
         UpdateStatusBars();
 
 
@@ -140,7 +138,7 @@ public abstract class Animal : Entity, IConsumable
     // Update is called once per frame
     void Update()
     {
-        DepleteHungerAndSize();
+        DepleteSize();
 
 
         // update thirst
@@ -152,7 +150,7 @@ public abstract class Animal : Entity, IConsumable
         heat.Add(Time.deltaTime / heatTimer.GetValue());
 
         // can only mate if in heat and fully grown
-        isFertile = heat.GetValue() == 1 && size.GetValue() == maxSize.GetValue();
+        isFertile = heat.GetValue() == 1 && size.GetValue()/maxSize.GetValue() >= AdultSizeFactor;
 
 
         if (senseTimer.IsDone())
@@ -163,8 +161,8 @@ public abstract class Animal : Entity, IConsumable
         }
         if (fcmTimer.IsDone())
         {
-            fcmHandler.ProcessAnimal(hunger.GetValue(), thirst.GetValue(), energy, dietFactor.GetValue(), 
-                isMale, nChildren.GetValue(), size.GetValue(), speed.GetValue(), isFertile);
+            fcmHandler.ProcessAnimal(thirst.GetValue(), energy, dietFactor.GetValue(), 
+                isMale, nChildren.GetValue(), size.GetValue(), speed.GetValue(), isFertile, maxSize.GetValue());
             fcmHandler.CalculateFCM();
             fcmTimer.Reset();
             fcmTimer.Start();
@@ -264,12 +262,7 @@ public abstract class Animal : Entity, IConsumable
 
     public void isDead()
     {
-        // wont die whe nhunger runs out rn, only when size runs out
-        if (false && hunger.GetValue() >= 1)
-        {
-            Die(CauseOfDeath.Hunger);
-        }
-        else if (thirst.GetValue() >= 1)
+        if (thirst.GetValue() >= 1)
         {
             Die(CauseOfDeath.Thirst);
         }
@@ -279,7 +272,7 @@ public abstract class Animal : Entity, IConsumable
         }
         else if (size.GetValue() == 0)
         {
-            Die(CauseOfDeath.Eaten);
+            Die(CauseOfDeath.Hunger); // or eaten
         }
     }
 
@@ -368,7 +361,7 @@ public abstract class Animal : Entity, IConsumable
 
     public bool isCriticallyHungry()
     {
-        return hunger.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
+        return size.GetValue()/maxSize.GetValue() < 0.1; //change these values when we know more or avoid hardcoded values
     }
 
     public bool Reproduce(Animal mate)
@@ -383,10 +376,9 @@ public abstract class Animal : Entity, IConsumable
                 //currentAction = EntityAction.Idle; // Set action to idle when done
                 return false;
             }
-            Debug.Log("mating");
             // mak babi
             state = ActionState.Reproducing;
-            if (true || (hunger.GetValue() < 0.3 && thirst.GetValue() < 0.6))
+            if (true || (size.GetValue()/maxSize.GetValue() < 0.3 && thirst.GetValue() < 0.6))
             {
                 if (true || energy > 0.4)
                 {
@@ -402,29 +394,17 @@ public abstract class Animal : Entity, IConsumable
                     children = MathUtility.RandomChance(oddsOfExtraChild) ? children + 1 : children;
                     for (int i = 0; i < children; i++)
                     {
-                        double maxSize = ReproductionUtility.ReproduceRangedDouble(this.maxSize.Duplicate(), mate.maxSize.Duplicate()).GetValue();
+                        AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.traits);
 
-                        // deplete hunger for each child born
-                        // stop when your hunger would run out
-                        // if: hunger.Add(maxSize * this.infantFactor.GetValue()) != maxSize * this.infantFactor.GetValue()
-                        double sizeRemoved = mother.size.Add(-maxSize * mother.infantFactor.GetValue());
-                        if (sizeRemoved != -maxSize * mother.infantFactor.GetValue())
+                        // deplete size for each child born
+                        // stop when your size would run out
+                        double sizeRemoved = mother.size.Add(-child.maxSize.GetValue() * child.infantFactor.GetValue());
+                        if (sizeRemoved != -child.maxSize.GetValue() * child.infantFactor.GetValue())
                         {
                             mother.size.Add(-sizeRemoved); // restore because child wasnt born.
                             return false;
                         }
-                        double dietFactor = ReproductionUtility.ReproduceRangedDouble(this.dietFactor.Duplicate(), mate.dietFactor.Duplicate()).GetValue();
-                        double nChildren = ReproductionUtility.ReproduceRangedDouble(this.nChildren.Duplicate(), mate.nChildren.Duplicate()).GetValue();
-                        double infantFactor = ReproductionUtility.ReproduceRangedDouble(this.infantFactor.Duplicate(), mate.infantFactor.Duplicate()).GetValue();
-                        double growthFactor = ReproductionUtility.ReproduceRangedDouble(this.growthFactor.Duplicate(), mate.growthFactor.Duplicate()).GetValue();
-                        double speed = ReproductionUtility.ReproduceRangedDouble(this.speed.Duplicate(), mate.speed.Duplicate()).GetValue();
-                        double heatTimer = ReproductionUtility.ReproduceRangedDouble(this.heatTimer.Duplicate(), mate.heatTimer.Duplicate()).GetValue();
-                        FCMHandler fcmHandler = this.fcmHandler.Reproduce(mate.fcmHandler);
 
-
-                        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength.GetValue(), smellRadius.GetValue(), fcmHandler, traits.diet, traits.foes, traits.mates);
-
-                        //child.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
                         OrganismFactory.CreateAnimal(child, mother.transform.position);
                     }
                     mother.UpdateSize();
@@ -442,11 +422,11 @@ public abstract class Animal : Entity, IConsumable
     // let this animal attempt to take a bite from the given consumable
     private void Consume(IConsumable consumable)
     {
-        Debug.LogWarning("eating");
         // do eating calculations
         if (consumable != null)
         {
-            double biteSize = Time.deltaTime * size.GetValue() * BITE_FACTOR;
+            double biteSize = size.GetValue() * BiteFactor; 
+            // todo removed *time.deltaTime for now
             ConsumptionType type = consumable.GetConsumptionType();
             swallow(consumable.Consume(biteSize), type);
         }
@@ -466,16 +446,19 @@ public abstract class Animal : Entity, IConsumable
     {
         amount /= (size.GetValue()); // balance according to size. (note that amount will be higher if your size is bigger)
         // increment energy / hunger / thirst
+        double effectiveAmount;
         switch (type)
         {
             case ConsumptionType.Water:
                 thirst.Add(amount);
                 break;
             case ConsumptionType.Animal:
-                hunger.Add(amount * dietFactor.GetValue());
+                effectiveAmount = amount * dietFactor.GetValue();
+                size.Add(-effectiveAmount);
                 break;
             case ConsumptionType.Plant:
-                hunger.Add(amount * (1 - dietFactor.GetValue()));
+                effectiveAmount = amount * (1-dietFactor.GetValue());
+                size.Add(-effectiveAmount);
                 break;
         }
     }
@@ -860,6 +843,7 @@ public abstract class Animal : Entity, IConsumable
 
     private void UpdateSize()
     {
+        // should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
         gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
 
         Renderer rend = (Renderer)childRenderers[0];
@@ -871,7 +855,7 @@ public abstract class Animal : Entity, IConsumable
     // update position and value of status bars
     private void UpdateStatusBars()
     {
-        statusBars.UpdateStatus((float)hunger.GetValue(), (float)thirst.GetValue(), (float)energy, (float)heat.GetValue());
+        statusBars.UpdateStatus((float)(size.GetValue()/maxSize.GetValue()), (float)thirst.GetValue(), (float)energy, (float)heat.GetValue());
         statusBars.gameObject.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
         // set position of status bars
         Renderer rend = (Renderer)childRenderers[0]; // take the first one
@@ -918,36 +902,20 @@ public abstract class Animal : Entity, IConsumable
 
     }
 
-    /*
-     * Deplete hunger and size depending on traits
-     * First hunger will be depleted, if hunger ran out, deplete size also
-     * Else, increase size and deplete hunger further
-     */
-    private void DepleteHungerAndSize()
+    private void DepleteSize()
     {
-        double sizeToHungerFactor = bellySize * 1/1000;
-        double constantHunger = maxSize.GetValue() / 20;
-        double smellCost = smellRadius.GetValue() * horisontalFOV / 360 / 20 * 2; // 2 cuz op
-        double sightCost = sightLength.GetValue() / 20;
+        
+        double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
+        double sightCost = sightLength.GetValue() * horisontalFOV / 360;
+        double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
+        double speedCost = speed.GetValue()*size.GetValue(); // mass * speed
 
-        // calculate size growth
-        double growth = 0;
-        if (size.GetValue() < maxSize.GetValue()) // if not fully grown
-        {
-            growth = Time.deltaTime * size.GetValue() * growthFactor.GetValue(); // used to be maxSize
-        }
-        // deplete hunger based on traits.
-        double depletion = Time.deltaTime / bellySize * ((size.GetValue() + constantHunger) * speed.GetValue() + smellCost + sightCost);
-        double depleted = hunger.Add(depletion);
-        // if hunger ran out, deplete size also
-        if (depletion != depleted)
-        {
-            size.Add((depleted - depletion)/sizeToHungerFactor);
-        }
-        else // else, increase size according to grwoth until hunger runs out
-        {
-            size.Add(hunger.Add(growth/sizeToHungerFactor)*sizeToHungerFactor); // grow until hunger runs out
-        }
+        // deplete size based on traits.
+        // each cost is divided by some arbitrary constant at the end to balance it
+        double depletion = Time.deltaTime * (sizeCost/550 + speedCost/300 + smellCost/8000 + sightCost/8000);
+        //Debug.Log("depletion "+ depletion + " size " + Time.deltaTime * sizeCost / 90 + " speed " + Time.deltaTime * speedCost / 40 + " smell " + Time.deltaTime * smellCost /1000 + " sight " + Time.deltaTime * sightCost /1000 );
+        double depleted = size.Add(-depletion);
+
         UpdateSize();
     }
 

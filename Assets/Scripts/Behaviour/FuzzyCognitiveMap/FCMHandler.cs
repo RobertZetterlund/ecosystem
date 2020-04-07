@@ -43,15 +43,15 @@ public abstract class FCMHandler
 
     public abstract FCMHandler Reproduce(FCMHandler mateHandler);
 
-    public void ProcessAnimal(double hunger, double thirst, double energy, double dietFactor, 
-        bool isMale, double nChildren, double size, double speed, bool isFertile)
+    public void ProcessAnimal(double thirst, double energy, double dietFactor, 
+        bool isMale, double nChildren, double size, double speed, bool isFertile, double maxSize)
     {
         double fertility = isFertile ? 1 : 0;
         fcm.SetState(EntityField.Fertile, fertility);
         fcm.SetState(EntityField.NotFertile, 1 - fertility);
 
-        fcm.SetState(EntityField.Hungry, hunger);
-        fcm.SetState(EntityField.NotHungry, 1-hunger);
+        fcm.SetState(EntityField.Hungry, 1 - size/maxSize);
+        fcm.SetState(EntityField.NotHungry, size/maxSize);
 
         fcm.SetState(EntityField.Thirsty, thirst);
         fcm.SetState(EntityField.NotThirsty, 1-thirst);
