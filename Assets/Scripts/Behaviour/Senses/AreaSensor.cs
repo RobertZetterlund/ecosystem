@@ -124,7 +124,10 @@ public class AreaSensor : AbstractSensor
                     Debug.Log("Error when sensing " + sensedObject.tag);
                     return sensedGameObjects.ToArray();
                 }
-            }   
+            } else
+            {
+                sensedGameObjects.Add(sensedObject);
+            }
             //Debug.Log("Found " + sensedObject.tag + " with " + sensorType);
         }
         return sensedGameObjects.ToArray();

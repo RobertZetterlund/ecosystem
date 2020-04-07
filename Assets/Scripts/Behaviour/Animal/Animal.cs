@@ -118,7 +118,7 @@ public abstract class Animal : Entity, IConsumable
         sensors = new AbstractSensor[2];
         sensors[0] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
         sensors[1] = SensorFactory.SmellSensor((float)smellRadius.GetValue());
-        touchSensor = SensorFactory.TouchSensor(0.5f);
+        touchSensor = SensorFactory.TouchSensor(1);
 
         senseTimer = new Timer(0.25f);
         senseTimer.Start();
@@ -140,7 +140,7 @@ public abstract class Animal : Entity, IConsumable
     // Update is called once per frame
     void Update()
     {
-        //DepleteHungerAndSize();
+        DepleteHungerAndSize();
 
 
         // update thirst
@@ -289,10 +289,7 @@ public abstract class Animal : Entity, IConsumable
         {
             dead = true;
             StopAllCoroutines();
-            //Something.log(cause);
-            StopAllCoroutines();
             SimulationController.Instance().Unregister(this);
-            GameController.Unregister(traits);
             statusBars.Destroy();
             Destroy(gameObject);
         }

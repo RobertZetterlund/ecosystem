@@ -56,6 +56,8 @@ public static class OrganismFactory
         //GameObject model = (GameObject)Resources.Load("bush2");
         GameObject model = GameObject.Instantiate((GameObject)Resources.Load("Tree"));
         Plant plant = model.AddComponent<Plant>();
+        //MeshCollider collider = model.GetComponent<MeshCollider>();
+        //collider.sharedMesh = collider.transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh;
         plant.Init(size);
         plant.transform.position = location;
         //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
