@@ -27,6 +27,7 @@ public enum EntityField
     FoePresenceLow,
     Thirsty,
     NotThirsty,
+    Fear,
 
 
     //Actions

@@ -4,27 +4,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Plant : MonoBehaviour, IConsumable
+public class Plant : Entity, IConsumable
 {
     private RangedDouble amountRemaining;
-    private RangedDouble size;
     private int regenTime = 1200; // 20 seconds
     private int regenTimer = 0;
     private UnityEngine.AI.NavMeshAgent navMeshAgent;
-    private Species species = Species.Plant;
     private bool dead = false;
 
     public void Init(double size)
     {
+        this.species = Species.Plant;
         this.size = new RangedDouble(size, 0);
-        amountRemaining = new RangedDouble(size, 0, size);
+        amountRemaining = new RangedDouble(size*100, 0, size*100);
     }
 
     // Start is called before the first frame update
     void Start()
     {
         gameObject.tag = "Plant";
-
+        species = Species.Plant;
 
         //navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
         //navMeshAgent.speed = 0;

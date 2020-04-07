@@ -221,7 +221,7 @@ public class TerrainKernal : MonoBehaviour
 
         newObject.AddComponent(typeof(WaterPond));
 
-        
+        newObject.GetComponent<WaterPond>().SetVerts(vertices);
     }
     public void GenerateMap(){
         
@@ -234,6 +234,11 @@ public class TerrainKernal : MonoBehaviour
         mat.SetTexture("_MainTex", texture);
 
         previewPlane.GetComponent<MeshRenderer>().material = mat;
+    }
+
+    public List<GameObject> GetPuddleList()
+    {
+        return puddleList;
     }
 
     private void OnApplicationQuit()

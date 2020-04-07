@@ -49,7 +49,7 @@ public static class ReproductionUtility
         double smellRadius = sc.EvovleSmellRadius ? ReproduceRangedDouble(traitsA.smellRadius, traitsB.smellRadius).GetValue() : traitsA.smellRadius.GetValue();
         FCMHandler fcmHandler = sc.EvolveFcm ? traitsA.fcmHandler.Reproduce(traitsB.fcmHandler) : FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(species), species);
 
-        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler);
+        AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, growthFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler, traitsA.diet, traitsA.foes, traitsA.mates);
 
         return child;
     }

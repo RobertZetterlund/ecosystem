@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /**
  * Senses an area around the transform of a radius "senseRadius" and returns the results if
@@ -12,6 +13,10 @@ public class AreaSensor : AbstractSensor
 {
     private float senseRadius, fovHorisontal, fovVertical;
     private bool blockable;
+    public List<Vector3> pointList;
+    public List<Vector3> rightHitList;
+    public List<Vector3> wrongHitList;
+    public List<Vector3> hitList;
 
     public AreaSensor(float senseRadius, float fovHorisontal, float fovVertical, bool blockable, SensorType sensorType)
     {
@@ -26,10 +31,22 @@ public class AreaSensor : AbstractSensor
     {
         Collider[] colliders = EnvironmentController.CheckSurroundings(transform.position, senseRadius);
         List<GameObject> sensedGameObjects = new List<GameObject>();
+
+        pointList = new List<Vector3>();
+        wrongHitList = new List<Vector3>();
+        rightHitList = new List<Vector3>();
+        hitList = new List<Vector3>();
+
+
         for (int i = 0; i < colliders.Length; i++)
         {
 
             GameObject sensedObject = colliders[i].gameObject;
+
+            if(sensedObject.tag.Equals("Untagged") || sensedObject.tag.Equals("Ground"))
+            {
+                continue;
+            }
 
             Vector3 dir;
             Vector3 forward;
@@ -70,27 +87,48 @@ public class AreaSensor : AbstractSensor
                 continue;
             }
 
+
             //If the sensor can be blocked by other objects
             if(blockable)
             {
+                Vector3[] verts = ComponentNavigator.GetVerts(ComponentNavigator.GetEntity(sensedObject));
+
                 //Try and send a Raycast from the host to the target. If the hit object
                 //is the same as the sensed object, this means that we can see the object.
-                RaycastHit hit;
-                var rayDirection = sensedObject.transform.position - transform.position;
-                if (Physics.Raycast(transform.position, rayDirection, out hit))
+                try
                 {
-                    if (hit.transform != sensedObject.transform)
+                foreach(Vector3 targetPosition in verts) {
+                    pointList.Add(targetPosition);
+                    RaycastHit hit;
+                    var rayDirection = targetPosition - transform.position;
+                    if (Physics.Raycast(transform.position, rayDirection, out hit))
+                    {
+                        hitList.Add(hit.point);
+                        if(hit.transform.gameObject == sensedObject) {
+                            rightHitList.Add(hit.point);
+                            sensedGameObjects.Add(sensedObject);
+
+                            break;
+                        } else {
+
+                            wrongHitList.Add(hit.point);
+                            continue;
+                        }
+                    } else
                     {
                         continue;
                     }
                 }
-                else
+                }catch(NullReferenceException)
                 {
-                    continue;
+                    Debug.Log("Error when sensing " + sensedObject.tag);
+                    return sensedGameObjects.ToArray();
                 }
+            } else
+            {
+                sensedGameObjects.Add(sensedObject);
             }
             //Debug.Log("Found " + sensedObject.tag + " with " + sensorType);
-            sensedGameObjects.Add(sensedObject);
         }
         return sensedGameObjects.ToArray();
     }
