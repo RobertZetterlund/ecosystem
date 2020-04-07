@@ -14,7 +14,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     private double energy = 1;
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     public bool isMale;
-    private RangedInt nChildren; // how many kids you will have
+    private RangedDouble nChildren; // how many kids you will have
     private RangedDouble size;
     private RangedDouble speed;
     public bool isFertile;
@@ -23,10 +23,10 @@ public abstract class Animal : MonoBehaviour, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double bellySize = 400; // basically how slow hunger depletes.
-    double timeToDeathByThirst = 50;
-    private static double BITE_FACTOR = 10; // use to calculate how much you eat in one bite
-    double lifespan = 150;
+    double bellySize = 700; // basically how slow hunger depletes.
+    double timeToDeathByThirst = 100;
+    private static double BITE_FACTOR = 50; // use to calculate how much you eat in one bite
+    double lifespan = 200;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
@@ -300,6 +300,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         if (!dead)
         {
+            Debug.Log("Death by: " + cause.ToString());
             dead = true;
             StopAllCoroutines();
             //Something.log(cause);
@@ -409,7 +410,11 @@ public abstract class Animal : MonoBehaviour, IConsumable
                     isFertile = false;
                     //make #nChildren children
                     Animal mother = isMale ? mate : this;
-                    for (int i = 0; i < mother.nChildren.GetValue(); i++)
+
+                    double children = mother.nChildren.GetValue();
+                    double oddsOfExtraChild = children - Math.Truncate(children);
+                    children = MathUtility.RandomChance(oddsOfExtraChild) ? children + 1 : children;
+                    for (int i = 0; i < children; i++)
                     {
                         AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.GetTraits());
                         OrganismFactory.CreateAnimal(child, mother.transform.position);
@@ -431,7 +436,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
     {
         Debug.LogWarning("eating");
         // do eating calculations
-        double biteSize = size.GetValue() * BITE_FACTOR;
+        double biteSize = Time.deltaTime * size.GetValue() * BITE_FACTOR;
         ConsumptionType type = consumable.GetConsumptionType();
 
         swallow(consumable.Consume(biteSize), type);
@@ -628,7 +633,7 @@ public abstract class Animal : MonoBehaviour, IConsumable
                 mate = targetGameObject.GetComponent<Animal>();
                 
                 // if mate wasnt fertile, search for new
-                if (Act((IConsumable)mate))
+                if (Act(mate))
                 {
                     retry = false;
                 }

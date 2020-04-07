@@ -11,11 +11,12 @@ abstract class SimulationController : MonoBehaviour
     public int nPlants;
     public int nRabbits;
     public int nFoxes;
-    [Range(1f, 100)]
+    [Range(0.1f, 100)]
     public float gameSpeed = 1;
     public bool animalsCanDie = true;
 
-
+    public bool EvovleMaxSize = true, EvolveDietFactor = true, EvolveNChildren = true, EvolveInfantFactor = true, 
+        EvolveGrowthFactor = true, EvolveSpeed = true, EvolveHeatTimer = true, EvolveSightLength = true, EvovleSmellRadius = true, EvolveFcm = true;
 
     protected List<Animal>[] organisms = new List<Animal>[Species.GetValues(typeof(Species)).Length];
     protected int[] nOrganisms = new int[Species.GetValues(typeof(Species)).Length];
@@ -27,6 +28,9 @@ abstract class SimulationController : MonoBehaviour
     private TerrainKernal terrainKernal;
     private float[,] heightMap;
     private int sideLength;
+
+    public static ICrossover CROSSOVER_OPERATOR = UniformCrossover.Instance;
+    public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
 
     protected virtual void Awake()
     {

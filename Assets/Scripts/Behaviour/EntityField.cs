@@ -31,7 +31,7 @@ public enum EntityField
 
     //Actions
     Idle,
-    Resting,
+    //Resting,
     GoingToFood,
     GoingToWater,
     SearchingForMate,

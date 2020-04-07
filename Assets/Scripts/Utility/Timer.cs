@@ -37,12 +37,17 @@ public class Timer
         {
             return done;
         }
-        return (Time.time - startTime) > interval;
+        return TimeSinceStart() > interval;
     }
 
     public void SetInterval(float interval)
     {
         this.interval = interval;
+    }
+
+    public float TimeSinceStart()
+    {
+        return Time.time - startTime;
     }
 
 }

@@ -94,7 +94,7 @@ public class TraitLogger : MonoBehaviour
             {
                 for (int _to = 0; _to < weights.GetLength(1); _to++)
                 {
-                    averageWeights[_from, _to] = weights[_from, _to] / nAnimals[(int)s];
+                    averageWeights[_from, _to] += weights[_from, _to] / nAnimals[(int)s];
                 }
             }
         }
@@ -141,8 +141,8 @@ public class TraitLogger : MonoBehaviour
             for (int i = 0; i < traitValues.Length; i++)
             {
                 currentTraitTotals[(int)traits.species][i].Item1 += traitValues[i].Item1;
-                recentFCMs[(int)traits.species].Add(traits.fcmHandler);
             }
+            recentFCMs[(int)traits.species].Add(traits.fcmHandler);
         }
         
     }

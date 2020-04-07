@@ -178,7 +178,7 @@ namespace Tests
                 Debug.Assert(c.GetLower() == a.GetLower() && c.GetLower() == b.GetLower());
                 Debug.Assert(c.GetUpper() == a.GetUpper() && c.GetUpper() == b.GetUpper());
 
-                double alpha = BlendCrossover.GetInstance().alpha;
+                double alpha = BlendCrossover.Instance.Alpha;
                 double exploitation = Math.Abs(a.GetValue() - b.GetValue());
                 double exploration = exploitation * alpha;
                 Debug.Assert(c.GetValue() <= (a.GetUpper() + exploration) && c.GetValue() >= (a.GetLower() - exploration));
@@ -186,6 +186,9 @@ namespace Tests
             }
         }
 
+
+
+        /*
         [Test]
         public void IntMutationDifferentBoundsTest()
         {
@@ -203,8 +206,9 @@ namespace Tests
 
             }
         }
+        */
 
-        [Test]
+        /*[Test]
         public void IntMutationTest()
         {
             // Couple of general cases
@@ -228,7 +232,7 @@ namespace Tests
                 //Debug.Log("Bounds: [" + lower + "," + upper + "]  Values: [" + value1 + ", " + value2 + "]  Result: " + c.GetValue());
             }
         }
-
+        */
         /*
         // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
         // `yield return null;` to skip a frame.
