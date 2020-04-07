@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4530714132895485568}
   m_Layer: 0
   m_Name: Icosphere.008
-  m_TagString: Plant
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 4522034229929357913}
   m_Layer: 0
   m_Name: Tree
-  m_TagString: Untagged
+  m_TagString: Plant
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295

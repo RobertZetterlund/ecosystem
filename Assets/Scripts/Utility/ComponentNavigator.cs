@@ -46,7 +46,7 @@ public class ComponentNavigator
 
         foreach(GameObject waterpuddle in puddleList)
         {
-            ((WaterPond)GetEntity(waterpuddle)).SetVerts(waterpuddle.GetComponent<MeshFilter>().sharedMesh.vertices);
+            ((Water)GetEntity(waterpuddle)).SetVerts(waterpuddle.GetComponent<MeshFilter>().sharedMesh.vertices);
         }
 
     }
@@ -85,7 +85,7 @@ public class ComponentNavigator
         
         if(entity.GetSpecies().Equals(Species.Water))
         {   
-            return ((WaterPond)entity).GetVerts();
+            return ((Water)entity).GetVerts();
         }
         return GetVerts(entity.GetSpecies(), entity.gameObject.transform.position, entity.GetSize());
     }
@@ -113,7 +113,7 @@ public class ComponentNavigator
     public static Entity GetEntity(GameObject gameObj) {
 
         gameObj = GoToHighestObject(gameObj);
-        return (Entity)gameObj.GetComponent(gameObj.gameObject.tag.ToString());
+        return (Entity)gameObj.GetComponent(gameObj.tag.ToString());
     }
 
     public static GameObject GoToHighestObject(GameObject gameObj)

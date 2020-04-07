@@ -15,7 +15,6 @@ public abstract class Animal : Entity, IConsumable
     private RangedDouble dietFactor; // 1 = carnivore, 0.5 = omnivore, 0 = herbivore
     public bool isMale;
     private RangedDouble nChildren; // how many kids you will have
-    private RangedDouble size;
     private RangedDouble speed;
     public bool isFertile;
     // internal traits
@@ -609,7 +608,7 @@ public abstract class Animal : Entity, IConsumable
                 consumable = targetGameObject.GetComponent<Plant>();
                 break;
             case ConsumptionType.Water:
-                consumable = targetGameObject.GetComponent<WaterPond>();
+                consumable = targetGameObject.GetComponent<Water>();
                 break;
         }
         state = ActionState.Eating;
@@ -865,7 +864,7 @@ public abstract class Animal : Entity, IConsumable
 
         Renderer rend = (Renderer)childRenderers[0];
         float radius = rend.bounds.extents.magnitude;
-        touchSensor.setRadius(radius * 1.1f);
+        touchSensor.setRadius(1 + radius * 1.1f);
         //statusBars.transform.localScale = StatusBars.scale;
     }
 

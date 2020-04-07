@@ -80,7 +80,7 @@ class Fox : Animal
                 consumable = targetGameObject.GetComponent<Plant>();
                 break;
             case ConsumptionType.Water:
-                consumable = targetGameObject.GetComponent<WaterPond>();
+                consumable = targetGameObject.GetComponent<Water>();
                 break;
         }
         state = ActionState.Eating;

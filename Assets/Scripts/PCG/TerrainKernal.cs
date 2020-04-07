@@ -219,9 +219,9 @@ public class TerrainKernal : MonoBehaviour
 
         // Add WaterPond script to object
 
-        newObject.AddComponent(typeof(WaterPond));
+        newObject.AddComponent(typeof(Water));
 
-        newObject.GetComponent<WaterPond>().SetVerts(vertices);
+        newObject.GetComponent<Water>().SetVerts(vertices);
     }
     public void GenerateMap(){
         

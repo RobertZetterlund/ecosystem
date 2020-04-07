@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class WaterPond : Entity, IConsumable
+public class Water : Entity, IConsumable
 {
     
     protected Vector3[] verts;
@@ -8,7 +8,7 @@ public class WaterPond : Entity, IConsumable
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.tag = "WaterPond";
+        gameObject.tag = "Water";
         species = Species.Water;
         size = new RangedDouble(1f, 0f, 1f);
     }
