@@ -6,7 +6,7 @@ using UnityEngine.AI;
  */
 public static class OrganismFactory
 {
-    public static void CreateAnimal(AnimalTraits traits, Vector3 location)
+    public static Animal CreateAnimal(AnimalTraits traits, Vector3 location)
     {
         Animal animal;
         switch (traits.species)
@@ -24,12 +24,7 @@ public static class OrganismFactory
 
         animal.Init(traits);
         animal.transform.position = location;
-
-        
-
-
-
-        //UnityEngine.Object.Instantiate(child); // created clones so prolly dont need this
+        return animal;
     }
 
     private static Animal CreateFox()

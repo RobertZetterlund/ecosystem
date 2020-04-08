@@ -389,10 +389,13 @@ public abstract class Animal : Entity, IConsumable
                     //make #nChildren children
                     Animal mother = isMale ? mate : this;
 
-                    double children = mother.nChildren.GetValue();
-                    double oddsOfExtraChild = children - Math.Truncate(children);
-                    children = MathUtility.RandomChance(oddsOfExtraChild) ? children + 1 : children;
-                    for (int i = 0; i < children; i++)
+                    double nbrChildren = mother.nChildren.GetValue();
+                    double oddsOfExtraChild = nbrChildren - Math.Truncate(nbrChildren);
+                    nbrChildren = MathUtility.RandomChance(oddsOfExtraChild) ? Math.Truncate(nbrChildren) + 1 : Math.Truncate(nbrChildren);
+                    Animal[] children = new Animal[(int)nbrChildren];
+                    int bornChildren = 0;
+
+                    for (int i = 0; i < nbrChildren; i++)
                     {
                         AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.traits);
 
@@ -405,8 +408,20 @@ public abstract class Animal : Entity, IConsumable
                             return false;
                         }
 
-                        OrganismFactory.CreateAnimal(child, mother.transform.position);
+                        Animal childAnimal = OrganismFactory.CreateAnimal(child, mother.transform.position);
+                        bornChildren++;
+                        children[i] = childAnimal;
                     }
+                    // divide water reserve from mother among itself and children
+                    double waterRation = (1 - mother.thirst.GetValue()) / (bornChildren+1);
+                    foreach (Animal child in children)
+                    {
+                        if (child != null) {
+                            child.thirst.SetValue(1-waterRation);
+                        }
+                    }
+                    mother.thirst.SetValue(1-waterRation);
+
                     mother.UpdateSize();
                 }
             }

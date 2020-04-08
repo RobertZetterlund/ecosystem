@@ -46,6 +46,11 @@ public class RangedDouble
         return amount; // ok
     }
 
+    public void SetValue(double value)
+    {
+        this.value = value;
+    }
+
     public double GetValue()
     {
         return value;

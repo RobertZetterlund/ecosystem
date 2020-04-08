@@ -1,0 +1,2 @@
+Rabbit-population,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-infant factor,Rabbit-speed,Rabbit-heat Timer,Rabbit-sight length,Rabbit-smell radius
+35,2.85162414134629,0,2.10360803380911,0.0997403240236971,2.95039440946977,19.7130943586639,30.0263242494141,24.3406359771094
