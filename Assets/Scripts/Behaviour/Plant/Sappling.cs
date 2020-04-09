@@ -11,7 +11,7 @@ public class Sappling : Entity
         this.size = new RangedDouble(size, 0);
         gameObject.tag = "Sappling";
         //It takes the sappling 30 sec to respawn
-        growthTimer = new Timer(30);
+        growthTimer = new Timer(60);
         growthTimer.Reset();
         growthTimer.Start();
     }

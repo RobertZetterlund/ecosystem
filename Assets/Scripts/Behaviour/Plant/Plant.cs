@@ -7,8 +7,6 @@ using UnityEngine;
 public class Plant : Entity, IConsumable
 {
     private RangedDouble amountRemaining;
-    private int regenTime = 1200; // 20 seconds
-    private int regenTimer = 0;
     private UnityEngine.AI.NavMeshAgent navMeshAgent;
     private bool dead = false;
 
@@ -16,7 +14,7 @@ public class Plant : Entity, IConsumable
     {
         this.species = Species.Plant;
         this.size = new RangedDouble(size, 0);
-        amountRemaining = new RangedDouble(size*100, 0, size*100);
+        amountRemaining = new RangedDouble(size, 0, size);
     }
 
     // Start is called before the first frame update
@@ -37,11 +35,7 @@ public class Plant : Entity, IConsumable
     // Update is called once per frame
     void Update()
     {
-        regenTimer++;
-        if (regenTimer == regenTime)
-        {
-            amountRemaining.Add(size.GetValue());
-        }
+
     }
 
     public double Consume(double amount) {

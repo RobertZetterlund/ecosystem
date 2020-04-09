@@ -23,7 +23,7 @@ public abstract class Animal : Entity, IConsumable
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
     double timeToDeathByThirst = 80;
     private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
-    private const double AdultSizeFactor = 0.6; // how big you have to be to mate
+    private const double AdultSizeFactor = 0.4; // how big you have to be to mate
     double lifespan = 150;
     bool dead;
     public NavMeshAgent navMeshAgent;
@@ -112,8 +112,8 @@ public abstract class Animal : Entity, IConsumable
         
 
         sensors = new AbstractSensor[2];
-        sensors[0] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
-        sensors[1] = SensorFactory.SmellSensor((float)smellRadius.GetValue());
+        sensors[0] = SensorFactory.SmellSensor((float)smellRadius.GetValue());
+        sensors[1] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
         touchSensor = SensorFactory.TouchSensor(1);
 
         senseTimer = new Timer(0.25f);
@@ -443,7 +443,6 @@ public abstract class Animal : Entity, IConsumable
     public double Consume(double amount)
     {
         double eaten = size.Add(-amount);
-        UpdateSize();
         return eaten;
     }
 
@@ -670,7 +669,6 @@ public abstract class Animal : Entity, IConsumable
             try
             {
                 mate = targetGameObject.GetComponent<Animal>();
-                
                 // if mate wasnt fertile, search for new
                 if (Act(mate))
                 {
@@ -858,7 +856,6 @@ public abstract class Animal : Entity, IConsumable
         Renderer rend = (Renderer)childRenderers[0];
         float radius = rend.bounds.extents.magnitude;
         touchSensor.setRadius(1 + radius * 1.1f);
-        //statusBars.transform.localScale = StatusBars.scale;
     }
 
     // update position and value of status bars
@@ -913,17 +910,23 @@ public abstract class Animal : Entity, IConsumable
 
     private void DepleteSize()
     {
-        
+        double overallCostFactor = 1; // increase or decrease to change hunger depletion speed
+
+        double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
+        double speedCost = speed.GetValue() * size.GetValue(); // mass * speed
         double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
         double sightCost = sightLength.GetValue() * horisontalFOV / 360;
-        double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
-        double speedCost = speed.GetValue()*size.GetValue(); // mass * speed
+        // each cost is divided by some arbitrary constant to balance it
+        
+        sizeCost /= 120;
+        speedCost /= 1200;
+        smellCost /= 5000;
+        sightCost /= 5000;
 
         // deplete size based on traits.
-        // each cost is divided by some arbitrary constant at the end to balance it
-        double depletion = Time.deltaTime * (sizeCost/550 + speedCost/300 + smellCost/8000 + sightCost/8000);
-        //Debug.Log("depletion "+ depletion + " size " + Time.deltaTime * sizeCost / 90 + " speed " + Time.deltaTime * speedCost / 40 + " smell " + Time.deltaTime * smellCost /1000 + " sight " + Time.deltaTime * sightCost /1000 );
-        double depleted = size.Add(-depletion);
+        double depletion = overallCostFactor * Time.deltaTime * (sizeCost + speedCost + smellCost + sightCost);
+        //Debug.Log(" size0 " + size.GetValue() + " depletion "+ depletion + " size " + Time.deltaTime * sizeCost + " speed " + Time.deltaTime * speedCost + " smell " + Time.deltaTime * smellCost + " sight " + Time.deltaTime * sightCost );
+        size.Add(-depletion);
 
         UpdateSize();
     }
