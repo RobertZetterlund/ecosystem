@@ -121,7 +121,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected void SpawnPlant(Vector3 spawnPoint)
     {
-        OrganismFactory.CreatePlant(1, spawnPoint);
+        OrganismFactory.CreatePlant(3, spawnPoint);
     }
 
 
@@ -138,8 +138,8 @@ abstract class SimulationController : MonoBehaviour
         String[] emptyArr = new string[] { "" };
 
 
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2.1, 0.1, 3, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 3, 0, 2, 0.1, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2.1, 0.1, 10, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, 11, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
 
         baseTraits[(int)Species.Rabbit] = rabbitTraits;
         baseTraits[(int)Species.Fox] = foxTraits;
