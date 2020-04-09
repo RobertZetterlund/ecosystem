@@ -850,7 +850,10 @@ public abstract class Animal : Entity, IConsumable
     private void UpdateSize()
     {
         // should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
-        gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+        if(gameObject !=null)
+        {
+            gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+        }
 
         Renderer rend = (Renderer)childRenderers[0];
         float radius = rend.bounds.extents.magnitude;

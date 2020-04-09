@@ -24,18 +24,13 @@ namespace Tests
             
         }*/
 
-
-        private FCM CreateFCM()
+        [Test]
+        public void CreateFCM()
         {
-            EntityAction[] actions = new EntityAction[] { EntityAction.GoingToFood, EntityAction.Idle };
-            EntityInput[] inputs = new EntityInput[] { EntityInput.FoodClose };
+            FCM fcm = FCMFactory.GetBaseFCM();
+            fcm.Randomise();
 
-            FCM fcm = new FCM(inputs, actions);
-            fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 1);
-            fcm.SetState(EntityField.FoodClose, 1);
-            fcm.SetState(EntityField.Idle, 0.5);
-
-            return fcm;
+            Debug.Log("done");
         }
 
 

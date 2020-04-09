@@ -8,17 +8,19 @@ public class FCM
     double[,] weights;
     double[] states;
     int NOFields;
+    int NOMiddles;
     int NOActions;
     int NOInputs;
     System.Random r = new System.Random();
     TwoWayMap<int, int> translation = new TwoWayMap<int, int>();
 
 
-    public FCM(EntityInput[] inputs, EntityAction[] actions)
+    public FCM(EntityInput[] inputs, EntityMiddle[] middles, EntityAction[] actions)
     {
         NOInputs = inputs.Length;
+        NOMiddles = middles.Length;
         NOActions = actions.Length;
-        NOFields = NOInputs + NOActions;
+        NOFields = NOInputs + NOMiddles + NOActions;
 
         weights = new double[NOFields, NOFields];
         states = new double[NOFields];
@@ -26,13 +28,14 @@ public class FCM
 
         EntityField[] fields = new EntityField[NOFields];
         inputs.CopyTo(fields, 0);
-        actions.CopyTo(fields, NOInputs);
+        middles.CopyTo(fields, NOInputs);
+        actions.CopyTo(fields, NOInputs + NOMiddles);
 
 
         MapStates(fields);
     }
 
-    private FCM(EntityInput[] inputs, EntityAction[] actions, double[,] weights) : this(inputs, actions)
+    private FCM(EntityInput[] inputs, EntityMiddle[] middles, EntityAction[] actions, double[,] weights) : this(inputs, middles, actions)
     {
         this.weights = weights;
     }
@@ -115,7 +118,7 @@ public class FCM
 
         double best = 0;
         int best_action = 0;
-        for (int i = NOInputs; i < NOFields; i++)
+        for (int i = NOInputs + NOMiddles; i < NOFields; i++)
         {
             if (states[i] >= best)
             {
@@ -203,6 +206,8 @@ public class FCM
         return s;
     }
 
+    /*
+
     private EntityInput[] GetInputs()
     {
         EntityInput[] inputs = new EntityInput[NOInputs];
@@ -213,28 +218,56 @@ public class FCM
         return inputs;
     }
 
+    private EntityMiddle[] GetMiddles()
+    {
+        // kinda dumb cause the first half (noINput) is gonna be empty
+        EntityMiddle[] middles = new EntityMiddle[NOMiddles];
+        for (int i = NOInputs; i < NOFields; i++)
+        {
+            middles[i - NOInputs] = (EntityMiddle)translation.Reverse[i];
+        }
+        return middles;
+    }
+
     private EntityAction[] GetActions()
     {
         // kinda dumb cause the first half (noINput) is gonna be empty
         EntityAction[] actions = new EntityAction[NOActions];
-        for (int i = NOInputs; i < NOFields; i++)
+        for (int i = NOInputs + NOMiddles; i < NOFields; i++)
         {
-            actions[i - NOInputs] = (EntityAction)translation.Reverse[i];
+            actions[i - (NOInputs + NOMiddles)] = (EntityAction)translation.Reverse[i];
         }
         return actions;
     }
 
+    */
     internal FCM Reproduce(FCM mateFCM)
     {
         // assume both mates have the same fields
-        EntityInput[] childInputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
-        EntityAction[] childActions = (EntityAction[])Enum.GetValues(typeof(EntityAction));
+        EntityField[] inputs = (EntityField[])Enum.GetValues(typeof(EntityInput));
+        EntityField[] middles = (EntityField[])Enum.GetValues(typeof(EntityMiddle));
+        EntityField[] actions = (EntityField[])Enum.GetValues(typeof(EntityAction));
 
-        FCM child = new FCM(childInputs, childActions);
+        FCM child = FCMFactory.GetBaseFCM();
 
-        foreach (EntityInput ei in childInputs)
+        BreedFields(inputs, middles, mateFCM, child);
+        BreedFields(middles, middles, mateFCM, child);
+        BreedFields(middles, actions, mateFCM, child);
+
+
+
+        child.SetState(EntityField.FoodFar, 1);
+        child.SetState(EntityField.WaterFar, 1);
+        child.SetState(EntityField.MateFar, 1);
+
+        return child;
+    }
+
+    internal void BreedFields(EntityField [] from, EntityField [] to, FCM mateFCM, FCM childFCM)
+    {
+        foreach (EntityField ei in from)
         {
-            foreach (EntityAction ea in childActions)
+            foreach (EntityField ea in to)
             {
                 EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
                 EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
@@ -244,24 +277,47 @@ public class FCM
                 // get weights and mutate
                 RangedDouble geneA = new RangedDouble(weights[i_from, i_to], -1, 1);
                 RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1, 1);
-                child.SetWeight(_from, _to, ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue());
+                childFCM.SetWeight(_from, _to, ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue());
             }
         }
-        child.SetState(EntityField.FoodFar, 1);
-        child.SetState(EntityField.WaterFar, 1);
-        child.SetState(EntityField.MateFar, 1);
+    }
 
-        return child;
+    public void Randomise()
+    {
+        EntityField[] inputs = (EntityField[])Enum.GetValues(typeof(EntityInput));
+        EntityField[] middles = (EntityField[])Enum.GetValues(typeof(EntityMiddle));
+        EntityField[] actions = (EntityField[])Enum.GetValues(typeof(EntityAction));
+
+        RandomiseFields(inputs, middles);
+        RandomiseFields(middles, middles);
+        RandomiseFields(middles, actions);
+
+    }
+
+    internal void RandomiseFields(EntityField[] from, EntityField[] to)
+    {
+        foreach (EntityField ei in from)
+        {
+            foreach (EntityField ea in to)
+            {
+                EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
+                EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
+
+                // randomise weights
+                SetWeight(_from, _to, MathUtility.RandomUniform(-1, 1));
+            }
+        }
     }
 
 
     // alternate version, is more general but does the same if it works, not using for now since 
     // it is hard to tell if it works and this solution is not needed atm
-    internal FCM Reproduce2(FCM mateFCM)
+    /*internal FCM Reproduce2(FCM mateFCM)
     {
         // make entity parameters for child
         // basically take union of both parents
         HashSet<EntityInput> inputs = new HashSet<EntityInput>(GetInputs());
+        HashSet<EntityMiddle> middles = new HashSet<EntityMiddle>(GetMiddles());
         HashSet<EntityAction> actions = new HashSet<EntityAction>(GetActions());
 
         HashSet<EntityInput> mateInputs = new HashSet<EntityInput>(mateFCM.GetInputs());
@@ -271,13 +327,14 @@ public class FCM
         actions.UnionWith(mateActions);
 
         EntityInput[] childInputs = new EntityInput[inputs.Count];
+        EntityMiddle[] childMiddles = new EntityMiddle[middles.Count];
         EntityAction[] childActions = new EntityAction[actions.Count];
 
         inputs.CopyTo(childInputs);
         actions.CopyTo(childActions);
 
 
-        FCM child = new FCM(childInputs, childActions);
+        FCM child = new FCM(childInputs, childMiddles, childActions);
         int childFields = childInputs.Length + childActions.Length;
 
         Dictionary<(EntityInput, EntityAction), double> childWeights2 = new Dictionary<(EntityInput, EntityAction), double>();
@@ -326,11 +383,12 @@ public class FCM
         }
 
         return child;
-    }
+    }*/
 
     public FCM Duplicate()
     {
         EntityInput[] inputs = new EntityInput[NOInputs];
+        EntityMiddle[] middles = new EntityMiddle[NOMiddles];
         EntityAction[] actions = new EntityAction[NOActions];
 
         for (int i = 0; i < NOInputs; i++)
@@ -343,7 +401,7 @@ public class FCM
             actions[i - NOInputs] = (EntityAction)translation.Reverse[i];
         }
 
-        return new FCM(inputs, actions, weights);
+        return new FCM(inputs, middles, actions, weights);
     }
 }
 

@@ -27,12 +27,12 @@ public class TraitLogger : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        timer = new Timer(logInterval);
+        timer.Start();
         if (enable)
         {
             folder = "Python Scripts and Logs/Logs/" + DateTime.Now.ToString("M-dd--HH-mm-ss");
             Directory.CreateDirectory(folder);
-            timer = new Timer(logInterval);
-            timer.Start();
         }
     }
 
