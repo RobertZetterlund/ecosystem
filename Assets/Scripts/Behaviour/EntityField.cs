@@ -29,6 +29,11 @@ public enum EntityField
     NotThirsty,
     Fear,
 
+    //Middles
+    pHeat,
+    pHunger,
+    pThirst,
+    pFear,
 
     //Actions
     Idle,

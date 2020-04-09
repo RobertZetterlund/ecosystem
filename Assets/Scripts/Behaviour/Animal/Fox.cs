@@ -87,7 +87,7 @@ class Fox : Animal
         // foxes eat once
         for (int i = 0; i < 1; i++)
         {
-            yield return new WaitForSeconds(1);
+            //yield return new WaitForSeconds(1);
             if (consumable == null || consumable.GetAmount() == 0)
                 break;
             Eat(consumable); // take one bite

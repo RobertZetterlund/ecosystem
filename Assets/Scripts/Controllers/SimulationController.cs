@@ -14,6 +14,8 @@ abstract class SimulationController : MonoBehaviour
     [Range(0.1f, 100)]
     public float gameSpeed = 1;
     public bool animalsCanDie = true;
+    public bool randomiseRabbitFCM;
+    public bool randomiseFoxFCM;
 
     public bool EvovleMaxSize = true, EvolveDietFactor = true, EvolveNChildren = true, EvolveInfantFactor = true, 
         EvolveSpeed = true, EvolveHeatTimer = true, EvolveSightLength = true, EvovleSmellRadius = true, EvolveFcm = true;
