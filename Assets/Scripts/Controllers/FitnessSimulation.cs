@@ -84,9 +84,7 @@ class FitnessSimulation : SimulationController
         }
 
         ResetFinishedTraits();
-        roundTimer.Reset();
-        roundTimer.Start();
-
+        TraitLogger.ResetTimer();
 
     }
 

@@ -16,11 +16,13 @@ public class TraitLogger : MonoBehaviour
     private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
     // current total might not exist when all animals are dead, but we still want to log so we need this
     private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
-    private int counter = 2; // dont log at t=0
-    public static bool logNext = false;
-    private int logInterval = 100;
-    private bool firstSave = true;
-    private string folder; 
+    private static int logInterval = 5; // seconds
+    private static bool firstSave = true;
+    private static string folder; 
+
+    private static Hashtable animals = new Hashtable();
+    private static Timer timer;
+    private static bool logFirst = true;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +31,8 @@ public class TraitLogger : MonoBehaviour
         {
             folder = "Python Scripts and Logs/Logs/" + DateTime.Now.ToString("M-dd--HH-mm-ss");
             Directory.CreateDirectory(folder);
+            timer = new Timer(logInterval);
+            timer.Start();
         }
     }
 
@@ -39,30 +43,16 @@ public class TraitLogger : MonoBehaviour
         {
             return;
         }
-        counter++;
-        if (counter % logInterval == 0)
+        if (logFirst || timer.IsDone())
         {
-            logNext = true;
             for (int i = 0; i < Species.GetValues(typeof(Species)).Length; i++)
             {
                 nAnimals[i] = 0; // refresh 
             }
-        } else
-        {
-            logNext = false;
-        }
-    }
-
-    void LateUpdate()
-    {
-        if (!enable)
-        {
-            return;
-        }
-        if (counter % logInterval == 1) // need to wait 1 extra update so animals can log themselves
-        {
-            // maybe need to add empty entries for when a species is temporarily dead
-            Save();
+            LogAndSave();
+            timer.Reset();
+            timer.Start();
+            logFirst = false;
         }
     }
 
@@ -148,7 +138,7 @@ public class TraitLogger : MonoBehaviour
     }
 
     // draw and or log current averages;
-    private void Save()
+    private static void Save()
     {
         StringBuilder row = new StringBuilder("");
         // save traits
@@ -174,7 +164,7 @@ public class TraitLogger : MonoBehaviour
         }
     }
 
-    private StringBuilder MakeRow(bool isHeader)
+    private static StringBuilder MakeRow(bool isHeader)
     {
         StringBuilder row = new StringBuilder("");
         for (int i = 0; i < loggableSpecies.Length; i++)
@@ -221,5 +211,31 @@ public class TraitLogger : MonoBehaviour
             row.Length -= 1; // remove ","
         }
         return row;
+    }
+
+    public static void Register(Animal a)
+    {
+        animals.Add(a.GetHashCode(), a);
+    }
+
+    public static void Unregister(Animal a)
+    {
+        animals.Remove(a.GetHashCode());
+    }
+
+    public static void LogAndSave()
+    {
+        foreach (DictionaryEntry e in animals)
+        {
+            Log(((Animal)e.Value).GetTraits());
+        }
+        Save();
+    }
+
+    public static void ResetTimer()
+    {
+        timer.Reset();
+        timer.Start();
+        logFirst = true;
     }
 }

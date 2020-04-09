@@ -59,7 +59,6 @@ public abstract class Animal : Entity, IConsumable
     Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
     // trait copy for easier logging etc
     private AnimalTraits traits;
-    private bool logNext = false;
     //animation
     private Vector3 lastPos;
     protected Animator animator;
@@ -169,10 +168,6 @@ public abstract class Animal : Entity, IConsumable
         }
 
         UpdateStatusBars();
-        if (logNext)
-        {
-            TraitLogger.Log(traits);
-        }
 
         chooseNextAction();
 
@@ -255,10 +250,6 @@ public abstract class Animal : Entity, IConsumable
         Consume(target);
     }
 
-    void LateUpdate()
-    {
-        logNext = TraitLogger.logNext;
-    }
 
     public void isDead()
     {

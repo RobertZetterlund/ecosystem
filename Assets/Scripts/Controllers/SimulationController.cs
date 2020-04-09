@@ -150,6 +150,7 @@ abstract class SimulationController : MonoBehaviour
     {
         Species species = animal.GetTraits().species;
         organisms[(int)species].Add(animal);
+        TraitLogger.Register(animal);
     }
 
     // register animal death, spawn new ones if all died
@@ -157,6 +158,7 @@ abstract class SimulationController : MonoBehaviour
     {
         AnimalTraits traits = animal.GetTraits();
         organisms[(int)traits.species].Remove(animal);
+        TraitLogger.Unregister(animal);
     }
 
     private void OnValidate()
