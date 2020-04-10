@@ -73,13 +73,24 @@ public class FCM
     public void Calculate()
     {
         double[] new_states = (double[])states.Clone();
+        double action_Constant = 0.2;
 
         for (int _from = 0; _from < NOInputs+NOMiddles; _from++)
         {
             for (int _to = NOMiddles; _to < NOFields; _to++)
             {
+                // we're affecting actions
+                if (_to >= NOActions)
+                {
+                    new_states[_to] += weights[_from, _to] * states[_from] * action_Constant;
+                    new_states[_to] = Mathf.Clamp((float)new_states[_to], 0, 1);
+                }
+                // we're affecting middles
+                else
+                {
                 new_states[_to] += weights[_from, _to] * states[_from];
                 new_states[_to] = Mathf.Clamp((float)new_states[_to], 0, 1);
+                }
             }
         }
 
