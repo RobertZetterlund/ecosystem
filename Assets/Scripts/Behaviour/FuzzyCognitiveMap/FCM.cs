@@ -71,9 +71,9 @@ public class FCM
     {
         double[] new_states = (double[])states.Clone();
 
-        for (int _from = 0; _from < NOFields; _from++)
+        for (int _from = 0; _from < NOInputs+NOMiddles; _from++)
         {
-            for (int _to = 0; _to < NOFields; _to++)
+            for (int _to = NOMiddles; _to < NOFields; _to++)
             {
                 new_states[_to] += weights[_from, _to] * states[_from];
                 new_states[_to] = Mathf.Clamp((float)new_states[_to], 0, 1);
