@@ -65,18 +65,32 @@ public class FCM
      * states multiplied with the weight from that state to the new state. The new values are not being used in
      * the calculation of the remaining states, as this would create a bias to what states are calculated first vs last.
      * The new values replaces the old values at the end of the function.
-     * 
+     *
+     *
+     * Only inputs and middles affect middles and outputs. So outer loop is 0 to (NOFields - NOOutputs), which is equal to NOInputs+NOMiddles
+     * Innter loop is only the affected concepts, being middle and outputs. so it goes from middles to the end.
      */
     public void Calculate()
     {
         double[] new_states = (double[])states.Clone();
+        double action_Constant = 0.2;
 
-        for (int _from = 0; _from < NOFields; _from++)
+        for (int _from = 0; _from < NOInputs+NOMiddles; _from++)
         {
-            for (int _to = 0; _to < NOFields; _to++)
+            for (int _to = NOMiddles; _to < NOFields; _to++)
             {
+                // we're affecting actions
+                if (_to >= NOActions)
+                {
+                    new_states[_to] += weights[_from, _to] * states[_from] * action_Constant;
+                    new_states[_to] = Mathf.Clamp((float)new_states[_to], 0, 1);
+                }
+                // we're affecting middles
+                else
+                {
                 new_states[_to] += weights[_from, _to] * states[_from];
                 new_states[_to] = Mathf.Clamp((float)new_states[_to], 0, 1);
+                }
             }
         }
 
