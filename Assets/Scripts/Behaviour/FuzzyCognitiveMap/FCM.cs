@@ -65,7 +65,10 @@ public class FCM
      * states multiplied with the weight from that state to the new state. The new values are not being used in
      * the calculation of the remaining states, as this would create a bias to what states are calculated first vs last.
      * The new values replaces the old values at the end of the function.
-     * 
+     *
+     *
+     * Only inputs and middles affect middles and outputs. So outer loop is 0 to (NOFields - NOOutputs), which is equal to NOInputs+NOMiddles
+     * Innter loop is only the affected concepts, being middle and outputs. so it goes from middles to the end.
      */
     public void Calculate()
     {
