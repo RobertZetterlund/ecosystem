@@ -166,6 +166,7 @@ abstract class SimulationController : MonoBehaviour
     private void OnValidate()
     {
         Time.timeScale = gameSpeed;
+        Time.fixedDeltaTime = 0.25f / gameSpeed;
     }
 
     public static SimulationController Instance()

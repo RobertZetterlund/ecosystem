@@ -21,10 +21,10 @@ public abstract class Animal : Entity, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double timeToDeathByThirst = 80;
+    double timeToDeathByThirst = 1080;
     private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
     private const double AdultSizeFactor = 0.4; // how big you have to be to mate
-    double lifespan = 150;
+    double lifespan = 15000;
     bool dead;
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
@@ -34,7 +34,7 @@ public abstract class Animal : Entity, IConsumable
     private RangedDouble infantFactor; // how big the child is in %
     private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
     // senses
-    private Timer senseTimer, fcmTimer;
+    private Timer senseTimer, fcmTimer, searchTimer, overallTimer;
     private AbstractSensor[] sensors;
     private AbstractSensor touchSensor;
     private RangedDouble sightLength;
@@ -70,6 +70,8 @@ public abstract class Animal : Entity, IConsumable
     // Raycast debuging
     public bool drawRaycast;
     public bool allRaycastHits;
+
+    public float cdt = 0.1f;
 
     public virtual void Init(AnimalTraits traits)
     {
@@ -120,7 +122,8 @@ public abstract class Animal : Entity, IConsumable
         senseTimer.Start();
         fcmTimer = new Timer(0.25f);
         fcmTimer.Start();
-
+        searchTimer = new Timer(1f);
+        searchTimer.Start();
         // update ui and visual traits
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
         GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
@@ -135,23 +138,26 @@ public abstract class Animal : Entity, IConsumable
     }
 
     // Update is called once per frame
-    void Update()
+
+    float last = 0;
+    void FixedUpdate()
     {
+        Debug.Log(Time.time - last);
+        last = Time.time;
         DepleteSize();
 
-
         // update thirst
-        thirst.Add(Time.deltaTime * 1 / timeToDeathByThirst);
+        thirst.Add(cdt / timeToDeathByThirst);
 
         //age the animal
-        energy -= Time.deltaTime * 1 / lifespan;
+        energy -= cdt / lifespan;
 
-        heat.Add(Time.deltaTime / heatTimer.GetValue());
+        heat.Add(cdt / heatTimer.GetValue());
 
         // can only mate if in heat and fully grown
-        isFertile = heat.GetValue() == 1 && size.GetValue()/maxSize.GetValue() >= AdultSizeFactor;
+        isFertile = heat.GetValue() == 1 && size.GetValue() / maxSize.GetValue() >= AdultSizeFactor;
 
-
+        //Animation
         if (senseTimer.IsDone())
         {
             Sense();
@@ -160,24 +166,21 @@ public abstract class Animal : Entity, IConsumable
         }
         if (fcmTimer.IsDone())
         {
-            fcmHandler.ProcessAnimal(thirst.GetValue(), energy, dietFactor.GetValue(), 
+            fcmHandler.ProcessAnimal(thirst.GetValue(), energy, dietFactor.GetValue(),
                 isMale, nChildren.GetValue(), size.GetValue(), speed.GetValue(), isFertile, maxSize.GetValue());
             fcmHandler.CalculateFCM();
             fcmTimer.Reset();
             fcmTimer.Start();
         }
 
-        UpdateStatusBars();
-
         chooseNextAction();
-
         //check if the animal is dead
         isDead();
-
-        //Animation
-
+    }
+    void Update()
+    {
+        UpdateStatusBars();
         UpdateAnimation();
-
     }
 
     void Sense()
@@ -306,15 +309,15 @@ public abstract class Animal : Entity, IConsumable
                     StartCoroutine(GoToFood());                   
                     break;
                 case EntityAction.Escaping:
-                    targetGameObject = memory.ReadFoeFromMemory();
-                    StartCoroutine(Escape());
+                    //targetGameObject = memory.ReadFoeFromMemory();
+                    //StartCoroutine(Escape());
                     break;
                 default:
                     currentAction = EntityAction.Idle;
                     break;
 
                 case EntityAction.SearchingForMate:
-                    StartCoroutine(GoToMate());
+                    //StartCoroutine(GoToMate());
                     break;
             }
         }
@@ -445,7 +448,6 @@ public abstract class Animal : Entity, IConsumable
         double eaten = size.Add(-amount);
         return eaten;
     }
-
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
@@ -586,6 +588,8 @@ public abstract class Animal : Entity, IConsumable
 
     public virtual IEnumerator EatConsumable(ConsumptionType consumptionType)
     {
+        Timer eatTimer = new Timer(1);
+        eatTimer.Start();
         IConsumable consumable = null;
         switch (consumptionType)
         {
@@ -600,13 +604,15 @@ public abstract class Animal : Entity, IConsumable
                 break;
         }
         state = ActionState.Eating;
-        for (int i = 0; i < 5; i++)
+        while(consumable != null && consumable.GetAmount() > 0)
         {
-            yield return new WaitForSeconds(1);
-            if (consumable == null || consumable.GetAmount() == 0)
-                break;
-            Eat(consumable); // take one bite
-            
+            if(eatTimer.IsDone())
+            {
+                Eat(consumable);
+                eatTimer.Reset();
+            }
+             // take one bite
+            yield return new WaitForFixedUpdate();
         }
         state = ActionState.Idle;
         yield return null;
@@ -638,18 +644,23 @@ public abstract class Animal : Entity, IConsumable
 
     public virtual IEnumerator Approach(GameObject targetGameObject, Vector3 position)
     {
-        
+
+        Timer approachTimer = new Timer(0.5f);
+        approachTimer.Start();
         state = ActionState.Approaching;
 
         while (targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
-            yield return new WaitForSeconds(0.2f);
-            if (targetGameObject != null)
+            yield return new WaitForFixedUpdate();
+            if(approachTimer.IsDone())
             {
-               
-                SetDestination(position);
-
+                if (targetGameObject != null)
+                {
+                    SetDestination(position);
+                }
+                approachTimer.Reset();
             }
+            
                 
         }
         // To prevent the animal from not going further than necessary to perform its action.
@@ -812,8 +823,12 @@ public abstract class Animal : Entity, IConsumable
         senseTimer.Start();
         while (targetGameObject == null)
         {
-            Roam();
-            yield return new WaitForSeconds(1);
+            if(searchTimer.IsDone())
+            {
+                searchTimer.Reset();
+                Roam();
+            }
+            yield return new WaitForFixedUpdate();
         }
         yield return null;
     }
@@ -924,7 +939,7 @@ public abstract class Animal : Entity, IConsumable
         sightCost /= 5000;
 
         // deplete size based on traits.
-        double depletion = overallCostFactor * Time.deltaTime * (sizeCost + speedCost + smellCost + sightCost);
+        double depletion = overallCostFactor * cdt * (sizeCost + speedCost + smellCost + sightCost);
         //Debug.Log(" size0 " + size.GetValue() + " depletion "+ depletion + " size " + Time.deltaTime * sizeCost + " speed " + Time.deltaTime * speedCost + " smell " + Time.deltaTime * smellCost + " sight " + Time.deltaTime * sightCost );
         size.Add(-depletion);
 
