@@ -38,16 +38,17 @@ public class AreaSensor : AbstractSensor
         hitList = new List<Vector3>();
 
 
+
         for (int i = 0; i < colliders.Length; i++)
         {
-
             GameObject sensedObject = colliders[i].gameObject;
-
-            if(sensedObject.tag.Equals("Untagged") || sensedObject.tag.Equals("Ground"))
+            //Debug.Log("At y " + ComponentNavigator.GoToHighestObject(sensedObject).transform.position.y);
+            if(ComponentNavigator.GoToHighestObject(sensedObject).tag.Equals("Untagged") || ComponentNavigator.GoToHighestObject(sensedObject).tag.Equals("Ground"))
             {
                 continue;
             }
 
+            Vector3 pointOfInterest = ComponentNavigator.GetClosesVert(transform.position, ComponentNavigator.GoToHighestObject(sensedObject) );
             Vector3 dir;
             Vector3 forward;
 
@@ -55,7 +56,7 @@ public class AreaSensor : AbstractSensor
 
             //Calculate the direction from the host transform to the target transform and project it on
             //the plane that the host is walking on
-            dir = sensedObject.transform.position - transform.position;
+            dir = pointOfInterest - transform.position;
             dir = Vector3.ProjectOnPlane(dir, transform.up);
             dir = Vector3.Normalize(dir);
 
@@ -73,7 +74,7 @@ public class AreaSensor : AbstractSensor
 
             //Same as previously but now we are instead projecting everything on the plane that is
             //perpendicular to the plane that the host is walking on.
-            dir = sensedObject.transform.position - transform.position;
+            dir = pointOfInterest - transform.position;
             dir = Vector3.ProjectOnPlane(dir, transform.right);
             dir = Vector3.Normalize(dir);
 
@@ -92,41 +93,43 @@ public class AreaSensor : AbstractSensor
             if(blockable)
             {
                 Vector3[] verts = ComponentNavigator.GetVerts(ComponentNavigator.GetEntity(sensedObject));
-
+                foreach(Vector3 vert in verts)
+                    pointList.Add(vert);
                 //Try and send a Raycast from the host to the target. If the hit object
                 //is the same as the sensed object, this means that we can see the object.
                 try
                 {
-                foreach(Vector3 targetPosition in verts) {
-                    pointList.Add(targetPosition);
-                    RaycastHit hit;
-                    var rayDirection = targetPosition - transform.position;
-                    if (Physics.Raycast(transform.position, rayDirection, out hit))
-                    {
-                        hitList.Add(hit.point);
-                        if(hit.transform.gameObject == sensedObject) {
-                            rightHitList.Add(hit.point);
-                            sensedGameObjects.Add(sensedObject);
+                    foreach(Vector3 targetPosition in verts) {
+                        pointList.Add(targetPosition);
+                        RaycastHit hit;
+                        var rayDirection = targetPosition - transform.position;
+                        if (Physics.Raycast(transform.position, rayDirection, out hit))
+                        {
+                            hitList.Add(hit.point);
+                            if(hit.transform.gameObject == sensedObject) {
+                                rightHitList.Add(hit.point);
+                                sensedGameObjects.Add(ComponentNavigator.GoToHighestObject(sensedObject)); 
 
-                            break;
-                        } else {
+                                break;
+                            } else {
 
-                            wrongHitList.Add(hit.point);
+                                wrongHitList.Add(hit.point);
+                                continue;
+                            }
+                        } else
+                        {
                             continue;
                         }
-                    } else
-                    {
-                        continue;
                     }
-                }
                 }catch(NullReferenceException)
                 {
                     Debug.Log("Error when sensing " + sensedObject.tag);
-                    return sensedGameObjects.ToArray();
+                    continue;
                 }
             } else
             {
-                sensedGameObjects.Add(sensedObject);
+                
+                sensedGameObjects.Add(ComponentNavigator.GoToHighestObject(sensedObject));
             }
             //Debug.Log("Found " + sensedObject.tag + " with " + sensorType);
         }
