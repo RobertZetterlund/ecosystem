@@ -147,7 +147,7 @@ public abstract class Animal : Entity, IConsumable
         energy -= Time.deltaTime * 1 / lifespan;
 
         heat.Add(Time.deltaTime / heatTimer.GetValue());
-
+        
         // can only mate if in heat and fully grown
         isFertile = heat.GetValue() == 1 && size.GetValue()/maxSize.GetValue() >= AdultSizeFactor;
 
@@ -170,14 +170,14 @@ public abstract class Animal : Entity, IConsumable
         UpdateStatusBars();
 
         chooseNextAction();
-
+        
         //check if the animal is dead
         isDead();
 
         //Animation
 
         UpdateAnimation();
-
+        
     }
 
     void Sense()
@@ -227,15 +227,12 @@ public abstract class Animal : Entity, IConsumable
             case EntityAction.GoingToFood:
                 Eat(currentTarget);
                 return true;
-                break;
             case EntityAction.GoingToWater:
                 Drink(currentTarget);
                 return true;
-                break;
             case EntityAction.SearchingForMate:
                 Animal mate = (Animal)currentTarget;
                 return Reproduce(mate);
-                break;
             default:
                 return false;
         }
@@ -591,15 +588,18 @@ public abstract class Animal : Entity, IConsumable
         {
             case ConsumptionType.Animal:
                 consumable = targetGameObject.GetComponent<Animal>();
+                state = ActionState.Eating;
                 break;
             case ConsumptionType.Plant:
                 consumable = targetGameObject.GetComponent<Plant>();
+                state = ActionState.Eating;
                 break;
             case ConsumptionType.Water:
                 consumable = targetGameObject.GetComponent<Water>();
+                state = ActionState.Drinking;
                 break;
         }
-        state = ActionState.Eating;
+        
         for (int i = 0; i < 5; i++)
         {
             yield return new WaitForSeconds(1);
@@ -640,7 +640,6 @@ public abstract class Animal : Entity, IConsumable
     {
         
         state = ActionState.Approaching;
-
         while (targetGameObject != null && !CloseEnoughToAct(targetGameObject))
         {
             yield return new WaitForSeconds(0.2f);
@@ -656,7 +655,7 @@ public abstract class Animal : Entity, IConsumable
         // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
         // has to resume the movement when you want the animal to walk again, so I did it this way instead.
         SetDestination(transform.position);
-        yield return null;
+        yield return null;  
     }
 
     public IEnumerator GoToMate()
@@ -716,31 +715,82 @@ public abstract class Animal : Entity, IConsumable
         yield return StartCoroutine(Search(gametag));
     
         MeshFilter mesh = (MeshFilter) targetGameObject.GetComponent(typeof(MeshFilter));
-        float minDistanceSqr = Mathf.Infinity;
-        Vector3 nearestVertex = Vector3.zero;
-        // scan all vertices to find nearest
-        foreach (Vector3 vertex in mesh.sharedMesh.vertices)
-        {
-            Vector3 diff = transform.position - vertex;
-            float distSqr = diff.sqrMagnitude;
-            if (distSqr < minDistanceSqr)
-            {
-                minDistanceSqr = distSqr;
-                nearestVertex = vertex;
-            }
-        }
+        Vector3 nearestVertex = ComponentNavigator.GetClosesVert(transform.position, mesh.sharedMesh.vertices);
+        
         yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water, nearestVertex));
 
         state = ActionState.Idle;
         currentAction = EntityAction.Idle;
     }
 
-    /*public IEnumerator GoToPartner()
+    public IEnumerator GoToPartner()
     {
         yield return StartCoroutine(GoToMate());
+    }
+    /*
+    public IEnumerator GoToWater()
+    {
+        state = ActionState.GoingToWater;
+        string gametag = ConsumptionType.Water.ToString();
+        yield return StartCoroutine(Search(gametag));
+
+        MeshFilter mesh = (MeshFilter)targetGameObject.GetComponent(typeof(MeshFilter));
+
+
+        Vector3[] tmp = (Vector3[])mesh.sharedMesh.vertices.Clone();
+        Water_Sort(tmp, 0, tmp.Length - 1, transform.position);
+        var rand = new System.Random();
+        Vector3 nearestVertex = tmp[rand.Next(11) % tmp.Length];
+        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water, nearestVertex));
+
+        state = ActionState.Idle;
+        currentAction = EntityAction.Idle;
     }*/
 
-    
+    private static void Water_Sort(Vector3[] arr, int left, int right, Vector3 pos)
+    {
+        if(left < right)
+        {
+            int pivot = Partition(arr, left, right, pos);
+            if(pivot > 1)
+            {
+                Water_Sort(arr, left, pivot - 1, pos);
+            }
+            if(pivot + 1 < right)
+            {
+                Water_Sort(arr, pivot + 1, right, pos);
+            }
+        }
+
+    }
+
+    private static int Partition(Vector3[] arr, int left, int right, Vector3 pos)
+    {
+        Vector3 pivot = arr[left];
+        while(true)
+        {
+            while((pos - arr[left]).sqrMagnitude < (pos - pivot).sqrMagnitude)
+            {
+                left++;
+            }
+            while((pos - arr[right]).sqrMagnitude > (pos - pivot).sqrMagnitude)
+            {
+                right--;
+            }
+            if(left < right)
+            {
+                if(arr[left] == arr[right]) return right;
+
+                Vector3 temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+            }
+            else
+            {
+                return right;
+            }
+        }
+    }
 
     public Vector3 EscapeAnimal(Vector3 targetPos)
     {
@@ -802,7 +852,7 @@ public abstract class Animal : Entity, IConsumable
 
     public IEnumerator Search(string gametag)
     {
-        Debug.Log(gametag);
+        //Debug.Log(gametag);
         state = ActionState.Searching;
         targetGametag = gametag;
         //Make it search before actually walking, since it otherwise might walk away from a plant

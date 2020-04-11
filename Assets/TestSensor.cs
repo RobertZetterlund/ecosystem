@@ -36,7 +36,10 @@ public class TestSensor : MonoBehaviour
     void Sense() {
         sensedGameObjects = new ArrayList();
         GameObject[] objectArray = sensors[0].Sense(transform);
-        Debug.Log("Sensed" + objectArray);
+        foreach(GameObject gameObj in objectArray)
+        {
+            Debug.Log("Sensed " + ComponentNavigator.GoToHighestObject(gameObj).tag);
+        }
 
     }
 
@@ -48,9 +51,9 @@ public class TestSensor : MonoBehaviour
             foreach(Vector3 vec in ((AreaSensor)sensors[0]).pointList)
             {
                 Gizmos.color = UnityEngine.Color.gray;
-                Gizmos.DrawSphere(vec, 0.05f);
+                Gizmos.DrawSphere(vec, 0.02f);
                 Gizmos.color = UnityEngine.Color.white;
-                Gizmos.DrawLine(gameObject.transform.position, vec);
+                //Gizmos.DrawLine(gameObject.transform.position, vec);
             }
 
             foreach(Vector3 vec in ((AreaSensor)sensors[0]).wrongHitList)
