@@ -578,6 +578,10 @@ public abstract class Animal : Entity, IConsumable
         yield return StartCoroutine(Approach(targetGameObject, position));
         if(!(targetGameObject == null)) { 
         yield return StartCoroutine(EatConsumable(consumptionType));
+            if(consumptionType == ConsumptionType.Water)
+            {
+                targetGameObject.GetComponent<WaterPuddle>().clearSpot(position);
+            }
         }
     }
 
@@ -713,10 +717,9 @@ public abstract class Animal : Entity, IConsumable
         state = ActionState.GoingToWater;
         string gametag = ConsumptionType.Water.ToString();
         yield return StartCoroutine(Search(gametag));
-    
-        MeshFilter mesh = (MeshFilter) targetGameObject.GetComponent(typeof(MeshFilter));
-        Vector3 nearestVertex = ComponentNavigator.GetClosesVert(transform.position, mesh.sharedMesh.vertices);
-        
+
+        //MeshFilter mesh = (MeshFilter) targetGameObject.GetComponent(typeof(MeshFilter));
+        Vector3 nearestVertex = targetGameObject.GetComponent<WaterPuddle>().getAvailablePos(transform.position);        
         yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water, nearestVertex));
 
         state = ActionState.Idle;

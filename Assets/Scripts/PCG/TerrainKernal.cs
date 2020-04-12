@@ -5,6 +5,7 @@ using System.Linq;
 using DelaunatorSharp.Interfaces;
 using DelaunatorSharp.Models;
 using UnityEngine.AI;
+using System.Collections;
 
 public class TerrainKernal : MonoBehaviour
 {
@@ -35,7 +36,9 @@ public class TerrainKernal : MonoBehaviour
 
     GenerateMesh generator;
     ColorIndexer colorIndex;
-    
+
+    //[SerializeField]
+    //List<Vector3> debugList;
 
     private void Awake()
     {
@@ -49,6 +52,29 @@ public class TerrainKernal : MonoBehaviour
     private void Start()
     {
         UpdateMap();
+        
+
+    }
+    private void Update()
+    {
+        /*
+        Debug.Log(debugList.Count);
+        Debug.Log(puddleList.Count);
+        Vector3 last = new Vector3(0, 0, 0);
+        foreach (Vector3 tup in debugList)
+        {
+            if (last.Equals(new Vector3(0, 0, 0)))
+            {
+                last = tup;
+            }
+            else
+            {
+
+                Debug.DrawLine(last, tup, Color.red, 2.0f, false);
+                last = new Vector3(0, 0, 0);
+            }
+        }
+        */
     }
 
     public void UpdateMap()
@@ -203,7 +229,7 @@ public class TerrainKernal : MonoBehaviour
         newObject.AddComponent(typeof(MeshRenderer));
         
         
-
+        
         var rend = newObject.GetComponent<MeshRenderer>();
         Material[] mat = new Material[1];
         mat[0] = waterTempMaterial;
@@ -217,12 +243,24 @@ public class TerrainKernal : MonoBehaviour
         nMM.overrideArea = true;
         nMM.area = 1;
 
+        /*
+        List<Tuple<Vector3, Vector3>> tmp = GetAllOutliningEdges(del.Triangles, vertices);
+        
+        foreach(Tuple<Vector3, Vector3> tup in tmp)
+        {
+            debugList.Add(tup.Item1);
+            debugList.Add(tup.Item2);
+        }
+        Debug.Log(debugList.Count);
+        */
         // Add WaterPond script to object
 
         newObject.AddComponent(typeof(Water));
-
+        newObject.AddComponent<WaterPuddle>();
         newObject.GetComponent<Water>().SetVerts(vertices);
     }
+    
+
     public void GenerateMap(){
         
 
@@ -250,6 +288,7 @@ public class TerrainKernal : MonoBehaviour
             DestroyImmediate(obj);
             puddleList = new List<GameObject>();
         }
+        
     }
 
 }
