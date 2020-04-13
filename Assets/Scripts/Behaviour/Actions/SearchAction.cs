@@ -5,7 +5,7 @@ using UnityEngine.AI;
 public class SearchAction : AbstractAction
 {
     protected TickTimer searchTimer, approachTimer;
-    protected Vector3 targetPos = new Vector3(0, 0, 0);
+    protected IPosition targetPos;
 
     public SearchAction(Animal animal) : base(animal)
     {
@@ -42,7 +42,7 @@ public class SearchAction : AbstractAction
         {
             try
             {
-                targetPos = animal.targetGameObject.transform.position;
+                targetPos = new DynamicPosition(animal.targetGameObject.transform);
                 Approach();
             }
             catch (MissingReferenceException)
@@ -50,6 +50,45 @@ public class SearchAction : AbstractAction
 
             }
         }
+    }
+
+    public void Approach()
+    {
+        approachTimer.Tick();
+        state = ActionState.Approaching;
+        if (animal.targetGameObject == null)
+        {
+            //Approached Object does not exist anymore, go back to search phase
+            Reset();
+            return;
+        }
+
+
+        if (!animal.CloseEnoughToAct(animal.targetGameObject))
+        {
+            if (approachTimer.IsDone())
+            {
+                try
+                {
+                    Vector3 pos = targetPos.GetPos();
+                    animal.GoToStationaryPosition(pos);
+                } catch(Exception)
+                {
+
+                }
+                
+                approachTimer.Reset();
+            }
+        }
+        else
+        {
+            // To prevent the animal from not going further than necessary to perform its action.
+            // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
+            // has to resume the movement when you want the animal to walk again, so I did it this way instead.
+            animal.SetDestination(animal.transform.position);
+            state = ActionState.Done;
+        }
+
     }
 
 
@@ -74,38 +113,6 @@ public class SearchAction : AbstractAction
 
         Vector3 new_pos = animal.transform.position + new_directon * 30;
         return new_pos;
-    }
-
-
-    public void Approach()
-    {
-        approachTimer.Tick();
-        state = ActionState.Approaching;
-        if (animal.targetGameObject == null)
-        {
-            //Approached Object does not exist anymore, go back to search phase
-            Reset();
-            return;
-        }
-
-
-        if (!animal.CloseEnoughToAct(animal.targetGameObject))
-        {
-            if (approachTimer.IsDone())
-            {
-                animal.GoToStationaryPosition(targetPos);
-                approachTimer.Reset();
-            }
-        } 
-        else
-        {
-            // To prevent the animal from not going further than necessary to perform its action.
-            // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
-            // has to resume the movement when you want the animal to walk again, so I did it this way instead.
-            animal.SetDestination(animal.transform.position);
-            state = ActionState.Done;
-        }
-        
     }
 
     public override void Reset()
