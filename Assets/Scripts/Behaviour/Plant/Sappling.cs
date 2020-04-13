@@ -20,7 +20,6 @@ public class Sappling : Entity
         if (growthTimer.IsDone())
         {
             TransformToPlant();
-            growthTimer.Reset();
         }
     }
 

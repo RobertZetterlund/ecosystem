@@ -1,44 +1,24 @@
 ﻿using System;
 using UnityEngine;
 
-public class GoToMate : AbstractAction
+public class GoToMate : SearchAndAct
 {
-    private SearchAction search;
     public GoToMate(Animal animal) : base(animal)
     {
-        search = new SearchAction(animal);
+        
     }
 
-    public override void Execute()
+    protected override bool Act()
     {
-        switch (state)
-        {
-            case ActionState.Mating:
-                Mate();
-                break;
-            default:
-                Search();
-                break;
-        }
-    }
-
-    private void Search()
-    {
-        search.Execute();
-        if (search.IsDone())
-            Mate();
-    }
-
-    private void Mate()
-    {
-        state = ActionState.Mating;
+        if (!base.Act())
+            return false;
 
         // if mate wasnt fertile, search for new
         try
         {
             Animal mate = animal.targetGameObject.GetComponent<Animal>();
             // if mate wasnt fertile, search for new
-            animal.Reproduce(mate);
+            return animal.Reproduce(mate);
             
         }
         catch (MissingReferenceException)
@@ -46,15 +26,6 @@ public class GoToMate : AbstractAction
             // if mate died, search for new
         }
         Reset();
-    }
-
-    public override bool IsDone()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void Reset()
-    {
-        state = ActionState.Searching;
+        return false;
     }
 }

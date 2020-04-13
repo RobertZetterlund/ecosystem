@@ -8,5 +8,6 @@
     Mating,
     Escaping,
     Chasing,
-    Done
+    Done,
+    Acting
 }

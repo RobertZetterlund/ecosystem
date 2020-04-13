@@ -2,31 +2,45 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class SearchAction : AbstractAction
+public abstract class SearchAndAct : AbstractAction
 {
     protected TickTimer searchTimer, approachTimer;
     protected IPosition targetPos;
 
-    public SearchAction(Animal animal) : base(animal)
+    public SearchAndAct(Animal animal) : base(animal)
     {
         searchTimer = new TickTimer(1);
-        approachTimer = new TickTimer(0.25f);
+        approachTimer = new TickTimer(1f);
     }
 
     public override void Execute()
     {
-        switch(state)
+        switch (state)
         {
+            case ActionState.Searching:
+                Search();
+                break;
             case ActionState.Approaching:
                 Approach();
                 break;
-            default:
-                Search();
+            case ActionState.Acting:
+                Act();
                 break;
         }
     }
 
-    protected virtual void Search()
+    protected virtual bool Act()
+    {
+        state = ActionState.Acting;
+        if (animal.targetGameObject == null || !animal.CloseEnoughToAct(animal.targetGameObject))
+        {
+            //Found food does not exist, GO back to search phase
+            Reset();
+            return false;
+        }
+        return true;
+    }
+    protected virtual bool Search()
     {
         searchTimer.Tick();
         state = ActionState.Searching;
@@ -42,17 +56,19 @@ public class SearchAction : AbstractAction
         {
             try
             {
-                targetPos = new DynamicPosition(animal.targetGameObject.transform);
-                Approach();
+
+                targetPos = PositionToApproach();
+                return Approach();
             }
             catch (MissingReferenceException)
             {
 
             }
         }
+        return true;
     }
 
-    public void Approach()
+    public bool Approach()
     {
         approachTimer.Tick();
         state = ActionState.Approaching;
@@ -60,7 +76,7 @@ public class SearchAction : AbstractAction
         {
             //Approached Object does not exist anymore, go back to search phase
             Reset();
-            return;
+            return false;
         }
 
 
@@ -72,11 +88,12 @@ public class SearchAction : AbstractAction
                 {
                     Vector3 pos = targetPos.GetPos();
                     GoToStationaryPosition(pos);
-                } catch(Exception)
+                }
+                catch (Exception)
                 {
 
                 }
-                
+
                 approachTimer.Reset();
             }
         }
@@ -86,9 +103,15 @@ public class SearchAction : AbstractAction
             // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
             // has to resume the movement when you want the animal to walk again, so I did it this way instead.
             animal.SetDestination(animal.transform.position);
-            state = ActionState.Done;
+            return Act();
         }
+        return true;
 
+    }
+
+    protected virtual IPosition PositionToApproach()
+    {
+        return new DynamicPosition(animal.targetGameObject.transform);
     }
 
 
@@ -122,10 +145,11 @@ public class SearchAction : AbstractAction
         try
         {
             canPath = animal.navMeshAgent.CalculatePath(pos, path);
-        } catch(Exception)
+        }
+        catch (Exception)
         {
         }
-        
+
 
         if (path.status == NavMeshPathStatus.PathComplete && canPath)
         {
@@ -141,7 +165,7 @@ public class SearchAction : AbstractAction
         }
     }
 
-    
+
 
     public override void Reset()
     {
