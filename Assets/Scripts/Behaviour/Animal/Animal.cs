@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define show_gizmos
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,6 +8,7 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+
 
 public abstract class Animal : Entity, IConsumable
 {
@@ -173,6 +176,7 @@ public abstract class Animal : Entity, IConsumable
 
         heat.Add(cdt / heatTimer.GetValue());
 
+
         // can only mate if in heat and fully grown
         isFertile = heat.GetValue() == 1 && size.GetValue() / maxSize.GetValue() >= AdultSizeFactor;
 
@@ -198,6 +202,7 @@ public abstract class Animal : Entity, IConsumable
         Move();
         
     }
+
 
     
    void Move()
@@ -317,7 +322,7 @@ public abstract class Animal : Entity, IConsumable
 
     public void ChooseNextAction()
     {
-        EntityAction newAction = fcmHandler.GetAction();
+        EntityAction newAction = EntityAction.GoingToFood;
         if (currentAction != newAction)
         {
             currentAction = newAction;
@@ -517,7 +522,7 @@ public abstract class Animal : Entity, IConsumable
 
 
     //Draws a sphere corresponding to its sense radius
-    
+#if show_gizmos
     void OnDrawGizmos()
     {
 
@@ -611,10 +616,55 @@ public abstract class Animal : Entity, IConsumable
         }
     }
 
-
+#endif
     public NavMeshAgent GetNavMeshAgent()
     {
         return navMeshAgent;
+    }
+
+    private static void Water_Sort(Vector3[] arr, int left, int right, Vector3 pos)
+    {
+        if(left < right)
+        {
+            int pivot = Partition(arr, left, right, pos);
+            if(pivot > 1)
+            {
+                Water_Sort(arr, left, pivot - 1, pos);
+            }
+            if(pivot + 1 < right)
+            {
+                Water_Sort(arr, pivot + 1, right, pos);
+            }
+        }
+
+    }
+
+    private static int Partition(Vector3[] arr, int left, int right, Vector3 pos)
+    {
+        Vector3 pivot = arr[left];
+        while(true)
+        {
+            while((pos - arr[left]).sqrMagnitude < (pos - pivot).sqrMagnitude)
+            {
+                left++;
+            }
+            while((pos - arr[right]).sqrMagnitude > (pos - pivot).sqrMagnitude)
+            {
+                right--;
+            }
+            if(left < right)
+            {
+                if(arr[left] == arr[right]) return right;
+
+                Vector3 temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+            }
+            else
+            {
+                return right;
+            }
+        }
     }
 
     public double GetAmount()
