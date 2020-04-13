@@ -54,8 +54,8 @@ public class WaterPuddle : MonoBehaviour
             }
         }
 
-        if (spotList.Contains(new Tuple<Vector3, bool>(result, true))) {
-            getAvailablePos(pos);
+        if (spotList.Contains(new Tuple<Vector3, bool>(result, true)) || result == pos) {
+            result = getAvailablePos(pos);
         }
         else
         {
