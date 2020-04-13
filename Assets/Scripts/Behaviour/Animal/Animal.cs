@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -21,11 +22,12 @@ public abstract class Animal : Entity, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double timeToDeathByThirst = 1080;
+    double timeToDeathByThirst = 108000;
     private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
     private const double AdultSizeFactor = 0.4; // how big you have to be to mate
     double lifespan = 15000;
     bool dead;
+    [SerializeField]
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
     private string targetGametag = "";
@@ -34,14 +36,14 @@ public abstract class Animal : Entity, IConsumable
     private RangedDouble infantFactor; // how big the child is in %
     private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
     // senses
-    private Timer senseTimer, fcmTimer, searchTimer, overallTimer;
+    private TickTimer senseTimer, fcmTimer, searchTimer, overallTimer;
     private AbstractSensor[] sensors;
     private AbstractSensor touchSensor;
     private RangedDouble sightLength;
     private RangedDouble smellRadius;
     private float horisontalFOV = 120;
     private float verticalFOV = 90;
-    protected GameObject targetGameObject;
+    public GameObject targetGameObject;
     private Transform currentTargetTransform;
     private Memory memory;
     private SenseProcessor senseProcessor;
@@ -54,9 +56,9 @@ public abstract class Animal : Entity, IConsumable
     public bool showSenseRadiusGizmo;
     public bool showSightGizmo = false;
     public bool showSmellGizmo = false;
-    public bool showTargetDestinationGizmo = false;
+    public bool showTargetDestinationGizmo = true;
     UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
-    Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
+    public Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
     // trait copy for easier logging etc
     private AnimalTraits traits;
     //animation
@@ -72,6 +74,9 @@ public abstract class Animal : Entity, IConsumable
     public bool allRaycastHits;
 
     public float cdt = 0.1f;
+
+    private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action;
+    private SimulationController simulation = SimulationController.Instance();
 
     public virtual void Init(AnimalTraits traits)
     {
@@ -91,6 +96,12 @@ public abstract class Animal : Entity, IConsumable
         this.traits = traits;
         senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
 
+        goToFoodAction = new GoToConsumable(this, ConsumptionType.Plant);
+        goToWaterAction = new GoToConsumable(this, ConsumptionType.Water);
+        goToMateAction = new GoToMate(this);
+        idleAction = new IdleAction(this);
+        action = idleAction;
+
         targetGameObject = null;
         gameObject.tag = species.ToString();
 
@@ -105,7 +116,9 @@ public abstract class Animal : Entity, IConsumable
         memory = new Memory();
 
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
-        navMeshAgent.speed = (float)speed.GetValue();
+        navMeshAgent.speed = (float)(speed.GetValue() * simulation.gameSpeed);
+        navMeshAgent.angularSpeed = 10000;
+        navMeshAgent.acceleration = 10000;
         // calculate instead if possible
         navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
 
@@ -118,12 +131,8 @@ public abstract class Animal : Entity, IConsumable
         sensors[1] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
         touchSensor = SensorFactory.TouchSensor(1);
 
-        senseTimer = new Timer(0.25f);
-        senseTimer.Start();
-        fcmTimer = new Timer(0.25f);
-        fcmTimer.Start();
-        searchTimer = new Timer(1f);
-        searchTimer.Start();
+        senseTimer = new TickTimer(1f);
+        fcmTimer = new TickTimer(0.5f);
         // update ui and visual traits
         UnityEngine.Object prefab = Resources.Load("statusCanvas");
         GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
@@ -133,17 +142,17 @@ public abstract class Animal : Entity, IConsumable
         statusBars.Init((float)AdultSizeFactor);
         UpdateStatusBars();
 
+        
+
+
+
 
         animator = ComponentNavigator.GetAnimator(this.gameObject);
     }
 
     // Update is called once per frame
-
-    float last = 0;
     void FixedUpdate()
     {
-        Debug.Log(Time.time - last);
-        last = Time.time;
         DepleteSize();
 
         // update thirst
@@ -157,30 +166,73 @@ public abstract class Animal : Entity, IConsumable
         // can only mate if in heat and fully grown
         isFertile = heat.GetValue() == 1 && size.GetValue() / maxSize.GetValue() >= AdultSizeFactor;
 
-        //Animation
+        senseTimer.Tick();
         if (senseTimer.IsDone())
         {
             Sense();
             senseTimer.Reset();
-            senseTimer.Start();
         }
+        fcmTimer.Tick();
         if (fcmTimer.IsDone())
         {
             fcmHandler.ProcessAnimal(thirst.GetValue(), energy, dietFactor.GetValue(),
                 isMale, nChildren.GetValue(), size.GetValue(), speed.GetValue(), isFertile, maxSize.GetValue());
             fcmHandler.CalculateFCM();
             fcmTimer.Reset();
-            fcmTimer.Start();
         }
 
-        chooseNextAction();
+        ChooseNextAction();
+        if(currentAction != EntityAction.Idle)
+            action.Execute();
+
+        //Move();
         //check if the animal is dead
         isDead();
     }
+
+    
+    /*void Move()
+    {
+        NavMeshAgent agent = navMeshAgent;
+        if (Time.timeScale > 1.0f && agent.hasPath)
+        {
+            NavMeshHit hit;
+            float maxAgentTravelDistance = Time.deltaTime * agent.speed;
+
+            //If at the end of path, stop agent.
+            if (
+                agent.SamplePathPosition(NavMesh.AllAreas, maxAgentTravelDistance, out hit) ||
+                agent.remainingDistance <= agent.stoppingDistance
+            )
+            {
+                agent.SetDestination(transform.position);
+            }
+            //Else, move the actor and manually update the agent pos
+            else
+            {
+                transform.position = hit.position;
+                agent.nextPosition = transform.position;
+            }
+        }
+    }*/
+    /*
+    void Move()
+    {
+        var oldPos = transform.position;
+        for (var f = 0f; f < 1.0f; f += Time.fixedDeltaTime)
+        {
+            navMeshAgent.transform.position = Vector3.Lerp(oldPos, navMeshAgent.nextPosition, f);
+        }
+    }
+    */
+
     void Update()
     {
-        UpdateStatusBars();
-        UpdateAnimation();
+        if(simulation.gameSpeed <= 1)
+        {
+            UpdateStatusBars();
+            UpdateAnimation();
+        }
     }
 
     void Sense()
@@ -208,7 +260,7 @@ public abstract class Animal : Entity, IConsumable
         fcmHandler.ProcessSensedObjects(this, sE);
     }
 
-    protected bool CloseEnoughToAct(GameObject gameObject)
+    public bool CloseEnoughToAct(GameObject gameObject)
     {
         return touchSensor.IsSensingObject(transform, gameObject);
     }
@@ -274,7 +326,7 @@ public abstract class Animal : Entity, IConsumable
     {
         if (!dead)
         {
-            Debug.Log("Death by: " + cause.ToString());
+            Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
             dead = true;
             StopAllCoroutines();
             SimulationController.Instance().Unregister(this);
@@ -284,51 +336,35 @@ public abstract class Animal : Entity, IConsumable
 
     }
 
-    public void chooseNextAction()
+    public void ChooseNextAction()
     {
-        CheckCurrentAction(fcmHandler.GetAction());
-    }
-
-    private void CheckCurrentAction(EntityAction newAction)
-    {
+        EntityAction newAction = fcmHandler.GetAction();
         if (currentAction != newAction)
         {
-            StopAllCoroutines();
             currentAction = newAction;
             //This has to reset somewhere
             targetGameObject = null;
             switch (currentAction)
             {
                 case EntityAction.GoingToWater:
-                    targetGameObject = memory.ReadWaterFromMemory();                 
-                    StartCoroutine(GoToWater());
+                    targetGameObject = memory.ReadWaterFromMemory();
+                    action = goToWaterAction;
                     break;
 
                 case EntityAction.GoingToFood:
                     targetGameObject = memory.ReadFoodFromMemory();
-                    StartCoroutine(GoToFood());                   
+                    action = goToFoodAction;
                     break;
-                case EntityAction.Escaping:
-                    //targetGameObject = memory.ReadFoeFromMemory();
-                    //StartCoroutine(Escape());
+                case EntityAction.SearchingForMate:
+                    targetGameObject = memory.ReadMateFromMemory();
+                    action = goToMateAction;
                     break;
                 default:
                     currentAction = EntityAction.Idle;
-                    break;
-
-                case EntityAction.SearchingForMate:
-                    //StartCoroutine(GoToMate());
+                    action = idleAction;
                     break;
             }
-        }
-        else
-        {
-            if (!GameObjectExists(targetGameObject))
-            {
-                //Debug.Log("I dont see my target");
-                //currentAction = EntityAction.Idle;
-                //Choose the next bestTarget
-            }
+            action.Reset();
         }
     }
 
@@ -371,7 +407,7 @@ public abstract class Animal : Entity, IConsumable
                 return false;
             }
             // mak babi
-            state = ActionState.Reproducing;
+            //state = ActionState.Reproducing;
             if (true || (size.GetValue()/maxSize.GetValue() < 0.3 && thirst.GetValue() < 0.6))
             {
                 if (true || energy > 0.4)
@@ -429,6 +465,7 @@ public abstract class Animal : Entity, IConsumable
     }
 
     // let this animal attempt to take a bite from the given consumable
+    [MethodImpl(MethodImplOptions.Synchronized)]
     private void Consume(IConsumable consumable)
     {
         // do eating calculations
@@ -448,6 +485,7 @@ public abstract class Animal : Entity, IConsumable
         double eaten = size.Add(-amount);
         return eaten;
     }
+
     // swallow the food/water that this animal ate
     private void swallow(double amount, ConsumptionType type)
     {
@@ -468,6 +506,7 @@ public abstract class Animal : Entity, IConsumable
                 size.Add(-effectiveAmount);
                 break;
         }
+
     }
 
     public void SetDestination(Vector3 pos)
@@ -475,7 +514,10 @@ public abstract class Animal : Entity, IConsumable
         NavMeshHit myNavHit;
         if (NavMesh.SamplePosition(pos, out myNavHit, 100, NavMesh.AllAreas))
         {
+            //navMeshAgent.ResetPath();
+
             navMeshAgent.SetDestination(myNavHit.position);
+            targetDestinationGizmo = myNavHit.position;
         }
     }
 
@@ -559,7 +601,7 @@ public abstract class Animal : Entity, IConsumable
         {
             Gizmos.DrawLine(transform.position, targetDestinationGizmo);
         }
-        Handles.Label(transform.position + new Vector3(0, 3, 0), currentAction.ToString() + "   " + state.ToString());
+        Handles.Label(transform.position + new Vector3(0, 3, 0), currentAction.ToString() + "   " + action.GetState());
     }
     void OnDrawGizmosSelected()
     {
@@ -577,7 +619,7 @@ public abstract class Animal : Entity, IConsumable
     {
         return navMeshAgent;
     }
-
+    /*
     public IEnumerator GoToStationaryConsumable(ConsumptionType consumptionType, Vector3 position)
     {
         yield return StartCoroutine(Approach(targetGameObject, position));
@@ -585,91 +627,7 @@ public abstract class Animal : Entity, IConsumable
         yield return StartCoroutine(EatConsumable(consumptionType));
         }
     }
-
-    public virtual IEnumerator EatConsumable(ConsumptionType consumptionType)
-    {
-        Timer eatTimer = new Timer(1);
-        eatTimer.Start();
-        IConsumable consumable = null;
-        switch (consumptionType)
-        {
-            case ConsumptionType.Animal:
-                consumable = targetGameObject.GetComponent<Animal>();
-                break;
-            case ConsumptionType.Plant:
-                consumable = targetGameObject.GetComponent<Plant>();
-                break;
-            case ConsumptionType.Water:
-                consumable = targetGameObject.GetComponent<Water>();
-                break;
-        }
-        state = ActionState.Eating;
-        while(consumable != null && consumable.GetAmount() > 0)
-        {
-            if(eatTimer.IsDone())
-            {
-                Eat(consumable);
-                eatTimer.Reset();
-            }
-             // take one bite
-            yield return new WaitForFixedUpdate();
-        }
-        state = ActionState.Idle;
-        yield return null;
-    }
-
-    public virtual IEnumerator GoToFood()
-    {
-        state = ActionState.GoingToFood;
-        string gametag = ConsumptionType.Plant.ToString();
-        Vector3 pos = new Vector3(0,0,0);
-        bool retry;
-        do
-        {
-            yield return StartCoroutine(Search(gametag));
-            try
-            {
-                pos = targetGameObject.transform.position;
-                retry = false;
-            }
-            catch (MissingReferenceException)
-            {
-                retry = true;
-            }
-        } while (retry);
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Plant, pos));
-        state = ActionState.Idle;
-        currentAction = EntityAction.Idle;
-    }
-
-    public virtual IEnumerator Approach(GameObject targetGameObject, Vector3 position)
-    {
-
-        Timer approachTimer = new Timer(0.5f);
-        approachTimer.Start();
-        state = ActionState.Approaching;
-
-        while (targetGameObject != null && !CloseEnoughToAct(targetGameObject))
-        {
-            yield return new WaitForFixedUpdate();
-            if(approachTimer.IsDone())
-            {
-                if (targetGameObject != null)
-                {
-                    SetDestination(position);
-                }
-                approachTimer.Reset();
-            }
-            
-                
-        }
-        // To prevent the animal from not going further than necessary to perform its action.
-        // I wanted to use the stop function of the NavMeshAgent but if one does use that one also
-        // has to resume the movement when you want the animal to walk again, so I did it this way instead.
-        SetDestination(transform.position);
-        yield return null;
-    }
-
+    
     public IEnumerator GoToMate()
     {
         Animal mate = null;
@@ -719,40 +677,14 @@ public abstract class Animal : Entity, IConsumable
         SetDestination(transform.position);
         yield return null;
     }
-
-    public IEnumerator GoToWater()
-    {
-        state = ActionState.GoingToWater;
-        string gametag = ConsumptionType.Water.ToString();
-        yield return StartCoroutine(Search(gametag));
-    
-        MeshFilter mesh = (MeshFilter) targetGameObject.GetComponent(typeof(MeshFilter));
-        float minDistanceSqr = Mathf.Infinity;
-        Vector3 nearestVertex = Vector3.zero;
-        // scan all vertices to find nearest
-        foreach (Vector3 vertex in mesh.sharedMesh.vertices)
-        {
-            Vector3 diff = transform.position - vertex;
-            float distSqr = diff.sqrMagnitude;
-            if (distSqr < minDistanceSqr)
-            {
-                minDistanceSqr = distSqr;
-                nearestVertex = vertex;
-            }
-        }
-        yield return StartCoroutine(GoToStationaryConsumable(ConsumptionType.Water, nearestVertex));
-
-        state = ActionState.Idle;
-        currentAction = EntityAction.Idle;
-    }
-
+    */
     /*public IEnumerator GoToPartner()
     {
         yield return StartCoroutine(GoToMate());
     }*/
 
     
-
+ /*
     public Vector3 EscapeAnimal(Vector3 targetPos)
     {
         Vector3 dir = transform.position - targetPos;
@@ -783,72 +715,7 @@ public abstract class Animal : Entity, IConsumable
         yield return null;
 
     }
-
-    private void GoToStationaryPosition(Vector3 pos)
-    {
-        NavMeshPath path = new NavMeshPath();
-        bool canPath = navMeshAgent.CalculatePath(pos, path);
-
-        if (path.status == NavMeshPathStatus.PathComplete && canPath)
-        {
-            targetDestinationGizmo = pos;
-            SetDestination(pos);
-        }
-        else
-        {
-            NavMeshHit myNavHit;
-            if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
-            {
-                targetDestinationGizmo = myNavHit.position;
-                SetDestination(myNavHit.position);
-            }
-        }
-    }
-
-    public void Roam()
-    {
-        Vector3 pos = ChooseNewDestination();
-        GoToStationaryPosition(pos);
-    }
-
-    public IEnumerator Search(string gametag)
-    {
-        Debug.Log(gametag);
-        state = ActionState.Searching;
-        targetGametag = gametag;
-        //Make it search before actually walking, since it otherwise might walk away from a plant
-        //and then walk right back to it.
-        Sense();
-        senseTimer.Reset();
-        senseTimer.Start();
-        while (targetGameObject == null)
-        {
-            if(searchTimer.IsDone())
-            {
-                searchTimer.Reset();
-                Roam();
-            }
-            yield return new WaitForFixedUpdate();
-        }
-        yield return null;
-    }
-
-    /**
-     * Makes the animal walk to a position 10 steps in front of the animal in a direction that is in the bounderies of an angle
-     * of -40 to +40 of the direction that the animal is facing.
-     */
-    private Vector3 ChooseNewDestination()
-    {
-        Vector3 dir = transform.forward;
-        float angle = Vector3.SignedAngle(dir, Vector3.forward, Vector3.up);
-        float angle1 = angle - 40;
-        float angle2 = angle + 40;
-        float new_angle = UnityEngine.Random.Range(angle1, angle2);
-        Vector3 new_directon = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * new_angle), 0, Mathf.Cos(Mathf.Deg2Rad * new_angle));
-
-        Vector3 new_pos = transform.position + new_directon * 10;
-        return new_pos;
-    }
+    */
     public double GetAmount()
     {
         return size.GetValue();
@@ -865,7 +732,14 @@ public abstract class Animal : Entity, IConsumable
         // should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
         if(gameObject !=null)
         {
-            gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+            try
+            {
+                gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+            } catch(Exception)
+            {
+
+            }
+            
         }
 
         Renderer rend = (Renderer)childRenderers[0];
@@ -953,7 +827,7 @@ public abstract class Animal : Entity, IConsumable
 
     public float GetTimeAlive()
     {
-        return Time.time - timeAtBirth;
+        return (Time.time - timeAtBirth) * Time.timeScale;
     }
 
 }

@@ -4,23 +4,23 @@ using UnityEngine;
 public class Sappling : Entity
 {
 
-    Timer growthTimer;
+    TickTimer growthTimer;
 
     public void Init(int size)
     {
         this.size = new RangedDouble(size, 0);
         gameObject.tag = "Sappling";
         //It takes the sappling 30 sec to respawn
-        growthTimer = new Timer(60);
-        growthTimer.Reset();
-        growthTimer.Start();
+        growthTimer = new TickTimer(30);
     }
 
-    private void Update()
+    void FixedUpdate()
     {
+        growthTimer.Tick();
         if (growthTimer.IsDone())
         {
             TransformToPlant();
+            growthTimer.Reset();
         }
     }
 

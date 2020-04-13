@@ -13,7 +13,7 @@ class Fox : Animal
         base.Start();
     }
 
-    //Override
+    /*//Override
     public override IEnumerator GoToFood()
     {
         state = ActionState.GoingToFood;
@@ -95,6 +95,6 @@ class Fox : Animal
         }
         state = ActionState.Idle;
         yield return null;
-    }
+    }*/
 
 }
