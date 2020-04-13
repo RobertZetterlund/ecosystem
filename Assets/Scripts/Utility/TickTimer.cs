@@ -11,6 +11,10 @@ public class TickTimer
     {
         this.interval = interval;
         tick_interval = (int)Math.Round(interval / std_fixed_update, 0);
+    }
+
+    public TickTimer(float interval, bool offset) : this(interval)
+    {
         //ticks = (int)MathUtility.RandomUniform(0, tick_interval - 1);
     }
 
