@@ -96,7 +96,13 @@ public abstract class Animal : Entity, IConsumable
         this.traits = traits;
         senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
 
-        goToFoodAction = new GoToConsumable(this, ConsumptionType.Plant);
+        // drar en riktigt cheeky här...
+
+        if(!traits.diet[0].Equals("Plant"))
+            goToFoodAction = new GoToConsumable(this, ConsumptionType.Animal);
+        else
+            goToFoodAction = new GoToConsumable(this, ConsumptionType.Plant);
+
         goToWaterAction = new GoToConsumable(this, ConsumptionType.Water);
         goToMateAction = new GoToMate(this);
         idleAction = new IdleAction(this);
@@ -153,6 +159,9 @@ public abstract class Animal : Entity, IConsumable
     // Update is called once per frame
     void FixedUpdate()
     {
+        //check if the animal is dead
+        if (isDead())
+            return;
         DepleteSize();
 
         // update thirst
@@ -186,8 +195,7 @@ public abstract class Animal : Entity, IConsumable
             action.Execute();
 
         //Move();
-        //check if the animal is dead
-        isDead();
+        
     }
 
     
@@ -306,7 +314,7 @@ public abstract class Animal : Entity, IConsumable
     }
 
 
-    public void isDead()
+    public bool isDead()
     {
         if (thirst.GetValue() >= 1)
         {
@@ -319,7 +327,12 @@ public abstract class Animal : Entity, IConsumable
         else if (size.GetValue() == 0)
         {
             Die(CauseOfDeath.Hunger); // or eaten
+        } 
+        else
+        {
+            return false;
         }
+        return true;
     }
 
     public void Die(CauseOfDeath cause)
@@ -338,7 +351,7 @@ public abstract class Animal : Entity, IConsumable
 
     public void ChooseNextAction()
     {
-        EntityAction newAction = fcmHandler.GetAction();
+        EntityAction newAction = EntityAction.GoingToFood;
         if (currentAction != newAction)
         {
             currentAction = newAction;
@@ -523,6 +536,7 @@ public abstract class Animal : Entity, IConsumable
 
 
     //Draws a sphere corresponding to its sense radius
+    /*
     void OnDrawGizmos()
     {
 
@@ -557,11 +571,11 @@ public abstract class Animal : Entity, IConsumable
             Gizmos.color = UnityEngine.Color.white;
         }
 
-        /*if (showSenseRadiusGizmo)
+        if (showSenseRadiusGizmo)
         {
             Gizmos.color = SphereGizmoColor;
             Gizmos.DrawSphere(transform.position, senseRadius);
-        }*/
+        }
 
         if (showSightGizmo)
         {
@@ -614,6 +628,7 @@ public abstract class Animal : Entity, IConsumable
                 Handles.Label(transform.position + textOffset, fcmHandler.GetFCMData());
         }
     }
+*/
 
     public NavMeshAgent GetNavMeshAgent()
     {
@@ -730,7 +745,7 @@ public abstract class Animal : Entity, IConsumable
     private void UpdateSize()
     {
         // should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
-        if(gameObject !=null)
+        if(gameObject !=null && (float)size.GetValue() > 0.01)
         {
             try
             {

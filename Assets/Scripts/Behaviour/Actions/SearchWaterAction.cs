@@ -36,7 +36,7 @@ public class SearchWaterAction : SearchAction
                     nearestVertex = vertex;
                 }
             }
-            targetPos = nearestVertex;
+            targetPos = new StaticPosition(nearestVertex);
             Approach();
         }
     }
