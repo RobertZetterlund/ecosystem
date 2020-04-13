@@ -75,7 +75,7 @@ public abstract class Animal : Entity, IConsumable
 
     public float cdt = 0.1f;
 
-    private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action;
+    private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action, escapeAction;
     private SimulationController simulation = SimulationController.Instance();
 
     public virtual void Init(AnimalTraits traits)
@@ -107,6 +107,7 @@ public abstract class Animal : Entity, IConsumable
         goToMateAction = new GoToMate(this);
         idleAction = new IdleAction(this);
         action = idleAction;
+        escapeAction = new EscapeAction(this);
 
         targetGameObject = null;
         gameObject.tag = species.ToString();
@@ -316,7 +317,7 @@ public abstract class Animal : Entity, IConsumable
 
     public void ChooseNextAction()
     {
-        EntityAction newAction = EntityAction.GoingToFood;
+        EntityAction newAction = fcmHandler.GetAction();
         if (currentAction != newAction)
         {
             currentAction = newAction;
@@ -328,7 +329,6 @@ public abstract class Animal : Entity, IConsumable
                     targetGameObject = memory.ReadWaterFromMemory();
                     action = goToWaterAction;
                     break;
-
                 case EntityAction.GoingToFood:
                     targetGameObject = memory.ReadFoodFromMemory();
                     action = goToFoodAction;
@@ -336,6 +336,10 @@ public abstract class Animal : Entity, IConsumable
                 case EntityAction.SearchingForMate:
                     targetGameObject = memory.ReadMateFromMemory();
                     action = goToMateAction;
+                    break;
+                case EntityAction.Escaping:
+                    targetGameObject = memory.ReadFoeFromMemory();
+                    action = escapeAction;
                     break;
                 default:
                     currentAction = EntityAction.Idle;
@@ -472,6 +476,33 @@ public abstract class Animal : Entity, IConsumable
 
     }
 
+    public void GoToStationaryPosition(Vector3 pos)
+    {
+        NavMeshPath path = new NavMeshPath();
+        bool canPath = false;
+        try
+        {
+            canPath = navMeshAgent.CalculatePath(pos, path);
+        }
+        catch (Exception)
+        {
+        }
+
+
+        if (path.status == NavMeshPathStatus.PathComplete && canPath)
+        {
+            SetDestination(pos);
+        }
+        else
+        {
+            NavMeshHit myNavHit;
+            if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
+            {
+                SetDestination(myNavHit.position);
+            }
+        }
+    }
+
     public void SetDestination(Vector3 pos)
     {
         NavMeshHit myNavHit;
@@ -585,7 +616,7 @@ public abstract class Animal : Entity, IConsumable
     {
         return navMeshAgent;
     }
-   
+
     public double GetAmount()
     {
         return size.GetValue();
@@ -704,5 +735,6 @@ public abstract class Animal : Entity, IConsumable
     {
 
     }
+
 
 }

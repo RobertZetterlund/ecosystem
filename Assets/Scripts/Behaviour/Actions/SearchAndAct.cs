@@ -87,12 +87,11 @@ public abstract class SearchAndAct : AbstractAction
                 try
                 {
                     Vector3 pos = targetPos.GetPos();
-                    GoToStationaryPosition(pos);
+                    animal.GoToStationaryPosition(pos);
                 }
                 catch (Exception)
-                {
-
-                }
+                {  
+                } 
 
                 approachTimer.Reset();
             }
@@ -118,7 +117,7 @@ public abstract class SearchAndAct : AbstractAction
     public void Roam()
     {
         Vector3 pos = ChooseNewDestination();
-        GoToStationaryPosition(pos);
+        animal.GoToStationaryPosition(pos);
     }
 
     /**
@@ -137,35 +136,6 @@ public abstract class SearchAndAct : AbstractAction
         Vector3 new_pos = animal.transform.position + new_directon * 30;
         return new_pos;
     }
-
-    private void GoToStationaryPosition(Vector3 pos)
-    {
-        NavMeshPath path = new NavMeshPath();
-        bool canPath = false;
-        try
-        {
-            canPath = animal.navMeshAgent.CalculatePath(pos, path);
-        }
-        catch (Exception)
-        {
-        }
-
-
-        if (path.status == NavMeshPathStatus.PathComplete && canPath)
-        {
-            animal.SetDestination(pos);
-        }
-        else
-        {
-            NavMeshHit myNavHit;
-            if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
-            {
-                animal.SetDestination(myNavHit.position);
-            }
-        }
-    }
-
-
 
     public override void Reset()
     {
