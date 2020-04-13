@@ -75,7 +75,7 @@ public abstract class Animal : Entity, IConsumable
 
     public float cdt = 0.1f;
 
-    private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action;
+    private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action, escapeAction;
     private SimulationController simulation = SimulationController.Instance();
 
     public virtual void Init(AnimalTraits traits)
@@ -101,6 +101,7 @@ public abstract class Animal : Entity, IConsumable
         goToMateAction = new GoToMate(this);
         idleAction = new IdleAction(this);
         action = idleAction;
+        escapeAction = new EscapeAction(this);
 
         targetGameObject = null;
         gameObject.tag = species.ToString();
@@ -350,7 +351,6 @@ public abstract class Animal : Entity, IConsumable
                     targetGameObject = memory.ReadWaterFromMemory();
                     action = goToWaterAction;
                     break;
-
                 case EntityAction.GoingToFood:
                     targetGameObject = memory.ReadFoodFromMemory();
                     action = goToFoodAction;
@@ -358,6 +358,10 @@ public abstract class Animal : Entity, IConsumable
                 case EntityAction.SearchingForMate:
                     targetGameObject = memory.ReadMateFromMemory();
                     action = goToMateAction;
+                    break;
+                case EntityAction.Escaping:
+                    targetGameObject = memory.ReadFoeFromMemory();
+                    action = escapeAction;
                     break;
                 default:
                     currentAction = EntityAction.Idle;
@@ -507,6 +511,25 @@ public abstract class Animal : Entity, IConsumable
                 break;
         }
 
+    }
+
+    public void GoToStationaryPosition(Vector3 pos)
+    {
+        NavMeshPath path = new NavMeshPath();
+        bool canPath = navMeshAgent.CalculatePath(pos, path);
+
+        if (path.status == NavMeshPathStatus.PathComplete && canPath)
+        {
+            SetDestination(pos);
+        }
+        else
+        {
+            NavMeshHit myNavHit;
+            if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
+            {
+                SetDestination(myNavHit.position);
+            }
+        }
     }
 
     public void SetDestination(Vector3 pos)
@@ -829,5 +852,6 @@ public abstract class Animal : Entity, IConsumable
     {
         return (Time.time - timeAtBirth) * Time.timeScale;
     }
+
 
 }

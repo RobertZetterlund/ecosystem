@@ -56,7 +56,7 @@ public class SearchAction : AbstractAction
     public void Roam()
     {
         Vector3 pos = ChooseNewDestination();
-        GoToStationaryPosition(pos);
+        animal.GoToStationaryPosition(pos);
     }
 
     /**
@@ -76,24 +76,6 @@ public class SearchAction : AbstractAction
         return new_pos;
     }
 
-    private void GoToStationaryPosition(Vector3 pos)
-    {
-        NavMeshPath path = new NavMeshPath();
-        bool canPath = animal.navMeshAgent.CalculatePath(pos, path);
-
-        if (path.status == NavMeshPathStatus.PathComplete && canPath)
-        {
-            animal.SetDestination(pos);
-        }
-        else
-        {
-            NavMeshHit myNavHit;
-            if (NavMesh.SamplePosition(pos, out myNavHit, 100, -1))
-            {
-                animal.SetDestination(myNavHit.position);
-            }
-        }
-    }
 
     public void Approach()
     {
@@ -111,7 +93,7 @@ public class SearchAction : AbstractAction
         {
             if (approachTimer.IsDone())
             {
-                GoToStationaryPosition(targetPos);
+                animal.GoToStationaryPosition(targetPos);
                 approachTimer.Reset();
             }
         } 
