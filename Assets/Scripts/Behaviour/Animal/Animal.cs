@@ -27,6 +27,7 @@ public abstract class Animal : Entity, IConsumable
     private const double AdultSizeFactor = 0.4; // how big you have to be to mate
     double lifespan = 15000;
     bool dead;
+    private bool immobalized;
     [SerializeField]
     public NavMeshAgent navMeshAgent;
     private FCMHandler fcmHandler;
@@ -119,7 +120,6 @@ public abstract class Animal : Entity, IConsumable
     // Start is called before the first frame update
     protected virtual void Start()
     {
-
         memory = new Memory();
 
         navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
@@ -145,7 +145,6 @@ public abstract class Animal : Entity, IConsumable
         GameObject canvas = (GameObject)GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity);
         statusBars = canvas.GetComponent(typeof(StatusBars)) as StatusBars;
         childRenderers = GetComponentsInChildren<Renderer>();
-        UpdateSize();
         statusBars.Init((float)AdultSizeFactor);
         //UpdateStatusBars();
 
@@ -163,6 +162,7 @@ public abstract class Animal : Entity, IConsumable
         //check if the animal is dead
         if (isDead())
             return;
+
         DepleteSize();
 
         // update thirst
@@ -170,6 +170,12 @@ public abstract class Animal : Entity, IConsumable
 
         //age the animal
         energy -= cdt / lifespan;
+
+        if (immobalized)
+        {
+            // return before executing actions and moving etc...
+            return;
+        }
 
         heat.Add(cdt / heatTimer.GetValue());
 
@@ -239,6 +245,7 @@ public abstract class Animal : Entity, IConsumable
     {
         if(simulation.gameSpeed <= 1)
         {
+            UpdateSize();
             UpdateStatusBars();
             UpdateAnimation();
         }
@@ -418,8 +425,6 @@ public abstract class Animal : Entity, IConsumable
                         }
                     }
                     mother.thirst.SetValue(1-waterRation);
-
-                    mother.UpdateSize();
                 }
             }
         }
@@ -449,6 +454,7 @@ public abstract class Animal : Entity, IConsumable
     // eat this animal
     public double Consume(double amount)
     {
+        Immobalize();
         double eaten = size.Add(-amount);
         return eaten;
     }
@@ -718,7 +724,6 @@ public abstract class Animal : Entity, IConsumable
         //Debug.Log(" size0 " + size.GetValue() + " depletion "+ depletion + " size " + Time.deltaTime * sizeCost + " speed " + Time.deltaTime * speedCost + " smell " + Time.deltaTime * smellCost + " sight " + Time.deltaTime * sightCost );
         size.Add(-depletion);
 
-        UpdateSize();
     }
 
     public AnimalTraits GetTraits()
@@ -736,5 +741,17 @@ public abstract class Animal : Entity, IConsumable
 
     }
 
+    // return true if first call
+    protected virtual bool Immobalize()
+    {
+        if (!immobalized)
+        {
+            SetDestination(transform.position);
+            isFertile = false;
+            immobalized = true;
+            return true;
+        }
+        return false;
+    }
 
 }
