@@ -4,12 +4,12 @@ using UnityEngine.AI;
 
 public class EscapeAction : AbstractAction
 {
-    protected TickTimer roamTimer;
+    protected TickTimer escapeTimer;
     protected Vector3 targetPos = new Vector3(0, 0, 0);
 
     public EscapeAction(Animal animal) : base(animal)
     {
-        roamTimer = new TickTimer(1);
+        escapeTimer = new TickTimer(1);
     }
 
     public override void Execute()
@@ -19,8 +19,9 @@ public class EscapeAction : AbstractAction
 
     protected virtual void Escape()
     {
-        if (animal.targetGameObject != null) // roam if nothing to escape from
+        if (escapeTimer.IsDone() && animal.targetGameObject != null) // roam if nothing to escape from
         {
+            escapeTimer.Reset();
             state = ActionState.Escaping;
             try
             {
