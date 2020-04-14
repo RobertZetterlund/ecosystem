@@ -1,7 +1,7 @@
 ﻿using System;
 
 public abstract class SingletonBase<T>
-    where T : SingletonBase<T>, new()
+	where T : SingletonBase<T>, new()
 {
-    public static T Instance { get; } = new T();
+	public static T Instance { get; } = new T();
 }

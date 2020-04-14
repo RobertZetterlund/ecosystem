@@ -9,27 +9,30 @@ public class GenerateMesh : MonoBehaviour
 	int[] triangleMap;
 	public GameObject groundObject;
 	Vector2[] uvs;
-	
+
 
 	public Mesh MakeMesh(int x, int z, float[,] heightMap, Texture texture, AnimationCurve animCurve, float amplifier)
 	{
 
-		
+
 
 		vectorMap = new Vector3[x * z];
-		triangleMap = new int[ 6 * (x-1) * (z-1) ];
+		triangleMap = new int[6 * (x - 1) * (z - 1)];
 		uvs = new Vector2[x * z];
-		
+
 		colorIndex = gameObject.GetComponent<ColorIndexer>();
 
 		int index = 0;
-		for(int i = 0; i < x; i++){
-			for(int j = 0; j < z; j++){
+		for (int i = 0; i < x; i++)
+		{
+			for (int j = 0; j < z; j++)
+			{
 
 				vectorMap[i * x + j] = new Vector3(i, animCurve.Evaluate(heightMap[i, j]) * amplifier, j);
-				uvs[i * x + j] = new Vector2((float)j / z, (float)i /x);
+				uvs[i * x + j] = new Vector2((float)j / z, (float)i / x);
 
-				if(i != 0 && j != 0){
+				if (i != 0 && j != 0)
+				{
 					triangleMap[index + 0] = i * x + j - 1;
 					triangleMap[index + 1] = i * x + j - x - 1;
 					triangleMap[index + 2] = i * x + j - x;
@@ -39,7 +42,7 @@ public class GenerateMesh : MonoBehaviour
 					index += 6;
 				}
 
-				
+
 
 			}
 		}
@@ -54,8 +57,7 @@ public class GenerateMesh : MonoBehaviour
 
 
 		return mesh;
-		
+
 	}
 
 }
- 

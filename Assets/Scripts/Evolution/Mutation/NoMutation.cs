@@ -2,9 +2,9 @@
 
 class NoMutation : SingletonBase<NoMutation>, IMutation
 {
-    public RangedDouble Mutate(RangedDouble gene)
-    {
-        return gene.Duplicate();
-    }
+	public RangedDouble Mutate(RangedDouble gene)
+	{
+		return gene.Duplicate();
+	}
 }
 

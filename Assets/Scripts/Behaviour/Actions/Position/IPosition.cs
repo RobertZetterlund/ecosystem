@@ -3,6 +3,6 @@ using UnityEngine;
 
 public interface IPosition
 {
-    Vector3 GetPos(); 
+	Vector3 GetPos();
 }
 

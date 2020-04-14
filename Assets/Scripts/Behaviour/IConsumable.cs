@@ -3,9 +3,9 @@
 public interface IConsumable
 {
 
-    double GetAmount();
+	double GetAmount();
 
-    double Consume(double amount);
+	double Consume(double amount);
 
-    ConsumptionType GetConsumptionType();
+	ConsumptionType GetConsumptionType();
 }

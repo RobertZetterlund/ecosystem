@@ -6,11 +6,11 @@ using UnityEngine.TestTools;
 
 namespace Tests
 {
-    public class FCMTests
-    {
-        // A Test behaves as an ordinary method
-        //[Ignore("dont want these mixed with real logs")]
-        /*[Test]
+	public class FCMTests
+	{
+		// A Test behaves as an ordinary method
+		//[Ignore("dont want these mixed with real logs")]
+		/*[Test]
         public void FcmCsvTest()
         {
             FCM fcm = FCMFactory.RabbitFCM();
@@ -24,24 +24,24 @@ namespace Tests
             
         }*/
 
-        [Test]
-        public void CreateFCM()
-        {
-            FCM fcm = FCMFactory.GetBaseFCM();
-            fcm.Randomise();
+		[Test]
+		public void CreateFCM()
+		{
+			FCM fcm = FCMFactory.GetBaseFCM();
+			fcm.Randomise();
 
-            Debug.Log("done");
-        }
+			Debug.Log("done");
+		}
 
 
-        // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-        // `yield return null;` to skip a frame.
-        [UnityTest]
-        public IEnumerator FCMTestWithEnumeratorPasses()
-        {
-            // Use the Assert class to test conditions.
-            // Use yield to skip a frame.
-            yield return null;
-        }
-    }
+		// A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
+		// `yield return null;` to skip a frame.
+		[UnityTest]
+		public IEnumerator FCMTestWithEnumeratorPasses()
+		{
+			// Use the Assert class to test conditions.
+			// Use yield to skip a frame.
+			yield return null;
+		}
+	}
 }

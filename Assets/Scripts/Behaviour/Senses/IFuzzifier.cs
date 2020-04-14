@@ -2,6 +2,6 @@
 
 interface IFuzzifier
 {
-    float Fuzzify(float min, float max, float value);
+	float Fuzzify(float min, float max, float value);
 }
 

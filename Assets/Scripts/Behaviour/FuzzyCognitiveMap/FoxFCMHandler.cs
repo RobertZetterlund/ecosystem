@@ -5,80 +5,80 @@ using UnityEngine;
 
 public class FoxFCMHandler : FCMHandler
 {
-    private IFuzzifier fuzzifier;
-    public FoxFCMHandler(FCM fcm) : base(fcm)
-    {
-        fuzzifier = new DistanceFuzzifier();
-    }
+	private IFuzzifier fuzzifier;
+	public FoxFCMHandler(FCM fcm) : base(fcm)
+	{
+		fuzzifier = new DistanceFuzzifier();
+	}
 
-    // Sets the fcm values accordingly when something has been spotted
-
-
-    public override void ProcessSensedObjects(Animal animal, SensedEvent sE)
-    {
-        Dictionary<string, float> fcmInput = CorrectWeightMapToInputs(sE.GetWeightMap());
-
-        // presence
-        SetInversePresenceInputFields(EntityInput.FoePresenceHigh, EntityInput.FoePresenceLow, fcmInput["Foe"]);
-        SetInversePresenceInputFields(EntityInput.FoodPresenceHigh, EntityInput.FoodPresenceLow, fcmInput["Food"]);
-        SetInversePresenceInputFields(EntityInput.WaterPresenceHigh, EntityInput.WaterPresenceLow, fcmInput["Water"]);
-        SetInversePresenceInputFields(EntityInput.MatePresenceHigh, EntityInput.MatePresenceLow, fcmInput["Mate"]);
-
-        // closest "most important"
-        SetInverseDistanceInputFields(EntityInput.FoodClose, EntityInput.FoodFar, sE.GetFood(), animal);
-        SetInverseDistanceInputFields(EntityInput.WaterClose, EntityInput.WaterFar, sE.GetWater(), animal);
-        SetInverseDistanceInputFields(EntityInput.MateClose, EntityInput.MateFar, sE.GetMate(), animal);
-        SetInverseDistanceInputFields(EntityInput.FoeClose, EntityInput.FoeFar, sE.GetFoe(), animal);
-
-    }
-
-    // Fuzzifier for presence
-    private float calculatePresenceInput(int count)
-    {
-        float weight = (float)Math.Log10(count + 1);
-        return weight > 1 ? 1 : weight;
-    }
-
-    private void SetInversePresenceInputFields(EntityInput close, EntityInput far, float value)
-    {
-        fcm.SetState((EntityField)close, value);
-        fcm.SetState((EntityField)far, 1 - value);
-    }
+	// Sets the fcm values accordingly when something has been spotted
 
 
-    private Dictionary<string, float> CorrectWeightMapToInputs(Dictionary<string, int> weightMap)
-    {
+	public override void ProcessSensedObjects(Animal animal, SensedEvent sE)
+	{
+		Dictionary<string, float> fcmInput = CorrectWeightMapToInputs(sE.GetWeightMap());
 
-        Dictionary<string, int>.Enumerator enumerator = weightMap.GetEnumerator();
-        Dictionary<string, float> fcmInput = new Dictionary<string, float>();
+		// presence
+		SetInversePresenceInputFields(EntityInput.FoePresenceHigh, EntityInput.FoePresenceLow, fcmInput["Foe"]);
+		SetInversePresenceInputFields(EntityInput.FoodPresenceHigh, EntityInput.FoodPresenceLow, fcmInput["Food"]);
+		SetInversePresenceInputFields(EntityInput.WaterPresenceHigh, EntityInput.WaterPresenceLow, fcmInput["Water"]);
+		SetInversePresenceInputFields(EntityInput.MatePresenceHigh, EntityInput.MatePresenceLow, fcmInput["Mate"]);
 
-        while (enumerator.MoveNext())
-        {
-            KeyValuePair<string, int> curr = enumerator.Current;
-            float adjustedvalue = calculatePresenceInput(curr.Value);
-            fcmInput.Add(curr.Key, adjustedvalue);
-        }
+		// closest "most important"
+		SetInverseDistanceInputFields(EntityInput.FoodClose, EntityInput.FoodFar, sE.GetFood(), animal);
+		SetInverseDistanceInputFields(EntityInput.WaterClose, EntityInput.WaterFar, sE.GetWater(), animal);
+		SetInverseDistanceInputFields(EntityInput.MateClose, EntityInput.MateFar, sE.GetMate(), animal);
+		SetInverseDistanceInputFields(EntityInput.FoeClose, EntityInput.FoeFar, sE.GetFoe(), animal);
 
-        return fcmInput;
-    }
+	}
 
-    // Sets the two input fields as "komplement" to eachother in the fcm.
-    private void SetInverseDistanceInputFields(EntityInput close, EntityInput far, GameObject sensedObject, Animal animal)
-    {
-        float standard = 0;
-        float inverse = 1;
-        if (sensedObject != null)
-        {
-            float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
-            standard = fuzzifier.Fuzzify(0, 100, dist);
-            inverse = 1 - standard;
-        }
-        fcm.SetState((EntityField)close, standard);
-        fcm.SetState((EntityField)far, inverse);
-    }
+	// Fuzzifier for presence
+	private float calculatePresenceInput(int count)
+	{
+		float weight = (float)Math.Log10(count + 1);
+		return weight > 1 ? 1 : weight;
+	}
 
-    public override FCMHandler Reproduce(FCMHandler mateHandler)
-    {
-        return new FoxFCMHandler(fcm.Reproduce(((FoxFCMHandler)mateHandler).fcm));
-    }
+	private void SetInversePresenceInputFields(EntityInput close, EntityInput far, float value)
+	{
+		fcm.SetState((EntityField)close, value);
+		fcm.SetState((EntityField)far, 1 - value);
+	}
+
+
+	private Dictionary<string, float> CorrectWeightMapToInputs(Dictionary<string, int> weightMap)
+	{
+
+		Dictionary<string, int>.Enumerator enumerator = weightMap.GetEnumerator();
+		Dictionary<string, float> fcmInput = new Dictionary<string, float>();
+
+		while (enumerator.MoveNext())
+		{
+			KeyValuePair<string, int> curr = enumerator.Current;
+			float adjustedvalue = calculatePresenceInput(curr.Value);
+			fcmInput.Add(curr.Key, adjustedvalue);
+		}
+
+		return fcmInput;
+	}
+
+	// Sets the two input fields as "komplement" to eachother in the fcm.
+	private void SetInverseDistanceInputFields(EntityInput close, EntityInput far, GameObject sensedObject, Animal animal)
+	{
+		float standard = 0;
+		float inverse = 1;
+		if (sensedObject != null)
+		{
+			float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
+			standard = fuzzifier.Fuzzify(0, 100, dist);
+			inverse = 1 - standard;
+		}
+		fcm.SetState((EntityField)close, standard);
+		fcm.SetState((EntityField)far, inverse);
+	}
+
+	public override FCMHandler Reproduce(FCMHandler mateHandler)
+	{
+		return new FoxFCMHandler(fcm.Reproduce(((FoxFCMHandler)mateHandler).fcm));
+	}
 }

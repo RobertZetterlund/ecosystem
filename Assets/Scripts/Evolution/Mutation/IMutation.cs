@@ -2,6 +2,6 @@
 
 interface IMutation
 {
-    RangedDouble Mutate(RangedDouble gene);
+	RangedDouble Mutate(RangedDouble gene);
 }
 
