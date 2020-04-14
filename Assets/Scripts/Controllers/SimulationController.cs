@@ -139,8 +139,10 @@ abstract class SimulationController : MonoBehaviour
         String[] plantArr = new String[] { "Plant" };
         String[] emptyArr = new string[] { "" };
 
-
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, 3, 0, 2.1, 0.1, 10, 20, 30, 25, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+        double maxSize = 3;
+        double infantFactor = 0.1;
+        double smellRadius = 25;
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, 3, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
         AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, 11, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
 
         baseTraits[(int)Species.Rabbit] = rabbitTraits;
@@ -165,7 +167,9 @@ abstract class SimulationController : MonoBehaviour
 
     private void OnValidate()
     {
-        Time.timeScale = gameSpeed;
+        Time.timeScale = 1;
+        //Ändras 0.25f så måste det ändras i ticktimer också atm.
+        Time.fixedDeltaTime = 0.25f / gameSpeed;
     }
 
     public static SimulationController Instance()

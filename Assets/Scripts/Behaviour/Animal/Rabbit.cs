@@ -21,5 +21,14 @@ class Rabbit : Animal
         
     }
 
+    protected override bool Immobalize()
+    {
+        if(base.Immobalize())
+        {
+            gameObject.transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material = (Material)Resources.Load("red");
+            return true;
+        }
+        return false;
+    }
 }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 
@@ -32,12 +33,7 @@ public class Plant : Entity, IConsumable
         //sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+    [MethodImpl(MethodImplOptions.Synchronized)]
     public double Consume(double amount) {
 
         double consumed = amountRemaining.Add(-amount);
@@ -46,6 +42,7 @@ public class Plant : Entity, IConsumable
             //Die(CauseOfDeath.Eaten);
             try
             {
+                Destroy(gameObject);
                 TransformToSappling();
             } catch (MissingReferenceException)
             {
@@ -57,10 +54,17 @@ public class Plant : Entity, IConsumable
         return consumed;
     }
 
+    bool deleted = false;
+    [MethodImpl(MethodImplOptions.Synchronized)]
     private void TransformToSappling()
     {
-        Destroy(gameObject);
-        OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
+        if(!deleted)
+        {
+            deleted = true;
+            Debug.Log("Transformed");
+            OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
+        }
+        
     }
 
     public double GetAmount()
