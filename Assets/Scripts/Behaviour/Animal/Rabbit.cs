@@ -9,26 +9,26 @@ using UnityEngine;
 class Rabbit : Animal
 {
 
-    public override void Init(AnimalTraits traits)
-    {
-        base.Init(traits);
-    }
+	public override void Init(AnimalTraits traits)
+	{
+		base.Init(traits);
+	}
 
-    protected override void Start()
-    {
-        runAnimationspeedFactor = 1.3f;
-        base.Start();
-        
-    }
+	protected override void Start()
+	{
+		runAnimationspeedFactor = 1.3f;
+		base.Start();
 
-    protected override bool Immobalize()
-    {
-        if(base.Immobalize())
-        {
-            gameObject.transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material = (Material)Resources.Load("red");
-            return true;
-        }
-        return false;
-    }
+	}
+
+	protected override bool Immobalize()
+	{
+		if (base.Immobalize())
+		{
+			gameObject.transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material = (Material)Resources.Load("red");
+			return true;
+		}
+		return false;
+	}
 }
 

@@ -2,8 +2,8 @@
 
 class NaturalSelectionSimulation : SimulationController
 {
-    protected override void StartSimulation()
-    {
-        SpawnOrganisms();
-    }
+	protected override void StartSimulation()
+	{
+		SpawnOrganisms();
+	}
 }

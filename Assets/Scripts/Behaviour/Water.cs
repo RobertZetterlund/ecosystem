@@ -53,5 +53,4 @@ public class Water : Entity, IConsumable
 
         return vec.ToArray();
     }
-
 }

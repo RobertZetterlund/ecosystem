@@ -3,11 +3,11 @@
 public interface IConsumable
 {
 
-    double GetAmount();
+	double GetAmount();
 
     double GetSpeed();
 
     double Consume(double amount);
 
-    ConsumptionType GetConsumptionType();
+	ConsumptionType GetConsumptionType();
 }

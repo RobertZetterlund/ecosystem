@@ -17,6 +17,6 @@ public abstract class Entity : MonoBehaviour
 	{
 		return (float)size.GetValue();
 	}
-	
+
 
 }

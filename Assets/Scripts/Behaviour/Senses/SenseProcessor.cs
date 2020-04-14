@@ -6,181 +6,204 @@ using UnityEngine;
 
 public class SenseProcessor
 {
+	private Animal self;
+	private GameObject closestFoodObj;
+	private GameObject closestFoeObj;
+	private GameObject closestWaterObj;
+	private GameObject closestMateObj;
 
-    private Animal self;
-    private GameObject closestFoodObj;
-    private GameObject closestFoeObj;
-    private GameObject closestWaterObj;
-    private GameObject closestMateObj;
+	private double closestFoodDist = Int32.MaxValue;
+	private double closestFoeDist = Int32.MaxValue;
+	private double closestWaterDist = Int32.MaxValue;
+	private double closestMateDist = Int32.MaxValue;
 
-    private double closestFoodDist = Int32.MaxValue;
-    private double closestFoeDist = Int32.MaxValue;
-    private double closestWaterDist = Int32.MaxValue;
-    private double closestMateDist = Int32.MaxValue;
-
-    private string[] diet;
-    private string[] foes;
-    private string[] mates;
-
-
-    public SenseProcessor(Animal self, string[] diet, string[] foes, string[] mates)
-    {
-        this.self = self;
-        this.diet = diet;
-        this.foes = foes;
-        this.mates = mates;
-    }
-
-    public SenseProcessor(Animal self)
-    {
-        this.self = self;
-        this.diet = new string[] { "Plant" };
-        this.foes = new string[] { "Fox" };
-        this.mates = new string[] { "Rabbit" };
-    }
+	private string[] diet;
+	private string[] foes;
+	private string[] mates;
 
 
-    private double DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
-    {
-        if (obj1 == null || obj2 == null)
-        {
-            return Int32.MaxValue;
-        }
-        return Vector3.Distance(obj1.transform.position, obj2.transform.position);
-    }
+	public SenseProcessor(Animal self, string[] diet, string[] foes, string[] mates)
+	{
+		this.self = self;
+		this.diet = diet;
+		this.foes = foes;
+		this.mates = mates;
+	}
 
-    // returns a sensedEvent that can be written to memory
-    public SensedEvent Process(ArrayList sensedGameObjects)
-    {
-        int foodCount = 0;
-        int foeCount = 0;
-        int mateCount = 0;
-        int waterCount = 0;
-        closestFoodDist = Int32.MaxValue;
-        closestFoeDist = Int32.MaxValue;
-        closestMateDist = Int32.MaxValue;
-        closestWaterDist = Int32.MaxValue;
+	public SenseProcessor(Animal self)
+	{
+		this.self = self;
+		this.diet = new string[] { "Plant" };
+		this.foes = new string[] { "Fox" };
+		this.mates = new string[] { "Rabbit" };
+	}
 
-        closestFoodObj = null;
-        closestFoeObj = null;
-        closestWaterObj = null;
-        closestMateObj = null;
+	private void ProcessFoe(GameObject foe)
+	{
+		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foe);
+		if (closestFoeDist > distanceBetween)
+		{
+			closestFoeObj = foe;
+			closestFoeDist = distanceBetween;
+		}
+	}
+
+	private void ProcessWater(GameObject water)
+	{
+		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, water);
+		if (closestWaterDist > distanceBetween)
+		{
+			closestWaterObj = water;
+			closestWaterDist = distanceBetween;
+		}
+	}
+
+	private void ProcessMate(GameObject mate, ArrayList sensedGameObjects)
+	{
+		Animal sensedMate = mate.GetComponent<Animal>();
+		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, mate);
+
+		if (self.isMale ^ sensedMate.isMale) // closestMateDist > distanceBetween &&
+		{
+			if (sensedGameObjects.Contains(closestMateObj))
+			{
+				Animal memoryMate = closestMateObj.GetComponent<Animal>();
+				// if same fertility, take closest one
+				if (!(memoryMate.isFertile ^ sensedMate.isFertile))
+				{
+					if (closestMateDist > distanceBetween)
+					{
+						closestMateDist = distanceBetween;
+						closestMateObj = mate;
+					}
+				}
+				else if (sensedMate.isFertile) // if only new mate fertile, take it
+				{
+					closestMateDist = distanceBetween;
+					closestMateObj = mate;
+				}
+				// else, keep mate in memory
+			}
+			closestMateObj = mate;
+			closestMateDist = distanceBetween;
+		}
+	}
+
+	private void ProcessFood(GameObject foodObj)
+	{
+		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
+		IConsumable food = foodObj.GetComponent<IConsumable>();
+		double foodCurrentSpeed = food.GetSpeed();
+		double myMaxSpeed = self.GetMaxSpeed();
+		double amount = food.GetAmount();
+		double chaseTime;
+		try
+		{
+			chaseTime = distanceBetween / (myMaxSpeed - foodCurrentSpeed);
+		}
+		catch (DivideByZeroException)
+		{
+			chaseTime = double.MaxValue;
+		}
+
+		// if chase time is less than zero, increasing amount will decrease the ratio, so put amount in the denominator
+		//ex: 50 / -5 = -10,     but    500 / -5 = -100      so more amount would be worse
+		double foodTimeRatio = (chaseTime > 0) ? amount / chaseTime : 1 / (amount * chaseTime);
+		// maybe factor * amount if food more important than time
+		// 2 amount / 20 time = 1 amount / 10 time
+		// ändrungar i amount kommer påverka mer än ändringar i time
+
+		if (closestFoodDist > distanceBetween)
+		{
+			closestFoodObj = foodObj;
+			closestFoodDist = distanceBetween;
+		}
+	}
+
+	// returns a sensedEvent that can be written to memory
+	public SensedEvent Process(ArrayList sensedGameObjects)
+	{
+		int foodCount = 0;
+		int foeCount = 0;
+		int mateCount = 0;
+		int waterCount = 0;
+		closestFoodDist = Int32.MaxValue;
+		closestFoeDist = Int32.MaxValue;
+		closestMateDist = Int32.MaxValue;
+		closestWaterDist = Int32.MaxValue;
+
+		closestFoodObj = null;
+		closestFoeObj = null;
+		closestWaterObj = null;
+		closestMateObj = null;
 
 
-        foreach (GameObject gameObject in sensedGameObjects)
-        {
-            string tagOfSensedObject = gameObject.tag;
-            double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, gameObject);
+		foreach (GameObject gameObject in sensedGameObjects)
+		{
+			string tagOfSensedObject = gameObject.tag;
 
-            // check if in diet
-            if (Array.Exists(diet, food => food.Equals(tagOfSensedObject)))
-            {
-                foodCount++;
+			// check if in diet
+			if (Array.Exists(diet, food => food.Equals(tagOfSensedObject)))
+			{
+				foodCount++;
 
-                IConsumable food = gameObject.GetComponent<IConsumable>();
-                double foodCurrentSpeed = food.GetSpeed();
-                double myMaxSpeed = self.GetMaxSpeed();
-                double amount = food.GetAmount();
-                double chaseTime;
-                try
-                {
-                    chaseTime = distanceBetween / (myMaxSpeed - foodCurrentSpeed);
-                } catch (DivideByZeroException)
-                {
-                    chaseTime = double.MaxValue;
-                }
+				ProcessFood(gameObject);
+			}
+			// check if water
+			else if (tagOfSensedObject == "Water")
+			{
+				waterCount++;
 
-                // if chase time is less than zero, increasing amount will decrease the ratio, so put amount in the denominator
-                //ex: 50 / -5 = -10,     but    500 / -5 = -100      so more amount would be worse
-                double foodTimeRatio = (chaseTime > 0) ? amount / chaseTime : 1/(amount*chaseTime);
-                // maybe factor * amount if food more important than time
-                // 2 amount / 20 time = 1 amount / 10 time
-                // ändrungar i amount kommer påverka mer än ändringar i time
+				ProcessWater(gameObject);
 
-                if (closestFoodDist > distanceBetween)
-                {
-                    closestFoodObj = gameObject;
-                    closestFoodDist = distanceBetween;
-                }
-            }
-            // check if water
-            else if (tagOfSensedObject == "Water")
-            {
-                waterCount++;
+			}
+			// check if foe
+			else if (Array.Exists(foes, foe => foe.Equals(tagOfSensedObject)))
+			{
+				foeCount++;
+				ProcessFoe(gameObject);
 
-                if (closestWaterDist > distanceBetween)
-                {
-                    closestWaterObj = gameObject;
-                    closestWaterDist = distanceBetween;
-                }
+			}
+			// check if mate
+			else if (Array.Exists(mates, mate => mate.Equals(tagOfSensedObject)))
+			{
+				mateCount++;
+				ProcessMate(gameObject, sensedGameObjects);
+			}
+			// unknown
+			else
+			{
+				/// ?
+			}
+		}
+		// end of foreach loop
 
-            }
-            // check if foe
-            else if (Array.Exists(foes, foe => foe.Equals(tagOfSensedObject)))
-            {
-                foeCount++;
-                if (closestFoeDist > distanceBetween)
-                {
-                    closestFoeObj = gameObject;
-                    closestFoeDist = distanceBetween;
-                }
+		// this is the count of sensed objects, it will dictate the strength of which the FCM will input the concept
+		// collect all data and combine to a strength of various senses.
+		Dictionary<string, int> weightMap = new Dictionary<string, int>
+		{
+			{ "Foe", foeCount },
+			{ "Food", foodCount },
+			{ "Mate", mateCount },
+			{ "Water", waterCount }
+		};
 
-            }
-            // check if mate
-            else if (Array.Exists(mates, mate => mate.Equals(tagOfSensedObject)))
-            {
-                Animal sensedMate = gameObject.GetComponent<Animal>();
-                if (self.isMale ^ sensedMate.isMale) // closestMateDist > distanceBetween &&
-                {
-                    if (sensedGameObjects.Contains(closestMateObj))
-                    {
-                        Animal memoryMate = closestMateObj.GetComponent<Animal>();
-                        // if same fertility, take closest one
-                        if (!(memoryMate.isFertile ^ sensedMate.isFertile))
-                        {
-                            if ( closestMateDist > distanceBetween)
-                            {
-                                closestMateDist = distanceBetween;
-                                closestMateObj = gameObject;
-                            }
-                        } 
-                        else if (sensedMate.isFertile) // if only new mate fertile, take it
-                        {
-                            closestMateDist = distanceBetween;
-                            closestMateObj = gameObject;
-                        }
-                        // else, keep mate in memory
-                    }
-                    mateCount++;
-                    closestMateObj = gameObject;
-                    closestMateDist = distanceBetween;
-                }
-            }
-            // unknown
-            else
-            {
-                /// ?
-            }
-        }
-        // end of foreach loop
+		// return a sensedEvent that can be written to memory.
+		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);
+	}
 
-        // this is the count of sensed objects, it will dictate the strength of which the FCM will input the concept
-        // collect all data and combine to a strength of various senses.
-        Dictionary<string, int> weightMap = new Dictionary<string, int>
-        {
-            { "Foe", foeCount },
-            { "Food", foodCount },
-            { "Mate", mateCount },
-            { "Water", waterCount }
-        };
+	private double DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
+	{
+		if (obj1 == null || obj2 == null)
+		{
+			return Int32.MaxValue;
+		}
+		return Vector3.Distance(obj1.transform.position, obj2.transform.position);
+	}
 
-        // return a sensedEvent that can be written to memory.
-        return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);
-    }
 
-    public GameObject GetClosestFoodObj()
-    {
-        return closestFoodObj;
-    }
-
+	public GameObject GetClosestFoodObj()
+	{
+		return closestFoodObj;
+	}
 }

@@ -1,8 +1,8 @@
 ﻿public enum CauseOfDeath
 {
-    Hunger,
-    Thirst,
-    Age,
-    Eaten,
-    ForceDeleted
+	Hunger,
+	Thirst,
+	Age,
+	Eaten,
+	ForceDeleted
 }
