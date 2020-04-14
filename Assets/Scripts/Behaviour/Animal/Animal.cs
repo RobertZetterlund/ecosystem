@@ -804,4 +804,14 @@ public abstract class Animal : Entity, IConsumable
         return false;
     }
 
+    public double GetSpeed()
+    {
+        Debug.Log("current speed not implemented");
+        return speed.GetValue();
+    }
+
+    public double GetMaxSpeed()
+    {
+        return speed.GetValue();
+    }
 }

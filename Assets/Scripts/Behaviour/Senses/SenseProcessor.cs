@@ -77,6 +77,23 @@ public class SenseProcessor
             {
                 foodCount++;
 
+                IConsumable food = gameObject.GetComponent<IConsumable>();
+                double foodCurrentSpeed = food.GetSpeed();
+                double myMaxSpeed = self.GetMaxSpeed();
+                double amount = food.GetAmount();
+                double chaseTime;
+                try
+                {
+                    chaseTime = distanceBetween / (myMaxSpeed - foodCurrentSpeed);
+                } catch (DivideByZeroException)
+                {
+                    chaseTime = double.MaxValue;
+                }
+
+                // if chase time is less than zero, increasing amount will decrease the ratio, so put amount in the denominator
+                //ex: 50 / -5 = -10,     but    500 / -5 = -100      so more amount would be worse
+                double foodTimeRatio = (chaseTime > 0) ? amount / chaseTime : 1/(amount*chaseTime);
+
                 if (closestFoodDist > distanceBetween)
                 {
                     closestFoodObj = gameObject;

@@ -72,6 +72,11 @@ public class Plant : Entity, IConsumable
         return amountRemaining.GetValue();
     }
 
+    public double GetSpeed()
+    {
+        return 0;
+    }
+
     public ConsumptionType GetConsumptionType()
     {
         return ConsumptionType.Plant;
