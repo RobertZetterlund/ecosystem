@@ -1,4 +1,4 @@
-﻿//#define show_gizmos
+﻿#define show_gizmos
 
 using System;
 using System.Collections;
@@ -329,7 +329,7 @@ public abstract class Animal : Entity, IConsumable
 
     public void ChooseNextAction()
     {
-        EntityAction newAction = EntityAction.GoingToFood;
+        EntityAction newAction = fcmHandler.GetAction();
         if (currentAction != newAction)
         {
             currentAction = newAction;
