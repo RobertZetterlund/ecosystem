@@ -77,6 +77,11 @@ public class FCM
 
         for (int _from = 0; _from < NOInputs+NOMiddles; _from++)
         {
+            // if _from is zero, it has effectively no change, and we can skip calculations for this particular loop
+            if(states[_from] == 0)
+            {
+                continue;
+            }            
             for (int _to = NOMiddles; _to < NOFields; _to++)
             {
                 // we're affecting actions
