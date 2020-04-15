@@ -68,15 +68,15 @@ public class Plant : Entity, IConsumable
 			OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
 		}
 	}
-    double IConsumable.GetSpeed()
-    {
-        return 0;
-    }
+	double IConsumable.GetSpeed()
+	{
+		return 0;
+	}
 
-    ConsumptionType IConsumable.GetConsumptionType()
-    {
-        return ConsumptionType.Plant;
-    }
+	ConsumptionType IConsumable.GetConsumptionType()
+	{
+		return ConsumptionType.Plant;
+	}
 
 	double IConsumable.GetAmount()
 	{

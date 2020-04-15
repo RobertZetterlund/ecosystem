@@ -5,9 +5,9 @@ public interface IConsumable
 
 	double GetAmount();
 
-    double GetSpeed();
+	double GetSpeed();
 
-    double Consume(double amount);
+	double Consume(double amount);
 
 	ConsumptionType GetConsumptionType();
 }

@@ -625,195 +625,196 @@ public abstract class Animal : Entity, IConsumable
 	}
 
 #endif
-    public NavMeshAgent GetNavMeshAgent()
-    {
-        return navMeshAgent;
-    }
+	public NavMeshAgent GetNavMeshAgent()
+	{
+		return navMeshAgent;
+	}
 
-    private static void Water_Sort(Vector3[] arr, int left, int right, Vector3 pos)
-    {
-        if(left < right)
-        {
-            int pivot = Partition(arr, left, right, pos);
-            if(pivot > 1)
-            {
-                Water_Sort(arr, left, pivot - 1, pos);
-            }
-            if(pivot + 1 < right)
-            {
-                Water_Sort(arr, pivot + 1, right, pos);
-            }
-        }
+	private static void Water_Sort(Vector3[] arr, int left, int right, Vector3 pos)
+	{
+		if (left < right)
+		{
+			int pivot = Partition(arr, left, right, pos);
+			if (pivot > 1)
+			{
+				Water_Sort(arr, left, pivot - 1, pos);
+			}
+			if (pivot + 1 < right)
+			{
+				Water_Sort(arr, pivot + 1, right, pos);
+			}
+		}
 
-    }
+	}
 
-    private static int Partition(Vector3[] arr, int left, int right, Vector3 pos)
-    {
-        Vector3 pivot = arr[left];
-        while(true)
-        {
-            while((pos - arr[left]).sqrMagnitude < (pos - pivot).sqrMagnitude)
-            {
-                left++;
-            }
-            while((pos - arr[right]).sqrMagnitude > (pos - pivot).sqrMagnitude)
-            {
-                right--;
-            }
-            if(left < right)
-            {
-                if(arr[left] == arr[right]) return right;
+	private static int Partition(Vector3[] arr, int left, int right, Vector3 pos)
+	{
+		Vector3 pivot = arr[left];
+		while (true)
+		{
+			while ((pos - arr[left]).sqrMagnitude < (pos - pivot).sqrMagnitude)
+			{
+				left++;
+			}
+			while ((pos - arr[right]).sqrMagnitude > (pos - pivot).sqrMagnitude)
+			{
+				right--;
+			}
+			if (left < right)
+			{
+				if (arr[left] == arr[right]) return right;
 
-                Vector3 temp = arr[left];
-                arr[left] = arr[right];
-                arr[right] = temp;
-            }
-            else
-            {
-                return right;
-            }
-        }
-    }
+				Vector3 temp = arr[left];
+				arr[left] = arr[right];
+				arr[right] = temp;
+			}
+			else
+			{
+				return right;
+			}
+		}
+	}
 
-    public double GetAmount()
-    {
-        return size.GetValue();
-    }
+	public double GetAmount()
+	{
+		return size.GetValue();
+	}
 
-    public ConsumptionType GetConsumptionType()
-    {
-        return ConsumptionType.Animal;
+	public ConsumptionType GetConsumptionType()
+	{
+		return ConsumptionType.Animal;
 
-    }
+	}
 
-    private void UpdateSize()
-    {
-        // should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
-        if(gameObject !=null && (float)size.GetValue() > 0.01)
-        {
-            try
-            {
-                gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
-            } catch(Exception)
-            {
+	private void UpdateSize()
+	{
+		// should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
+		if (gameObject != null && (float)size.GetValue() > 0.01)
+		{
+			try
+			{
+				gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+			}
+			catch (Exception)
+			{
 
-            }
-            
-        }
+			}
 
-        Renderer rend = (Renderer)childRenderers[0];
-        float radius = rend.bounds.extents.magnitude;
-        touchSensor.setRadius(1 + radius * 1.1f);
-    }
+		}
 
-    // update position and value of status bars
-    private void UpdateStatusBars()
-    {
-        statusBars.UpdateStatus((float)(size.GetValue()/maxSize.GetValue()), (float)thirst.GetValue(), (float)energy, (float)heat.GetValue());
-        statusBars.gameObject.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
-        // set position of status bars
-        Renderer rend = (Renderer)childRenderers[0]; // take the first one
-        Vector3 center = rend.bounds.center;
-        float radius = rend.bounds.extents.magnitude;
-        Vector3[] corners = new Vector3[4];
-        statusBars.gameObject.GetComponent<RectTransform>().GetWorldCorners(corners);
-        float height = corners[1].y - corners[0].y;
-        statusBars.gameObject.transform.position = center + new Vector3(0, radius/2, 0) + new Vector3(0f,height/2,0f);
-        statusBars.transform.localScale = StatusBars.scale;
-    }
+		Renderer rend = (Renderer)childRenderers[0];
+		float radius = rend.bounds.extents.magnitude;
+		touchSensor.setRadius(1 + radius * 1.1f);
+	}
 
-    //Currently used for testing
-    public FCMHandler GetFCMHandler()
-    {
-        return fcmHandler;
-    }
+	// update position and value of status bars
+	private void UpdateStatusBars()
+	{
+		statusBars.UpdateStatus((float)(size.GetValue() / maxSize.GetValue()), (float)thirst.GetValue(), (float)energy, (float)heat.GetValue());
+		statusBars.gameObject.transform.SetPositionAndRotation(gameObject.transform.position, gameObject.transform.rotation);
+		// set position of status bars
+		Renderer rend = (Renderer)childRenderers[0]; // take the first one
+		Vector3 center = rend.bounds.center;
+		float radius = rend.bounds.extents.magnitude;
+		Vector3[] corners = new Vector3[4];
+		statusBars.gameObject.GetComponent<RectTransform>().GetWorldCorners(corners);
+		float height = corners[1].y - corners[0].y;
+		statusBars.gameObject.transform.position = center + new Vector3(0, radius / 2, 0) + new Vector3(0f, height / 2, 0f);
+		statusBars.transform.localScale = StatusBars.scale;
+	}
 
-    public void SetFCMHandler(FCMHandler fcmHandler)
-    {
-        this.fcmHandler = fcmHandler;
-    }
+	//Currently used for testing
+	public FCMHandler GetFCMHandler()
+	{
+		return fcmHandler;
+	}
 
-
-    void UpdateAnimation()
-    {
-
-        Vector3 deltaV = new Vector3(transform.position.x - lastPos.x, transform.position.y - lastPos.y, transform.position.z - lastPos.z);
-        float deltaPos = Vector3.Magnitude(deltaV);
-        float rapidness = deltaPos / Time.deltaTime;
+	public void SetFCMHandler(FCMHandler fcmHandler)
+	{
+		this.fcmHandler = fcmHandler;
+	}
 
 
-        if (rapidness > 0.1)
-        {
-            animator.SetBool("Run", true);
-            animator.speed = runAnimationspeedFactor * rapidness;
-        }
-        else
-        {
-            animator.speed = 1f;
-            animator.SetBool("Run", false);
-        }
-        lastPos = transform.position;
+	void UpdateAnimation()
+	{
 
-    }
+		Vector3 deltaV = new Vector3(transform.position.x - lastPos.x, transform.position.y - lastPos.y, transform.position.z - lastPos.z);
+		float deltaPos = Vector3.Magnitude(deltaV);
+		float rapidness = deltaPos / Time.deltaTime;
 
-    private void DepleteSize()
-    {
-        double overallCostFactor = 1; // increase or decrease to change hunger depletion speed
 
-        double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
-        double speedCost = speed.GetValue() * size.GetValue(); // mass * speed
-        double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
-        double sightCost = sightLength.GetValue() * horisontalFOV / 360;
-        // each cost is divided by some arbitrary constant to balance it
-        
-        sizeCost /= 120;
-        speedCost /= 1200;
-        smellCost /= 5000;
-        sightCost /= 5000;
+		if (rapidness > 0.1)
+		{
+			animator.SetBool("Run", true);
+			animator.speed = runAnimationspeedFactor * rapidness;
+		}
+		else
+		{
+			animator.speed = 1f;
+			animator.SetBool("Run", false);
+		}
+		lastPos = transform.position;
 
-        // deplete size based on traits.
-        double depletion = overallCostFactor * cdt * (sizeCost + speedCost + smellCost + sightCost);
-        //Debug.Log(" size0 " + size.GetValue() + " depletion "+ depletion + " size " + Time.deltaTime * sizeCost + " speed " + Time.deltaTime * speedCost + " smell " + Time.deltaTime * smellCost + " sight " + Time.deltaTime * sightCost );
-        size.Add(-depletion);
+	}
 
-    }
+	private void DepleteSize()
+	{
+		double overallCostFactor = 1; // increase or decrease to change hunger depletion speed
 
-    public AnimalTraits GetTraits()
-    {
-        return traits;
-    }
+		double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
+		double speedCost = speed.GetValue() * size.GetValue(); // mass * speed
+		double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
+		double sightCost = sightLength.GetValue() * horisontalFOV / 360;
+		// each cost is divided by some arbitrary constant to balance it
 
-    public float GetTimeAlive()
-    {
-        return (Time.time - timeAtBirth) * Time.timeScale;
-    }
+		sizeCost /= 120;
+		speedCost /= 1200;
+		smellCost /= 5000;
+		sightCost /= 5000;
 
-    public void Kill()
-    {
+		// deplete size based on traits.
+		double depletion = overallCostFactor * cdt * (sizeCost + speedCost + smellCost + sightCost);
+		//Debug.Log(" size0 " + size.GetValue() + " depletion "+ depletion + " size " + Time.deltaTime * sizeCost + " speed " + Time.deltaTime * speedCost + " smell " + Time.deltaTime * smellCost + " sight " + Time.deltaTime * sightCost );
+		size.Add(-depletion);
 
-    }
+	}
 
-    // return true if first call
-    protected virtual bool Immobalize()
-    {
-        if (!immobalized)
-        {
-            SetDestination(transform.position);
-            isFertile = false;  
-            immobalized = true;
-            return true;
-        }
-        return false;
-    }
+	public AnimalTraits GetTraits()
+	{
+		return traits;
+	}
 
-    public double GetSpeed()
-    {
-        Debug.Log("current speed not implemented");
-        return speed.GetValue();
-    }
+	public float GetTimeAlive()
+	{
+		return (Time.time - timeAtBirth) * Time.timeScale;
+	}
 
-    public double GetMaxSpeed()
-    {
-        return speed.GetValue();
-    }
+	public void Kill()
+	{
+
+	}
+
+	// return true if first call
+	protected virtual bool Immobalize()
+	{
+		if (!immobalized)
+		{
+			SetDestination(transform.position);
+			isFertile = false;
+			immobalized = true;
+			return true;
+		}
+		return false;
+	}
+
+	public double GetSpeed()
+	{
+		Debug.Log("current speed not implemented");
+		return speed.GetValue();
+	}
+
+	public double GetMaxSpeed()
+	{
+		return speed.GetValue();
+	}
 }
