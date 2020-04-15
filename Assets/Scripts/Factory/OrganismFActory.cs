@@ -32,7 +32,6 @@ public static class OrganismFactory
 		//return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 		GameObject model = GameObject.Instantiate((GameObject)Resources.Load("testF")); //name a Fox to testF in unity
 		Animal animal = model.AddComponent<Fox>();
-		//model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
 		return animal;
 	}
 
@@ -87,6 +86,8 @@ public static class OrganismFactory
 				return new Vector3(1f, 1f, 1f);
 			case Species.Plant:
 				return new Vector3(1f, 1f, 1f);
+			case Species.Fox:
+				return new Vector3(0.2f, 0.2f, 0.2f);
 			default:
 				return new Vector3(1f, 1f, 1f);
 		}

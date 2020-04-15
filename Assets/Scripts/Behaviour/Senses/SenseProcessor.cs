@@ -13,7 +13,7 @@ public class SenseProcessor
 	private GameObject closestMateObj;
 
 	private double highestFoodValue = double.MinValue;
-	private double dangerousFoeLevel = -Int32.MaxValue;
+	private double longestTimeBeforeEaten = -Int32.MaxValue;
 	private double closestWaterDist = Int32.MaxValue;
 	private double closestMateDist = Int32.MaxValue;
 
@@ -41,17 +41,33 @@ public class SenseProcessor
 	private void ProcessFoe(GameObject foe)
 	{
 		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foe);
-
 		Animal sensedFoe = foe.GetComponent<Animal>();
-
 		double foeSpeed = sensedFoe.GetSpeed();
+		double mySpeed = self.GetMaxSpeed();
 
-		double currentFoeDangerousLevel = foeSpeed * 5 - distanceBetween;
+		double timeBeforeEaten;
+		try
+		{
+			timeBeforeEaten = distanceBetween / (foeSpeed - mySpeed);
+		} catch (DivideByZeroException)
+		{
+			timeBeforeEaten = double.MaxValue;
+		}
 
-		if (dangerousFoeLevel < currentFoeDangerousLevel)
+		// if only one negative, choose that one (foe will never catch up)
+		if ((longestTimeBeforeEaten < 0) ^ (timeBeforeEaten < 0))
+		{
+			// if the new one was negative, take it
+			if (timeBeforeEaten < 0) 
+			{
+				closestFoeObj = foe;
+				longestTimeBeforeEaten = timeBeforeEaten;
+			}
+		} 
+		else if (longestTimeBeforeEaten < timeBeforeEaten) // else, if both are negative or postive, choose the longest time
 		{
 			closestFoeObj = foe;
-			dangerousFoeLevel = currentFoeDangerousLevel;
+			longestTimeBeforeEaten = timeBeforeEaten;
 		}
 	}
 
@@ -135,7 +151,7 @@ public class SenseProcessor
 		int mateCount = 0;
 		int waterCount = 0;
 		highestFoodValue = double.MinValue;
-		dangerousFoeLevel = -Int32.MaxValue;
+		longestTimeBeforeEaten = -Int32.MaxValue;
 		closestMateDist = Int32.MaxValue;
 		closestWaterDist = Int32.MaxValue;
 

@@ -81,9 +81,11 @@ public static class FCMFactory
 			fcm.SetWeight(EntityField.Fear, EntityField.SearchingForMate, -0.05);
 			fcm.SetWeight(EntityField.Fear, EntityField.GoingToWater, -0.05);
 			fcm.SetWeight(EntityField.Fear, EntityField.GoingToFood, -0.05);
+			fcm.SetWeight(EntityField.Fear, EntityField.Escaping, 0.5);
 
 			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToWater, -0.15);
 			fcm.SetWeight(EntityField.Escaping, EntityField.SearchingForMate, -0.15);
+			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);
 
 		}
 		else
