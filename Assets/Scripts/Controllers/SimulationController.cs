@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 abstract class SimulationController : MonoBehaviour
 {
@@ -93,7 +94,10 @@ abstract class SimulationController : MonoBehaviour
 				break;
 			}
 		}
-		return new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z);
+		Vector3 location = new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z);
+		NavMeshHit hit = new NavMeshHit();
+		NavMesh.SamplePosition(location, out hit, 100, NavMesh.AllAreas);
+		return hit.position;
 	}
 
 	protected void SpawnOrganisms()
@@ -142,7 +146,7 @@ abstract class SimulationController : MonoBehaviour
 		double maxSize = 3;
 		double infantFactor = 0.1;
 		double smellRadius = 25;
-		AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, 3, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+		AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, 10, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
 		AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, 11, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
 
 		baseTraits[(int)Species.Rabbit] = rabbitTraits;
