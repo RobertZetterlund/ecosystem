@@ -797,7 +797,7 @@ public abstract class Animal : Entity, IConsumable
         if (!immobalized)
         {
             SetDestination(transform.position);
-            isFertile = false;
+            isFertile = false;  
             immobalized = true;
             return true;
         }

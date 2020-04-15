@@ -93,6 +93,9 @@ public class SenseProcessor
                 // if chase time is less than zero, increasing amount will decrease the ratio, so put amount in the denominator
                 //ex: 50 / -5 = -10,     but    500 / -5 = -100      so more amount would be worse
                 double foodTimeRatio = (chaseTime > 0) ? amount / chaseTime : 1/(amount*chaseTime);
+                // maybe factor * amount if food more important than time
+                // 2 amount / 20 time = 1 amount / 10 time
+                // ändrungar i amount kommer påverka mer än ändringar i time
 
                 if (closestFoodDist > distanceBetween)
                 {
