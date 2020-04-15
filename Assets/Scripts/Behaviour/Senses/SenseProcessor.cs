@@ -7,12 +7,12 @@ using UnityEngine;
 public class SenseProcessor
 {
 	private Animal self;
-	private GameObject closestFoodObj;
+	private GameObject bestFoodObj;
 	private GameObject closestFoeObj;
 	private GameObject closestWaterObj;
 	private GameObject closestMateObj;
 
-	private double closestFoodDist = Int32.MaxValue;
+	private double highestFoodValue = double.MinValue;
 	private double dangerousFoeLevel = -Int32.MaxValue;
 	private double closestWaterDist = Int32.MaxValue;
 	private double closestMateDist = Int32.MaxValue;
@@ -120,10 +120,10 @@ public class SenseProcessor
 		// 2 amount / 20 time = 1 amount / 10 time
 		// ändrungar i amount kommer påverka mer än ändringar i time
 
-		if (closestFoodDist > distanceBetween)
+		if (highestFoodValue < foodTimeRatio)
 		{
-			closestFoodObj = foodObj;
-			closestFoodDist = distanceBetween;
+			bestFoodObj = foodObj;
+			highestFoodValue = foodTimeRatio;
 		}
 	}
 
@@ -134,12 +134,12 @@ public class SenseProcessor
 		int foeCount = 0;
 		int mateCount = 0;
 		int waterCount = 0;
-		closestFoodDist = Int32.MaxValue;
+		highestFoodValue = double.MinValue;
 		dangerousFoeLevel = -Int32.MaxValue;
 		closestMateDist = Int32.MaxValue;
 		closestWaterDist = Int32.MaxValue;
 
-		closestFoodObj = null;
+		bestFoodObj = null;
 		closestFoeObj = null;
 		closestWaterObj = null;
 		closestMateObj = null;
@@ -196,7 +196,7 @@ public class SenseProcessor
 		};
 
 		// return a sensedEvent that can be written to memory.
-		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);
+		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, bestFoodObj);
 	}
 
 	private double DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
@@ -211,6 +211,6 @@ public class SenseProcessor
 
 	public GameObject GetClosestFoodObj()
 	{
-		return closestFoodObj;
+		return bestFoodObj;
 	}
 }
