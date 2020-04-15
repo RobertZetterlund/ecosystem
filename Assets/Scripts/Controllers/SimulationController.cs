@@ -20,9 +20,16 @@ abstract class SimulationController : MonoBehaviour
     public bool EvovleMaxSize = true, EvolveDietFactor = true, EvolveNChildren = true, EvolveInfantFactor = true, 
         EvolveSpeed = true, EvolveHeatTimer = true, EvolveSightLength = true, EvovleSmellRadius = true, EvolveFcm = true;
 
+    //The number of animals that should spawn each round
     protected Dictionary<Species, int> nAnimals = new Dictionary<Species, int>();
+
+    //Current animals that are alive in the simulation
     protected Dictionary<Species, IList<Animal>> animalsInSimulation = new Dictionary<Species, IList<Animal>>();
+
+    //The standard traits that the animals should spawn with (unless they evolve)
     protected Dictionary<Species, AnimalTraits> baseTraits = new Dictionary<Species, AnimalTraits>();
+
+    //The animals that should spawn during the next round of the simulation
     protected Dictionary<Species, AnimalTraits[]> animalsToSpawn = new Dictionary<Species, AnimalTraits[]>();
     
 
@@ -32,6 +39,7 @@ abstract class SimulationController : MonoBehaviour
     private float[,] heightMap;
     private int sideLength;
 
+    //The main genetic operators used for breeding and mutation
     public static ICrossover CROSSOVER_OPERATOR = BlendCrossover.Instance;
     public static IMutation MUTATION_OPERATOR = NoMutation.Instance;
 
@@ -90,6 +98,7 @@ abstract class SimulationController : MonoBehaviour
         }
     }
 
+    // Random location on the map
     protected Vector3 GetSpawnLocation()
     {
         //Uses an fcmHandler that overrides the GetAction method in the RabbitFCMHandler
@@ -147,6 +156,9 @@ abstract class SimulationController : MonoBehaviour
 
     }
 
+    /**
+     * The initial population that is to be spawned when the simulation starts
+     */
     public AnimalTraits[] InitialPopulation(int amount, Species s)
     {
         AnimalTraits[] population = new AnimalTraits[amount];
@@ -159,6 +171,9 @@ abstract class SimulationController : MonoBehaviour
         return population;
     }
 
+    /**
+     * The traits that the initialpopulation should have
+     */
     private void InitBaseTraits()
     {
         String[] rabbitArr = new String[] {"Rabbit" };
@@ -178,7 +193,7 @@ abstract class SimulationController : MonoBehaviour
         baseTraits[Species.Fox] = foxTraits;
     }
 
-    // register new animal
+    // register spawned animal
     public virtual void Register(Animal animal)
     {
         Species species = animal.GetTraits().species;
@@ -186,7 +201,7 @@ abstract class SimulationController : MonoBehaviour
         TraitLogger.Register(animal);
     }
 
-    // register animal death, spawn new ones if all died
+    // register animal death
     public virtual void Unregister(Animal animal)
     {
         AnimalTraits traits = animal.GetTraits();

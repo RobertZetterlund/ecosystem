@@ -7,7 +7,6 @@ class FitnessSimulation : SimulationController
 {
 
     //The double is meant as the fitness function, so you can tie a trait to the fitness of the trait
-    //private List<(AnimalTraits, double)>[] allTraits = new List<(AnimalTraits, double)>[Species.GetValues(typeof(Species)).Length];
     private Dictionary<Species, SortedList<TraitsComparable, double>> finishedTraits = new Dictionary<Species, SortedList<TraitsComparable, double>>();
     private List<Species> speciesToEvolve = new List<Species>();
     private Timer roundTimer;
@@ -53,6 +52,9 @@ class FitnessSimulation : SimulationController
         StartRound();
     }
 
+    /**
+     * Prepares everything for the next round, which mainly means creating new populations
+     */
     private void PrepareNextRound()
     {
         evolvingAnimalsAlive = 0;
@@ -68,6 +70,9 @@ class FitnessSimulation : SimulationController
         ResetFinishedTraits();
     }
 
+    /**
+     * Kills off all animals still in the simulation
+     */
     private void KillRemainingAnimals()
     {
         foreach (Species s in animalsToSpawn.Keys)
@@ -79,6 +84,9 @@ class FitnessSimulation : SimulationController
         }
     }
 
+    /**
+     * Starts of the round by spawning animals and resetting timers
+     */
     public void StartRound()
     {
         TraitLogger.ResetTimer();
@@ -88,6 +96,7 @@ class FitnessSimulation : SimulationController
 
     }
 
+    // Reset list
     private void ResetFinishedTraits()
     {
         foreach (Species s in finishedTraits.Keys)
@@ -96,6 +105,15 @@ class FitnessSimulation : SimulationController
         }
     }
 
+    /**
+     * 
+     * Generates a new population for a given species. This occurs in 3 steps.
+     * 
+     * 1: Parents are selected via the selection operator
+     * 2: New children are bred from the parents
+     * 3: The 5 top performing animals from the species gets to live during the next round as well
+     * 
+     */
     private AnimalTraits[] NewPopulation(Species s)
     {
         if (nAnimals[s] == 0)
@@ -113,6 +131,7 @@ class FitnessSimulation : SimulationController
         AnimalTraits[] topPerformers = BestSelection.Instance.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), nTop);
         return children.Concat(topPerformers).ToArray();
     }
+
 
     private AnimalTraits[] BreedChildren(AnimalTraits[] parents, int amount)
     {
@@ -155,6 +174,7 @@ class FitnessSimulation : SimulationController
 
     }
 
+    // Called when an animal dies
     public override void Unregister(Animal animal)
     {
         base.Unregister(animal);
@@ -167,6 +187,7 @@ class FitnessSimulation : SimulationController
         }
     }
 
+    // Called when an animal is spawned
     public override void Register(Animal animal)
     {
         base.Register(animal);
@@ -176,6 +197,7 @@ class FitnessSimulation : SimulationController
         }
     }
 
+    // Evaluates the fitness of an animal. 
     private double CalculateFitness(Animal animal)
     {
         //return animal.GetTimeAlive();
