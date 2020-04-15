@@ -40,8 +40,11 @@ abstract class SimulationController : MonoBehaviour
     private int sideLength;
 
     //The main genetic operators used for breeding and mutation
-    public static ICrossover CROSSOVER_OPERATOR = BlendCrossover.Instance;
-    public static IMutation MUTATION_OPERATOR = NoMutation.Instance;
+    //public static ICrossover CROSSOVER_OPERATOR = BlendCrossover.Instance;
+    //public static IMutation MUTATION_OPERATOR = NoMutation.Instance;
+
+    public static ICrossover CROSSOVER_OPERATOR = UniformCrossover.Instance;
+    public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
 
     protected virtual void Awake()
     {

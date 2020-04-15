@@ -25,7 +25,7 @@ public abstract class Animal : Entity, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double timeToDeathByThirst = 20;
+    double timeToDeathByThirst = 40;
     private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
     private const double AdultSizeFactor = 0.4; // how big you have to be to mate
     double lifespan = 300;
@@ -170,6 +170,7 @@ public abstract class Animal : Entity, IConsumable
             return;
 
         DepleteSize();
+        UpdateSize();
 
         // update thirst
         thirst.Add(cdt / timeToDeathByThirst);
@@ -261,7 +262,6 @@ public abstract class Animal : Entity, IConsumable
     {
         if(simulation.gameSpeed <= 1)
         {
-            UpdateSize();
             UpdateStatusBars();
             UpdateAnimation();
         }
