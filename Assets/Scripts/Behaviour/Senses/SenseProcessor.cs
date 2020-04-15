@@ -13,7 +13,7 @@ public class SenseProcessor
 	private GameObject closestMateObj;
 
 	private double closestFoodDist = Int32.MaxValue;
-	private double closestFoeDist = Int32.MaxValue;
+	private double dangerousFoeLevel = -Int32.MaxValue;
 	private double closestWaterDist = Int32.MaxValue;
 	private double closestMateDist = Int32.MaxValue;
 
@@ -41,10 +41,17 @@ public class SenseProcessor
 	private void ProcessFoe(GameObject foe)
 	{
 		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foe);
-		if (closestFoeDist > distanceBetween)
+
+		Animal sensedFoe = foe.GetComponent<Animal>();
+
+		double foeSpeed = sensedFoe.GetSpeed();
+
+		double currentFoeDangerousLevel = foeSpeed * 5 - distanceBetween;
+
+		if (dangerousFoeLevel < currentFoeDangerousLevel)
 		{
 			closestFoeObj = foe;
-			closestFoeDist = distanceBetween;
+			dangerousFoeLevel = currentFoeDangerousLevel;
 		}
 	}
 
@@ -128,7 +135,7 @@ public class SenseProcessor
 		int mateCount = 0;
 		int waterCount = 0;
 		closestFoodDist = Int32.MaxValue;
-		closestFoeDist = Int32.MaxValue;
+		dangerousFoeLevel = -Int32.MaxValue;
 		closestMateDist = Int32.MaxValue;
 		closestWaterDist = Int32.MaxValue;
 
