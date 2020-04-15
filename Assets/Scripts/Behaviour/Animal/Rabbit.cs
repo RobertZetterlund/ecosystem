@@ -9,10 +9,6 @@ using UnityEngine;
 class Rabbit : Animal
 {
 
-	public override void Init(AnimalTraits traits)
-	{
-		base.Init(traits);
-	}
 
 	protected override void Start()
 	{

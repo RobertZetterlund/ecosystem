@@ -37,7 +37,6 @@ public abstract class Animal : Entity, IConsumable
 	private string targetGametag = "";
 	private ArrayList sensedGameObjects;
 	private RangedDouble maxSize;
-	private RangedDouble infantFactor; // how big the child is in %
 	private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
 									// senses
 	private TickTimer senseTimer, fcmTimer, searchTimer, overallTimer;
@@ -84,20 +83,21 @@ public abstract class Animal : Entity, IConsumable
 	private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action, escapeAction;
 	private SimulationController simulation = SimulationController.Instance();
 
-	public virtual void Init(AnimalTraits traits)
+	public virtual void Init(AnimalTraits traits, double size, double thirst)
 	{
 		this.species = traits.species;
 		this.dietFactor = traits.dietFactor;
 		this.maxSize = traits.maxSize;
-		this.size = new RangedDouble(traits.maxSize.GetValue() * traits.infantFactor.GetValue(), 0, traits.maxSize.GetValue());
+		this.size = new RangedDouble(0, 0, traits.maxSize.GetValue());
+		this.size.Add(size);
 		this.nChildren = traits.nChildren;
-		this.infantFactor = traits.infantFactor;
 		this.speed = traits.speed;
 		this.fcmHandler = traits.fcmHandler;
 		isMale = rand.NextDouble() >= 0.5;
 		this.heatTimer = traits.heatTimer;
 		this.sightLength = traits.sightLength;
 		this.smellRadius = traits.smellRadius;
+		this.thirst.Add(thirst);
 
 		this.traits = traits;
 		senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
@@ -399,36 +399,26 @@ public abstract class Animal : Entity, IConsumable
 					double nbrChildren = mother.nChildren.GetValue();
 					double oddsOfExtraChild = nbrChildren - Math.Truncate(nbrChildren);
 					nbrChildren = MathUtility.RandomChance(oddsOfExtraChild) ? Math.Truncate(nbrChildren) + 1 : Math.Truncate(nbrChildren);
-					Animal[] children = new Animal[(int)nbrChildren];
-					int bornChildren = 0;
+
+					// calculate size for each parent and child
+					double individualSize = (size.GetValue() + mate.size.GetValue()) / (2+nbrChildren);
+					size.SetValue(0);
+					mate.size.SetValue(0);
+					size.Add(individualSize);
+					mate.size.Add(individualSize);
+
+					// calculate thirst for each parent and child
+					double individualThirst = 1- ((1 - thirst.GetValue()) + (1 - mate.thirst.GetValue())) / (2 + nbrChildren);
+					thirst.SetValue(0);
+					mate.thirst.SetValue(0);
+					thirst.Add(individualThirst);
+					mate.thirst.Add(individualThirst);
 
 					for (int i = 0; i < nbrChildren; i++)
 					{
 						AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.traits);
-
-						// deplete size for each child born
-						// stop when your size would run out
-						double sizeRemoved = mother.size.Add(-child.maxSize.GetValue() * child.infantFactor.GetValue());
-						if (sizeRemoved != -child.maxSize.GetValue() * child.infantFactor.GetValue())
-						{
-							mother.size.Add(-sizeRemoved); // restore because child wasnt born.
-							return false;
-						}
-
-						Animal childAnimal = OrganismFactory.CreateAnimal(child, mother.transform.position);
-						bornChildren++;
-						children[i] = childAnimal;
+						Animal childAnimal = OrganismFactory.CreateAnimal(child, mother.transform.position, individualSize, individualThirst);
 					}
-					// divide water reserve from mother among itself and children
-					double waterRation = (1 - mother.thirst.GetValue()) / (bornChildren + 1);
-					foreach (Animal child in children)
-					{
-						if (child != null)
-						{
-							child.thirst.SetValue(1 - waterRation);
-						}
-					}
-					mother.thirst.SetValue(1 - waterRation);
 				}
 			}
 		}

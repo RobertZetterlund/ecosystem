@@ -6,7 +6,7 @@ using UnityEngine.AI;
  */
 public static class OrganismFactory
 {
-	public static Animal CreateAnimal(AnimalTraits traits, Vector3 location)
+	public static Animal CreateAnimal(AnimalTraits traits, Vector3 location, double size, double thirst)
 	{
 		Animal animal;
 		switch (traits.species)
@@ -22,7 +22,7 @@ public static class OrganismFactory
 				break;
 		}
 
-		animal.Init(traits);
+		animal.Init(traits, size, thirst);
 		animal.transform.position = location;
 		return animal;
 	}

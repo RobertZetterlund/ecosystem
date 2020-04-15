@@ -35,6 +35,11 @@ abstract class SimulationController : MonoBehaviour
 	public static ICrossover CROSSOVER_OPERATOR = UniformCrossover.Instance;
 	public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
 
+	// start values
+	double maxSize = 3;
+	private double startSizeFactor = 0.6;
+	private double startThirst = 0.3;
+
 	protected virtual void Awake()
 	{
 
@@ -122,7 +127,7 @@ abstract class SimulationController : MonoBehaviour
 
 	protected void SpawnAnimal(AnimalTraits traits, Vector3 spawnPoint)
 	{
-		OrganismFactory.CreateAnimal(traits, spawnPoint);
+		OrganismFactory.CreateAnimal(traits, spawnPoint, startSizeFactor*maxSize, startThirst);
 	}
 
 	protected void SpawnPlant(Vector3 spawnPoint)
@@ -143,11 +148,9 @@ abstract class SimulationController : MonoBehaviour
 		String[] plantArr = new String[] { "Plant" };
 		String[] emptyArr = new string[] { "" };
 
-		double maxSize = 3;
-		double infantFactor = 0.1;
 		double smellRadius = 25;
-		AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, 10, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
-		AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, 11, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
+		AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, 5, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+		AnimalTraits foxTraits = new AnimalTraits(Species.Fox, maxSize, 1, 2, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
 
 		baseTraits[(int)Species.Rabbit] = rabbitTraits;
 		baseTraits[(int)Species.Fox] = foxTraits;
