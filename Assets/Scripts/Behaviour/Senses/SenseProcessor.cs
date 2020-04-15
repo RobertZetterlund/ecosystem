@@ -89,7 +89,7 @@ public class SenseProcessor
 		}
 	}
 
-	private void ProcessFood(GameObject foodObj)
+  private void ProcessFood(GameObject foodObj)
 	{
 		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
 		IConsumable food = foodObj.GetComponent<IConsumable>();

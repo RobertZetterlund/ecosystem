@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 public class Water : Entity, IConsumable
 {
-
 	protected Vector3[] verts;
 
 	// Start is called before the first frame update
@@ -26,14 +25,14 @@ public class Water : Entity, IConsumable
 		return double.MaxValue;
 	}
 
-	public double GetSpeed()
-	{
-		return 0;
-	}
-
 	double IConsumable.Consume(double amount)
 	{
 		return -amount; // don't need to do anything if we assume there's infinite amount of water
+	}
+  
+  public double GetSpeed()
+	{
+		return 0;
 	}
 
 	public void SetVerts(Vector3[] newVerts)
