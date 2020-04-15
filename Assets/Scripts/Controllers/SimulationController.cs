@@ -20,9 +20,10 @@ abstract class SimulationController : MonoBehaviour
     public bool EvovleMaxSize = true, EvolveDietFactor = true, EvolveNChildren = true, EvolveInfantFactor = true, 
         EvolveSpeed = true, EvolveHeatTimer = true, EvolveSightLength = true, EvovleSmellRadius = true, EvolveFcm = true;
 
-    protected List<Animal>[] organisms = new List<Animal>[Species.GetValues(typeof(Species)).Length];
-    protected int[] nOrganisms = new int[Species.GetValues(typeof(Species)).Length];
-    protected  AnimalTraits[] baseTraits = new AnimalTraits[Species.GetValues(typeof(Species)).Length];
+    protected Dictionary<Species, int> nAnimals = new Dictionary<Species, int>();
+    protected Dictionary<Species, IList<Animal>> animalsInSimulation = new Dictionary<Species, IList<Animal>>();
+    protected Dictionary<Species, AnimalTraits> baseTraits = new Dictionary<Species, AnimalTraits>();
+    protected Dictionary<Species, AnimalTraits[]> animalsToSpawn = new Dictionary<Species, AnimalTraits[]>();
     
 
     //Spawn location specific
@@ -31,8 +32,8 @@ abstract class SimulationController : MonoBehaviour
     private float[,] heightMap;
     private int sideLength;
 
-    public static ICrossover CROSSOVER_OPERATOR = UniformCrossover.Instance;
-    public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
+    public static ICrossover CROSSOVER_OPERATOR = BlendCrossover.Instance;
+    public static IMutation MUTATION_OPERATOR = NoMutation.Instance;
 
     protected virtual void Awake()
     {
@@ -55,25 +56,38 @@ abstract class SimulationController : MonoBehaviour
         ComponentNavigator.LoadData(terrainKernal.GetPuddleList());
         heightMap = terrainKernal.GetHeightMap();
         sideLength = terrainKernal.resolution;
-        InitLists();
+
         InitAmountOfOrganisms();
         InitBaseTraits();
+        //Init relevant lists
+        InitLists();
         StartSimulation();
     }
 
-    protected abstract void StartSimulation();
-
-    protected virtual void InitLists()
+    protected virtual void StartSimulation()
     {
-        for (int i = 0; i < organisms.Length; i++)
-            organisms[i] = new List<Animal>();
+        foreach (Species s in nAnimals.Keys)
+        {
+            animalsToSpawn[s] = InitialPopulation(nAnimals[s], s);
+        }
+        SpawnPlants();
+        SpawnAnimals();
     }
 
     private void InitAmountOfOrganisms()
     {
-        nOrganisms[(int)Species.Plant] = nPlants;
-        nOrganisms[(int)Species.Rabbit] = nRabbits;
-        nOrganisms[(int)Species.Fox] = nFoxes;
+        //nAnimals[Species.Plant] = nPlants;
+        nAnimals[Species.Rabbit] = nRabbits;
+        nAnimals[Species.Fox] = nFoxes;
+    }
+
+    protected virtual void InitLists()
+    {
+        foreach (Species s in nAnimals.Keys)
+        {
+            animalsInSimulation[s] = new List<Animal>();
+            animalsToSpawn[s] = new AnimalTraits[0];
+        }
     }
 
     protected Vector3 GetSpawnLocation()
@@ -96,22 +110,23 @@ abstract class SimulationController : MonoBehaviour
         return new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z);
     }
 
-    protected void SpawnOrganisms()
+    private void SpawnPlants()
     {
-        for (int specie = 0; specie < organisms.Length; specie++)
+        for(int i = 0; i < nPlants; i++)
         {
-            for(int i = 0; i < nOrganisms[specie]; i++)
+            Vector3 spawnPoint = GetSpawnLocation();
+            SpawnPlant(spawnPoint);
+        }
+    }
+
+    protected void SpawnAnimals()
+    {
+        foreach (Species s in animalsToSpawn.Keys)
+        {
+            foreach (AnimalTraits traits in animalsToSpawn[s])
             {
                 Vector3 spawnPoint = GetSpawnLocation();
-                if (specie == (int)Species.Plant)
-                {
-                    SpawnPlant(spawnPoint);
-                }
-                else
-                {
-                    AnimalTraits traits = baseTraits[specie].Duplicate();
-                    SpawnAnimal(traits, spawnPoint);
-                }
+                SpawnAnimal(traits, spawnPoint);
             }
         }
     }
@@ -132,6 +147,18 @@ abstract class SimulationController : MonoBehaviour
 
     }
 
+    public AnimalTraits[] InitialPopulation(int amount, Species s)
+    {
+        AnimalTraits[] population = new AnimalTraits[amount];
+
+        for(int i = 0; i < amount; i++)
+        {
+            population[i] = baseTraits[s].Duplicate();
+        }
+
+        return population;
+    }
+
     private void InitBaseTraits()
     {
         String[] rabbitArr = new String[] {"Rabbit" };
@@ -140,20 +167,22 @@ abstract class SimulationController : MonoBehaviour
         String[] emptyArr = new string[] { "" };
 
         double maxSize = 3;
-        double infantFactor = 0.1;
+        double infantFactor = 0.2;
         double smellRadius = 25;
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, 3, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, 11, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
+        double rabbitSpeed = 10;
+        double foxSpeed = 8;
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, rabbitSpeed, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, foxSpeed, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
 
-        baseTraits[(int)Species.Rabbit] = rabbitTraits;
-        baseTraits[(int)Species.Fox] = foxTraits;
+        baseTraits[Species.Rabbit] = rabbitTraits;
+        baseTraits[Species.Fox] = foxTraits;
     }
 
     // register new animal
     public virtual void Register(Animal animal)
     {
         Species species = animal.GetTraits().species;
-        organisms[(int)species].Add(animal);
+        animalsInSimulation[species].Add(animal);
         TraitLogger.Register(animal);
     }
 
@@ -161,7 +190,7 @@ abstract class SimulationController : MonoBehaviour
     public virtual void Unregister(Animal animal)
     {
         AnimalTraits traits = animal.GetTraits();
-        organisms[(int)traits.species].Remove(animal);
+        animalsInSimulation[traits.species].Remove(animal);
         TraitLogger.Unregister(animal);
     }
 

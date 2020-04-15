@@ -3,7 +3,7 @@ public static class SensorFactory
 {
     public static AbstractSensor SightSensor(float sightLength, float horisontalFOV, float verticalFOV)
     {
-        return new AreaSensor(sightLength, horisontalFOV, verticalFOV, true, SensorType.SIGHT);
+        return new AreaSensor(sightLength, horisontalFOV, verticalFOV, false, SensorType.SIGHT);
     }
 
     public static AbstractSensor SmellSensor(float senseRadius)

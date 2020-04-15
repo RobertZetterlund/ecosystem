@@ -12,6 +12,7 @@ public class Sappling : Entity
         gameObject.tag = "Sappling";
         //It takes the sappling 30 sec to respawn
         growthTimer = new TickTimer(30);
+        //SimulationController.Instance().RegisterSappling(this);
     }
 
     void FixedUpdate()
@@ -27,5 +28,7 @@ public class Sappling : Entity
     {
         Destroy(gameObject);
         OrganismFactory.CreatePlant((int)size.GetValue(), transform.position);
+        //SimulationController.Instance().RegisterSappling(this);
     }
+
 }

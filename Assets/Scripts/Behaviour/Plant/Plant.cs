@@ -8,8 +8,6 @@ using UnityEngine;
 public class Plant : Entity, IConsumable
 {
     private RangedDouble amountRemaining;
-    private UnityEngine.AI.NavMeshAgent navMeshAgent;
-    private bool dead = false;
 
     public void Init(double size)
     {

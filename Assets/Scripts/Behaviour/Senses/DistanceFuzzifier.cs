@@ -8,8 +8,6 @@ class DistanceFuzzifier : IFuzzifier
 {
     public float Fuzzify(float min, float max, float value)
     {
-        
-        return 1f/(1 + Mathf.Exp(value - 4f));
-
+        return 1/(1 + Mathf.Exp((10/max) * value - 4f));
     }
 }

@@ -25,10 +25,10 @@ public abstract class Animal : Entity, IConsumable
     protected EntityAction currentAction = EntityAction.Idle;
     protected ActionState state = new ActionState();
     private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-    double timeToDeathByThirst = 108000;
+    double timeToDeathByThirst = 20;
     private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
     private const double AdultSizeFactor = 0.4; // how big you have to be to mate
-    double lifespan = 15000;
+    double lifespan = 300;
     bool dead;
     private bool immobalized;
     [SerializeField]
@@ -45,6 +45,7 @@ public abstract class Animal : Entity, IConsumable
     private AbstractSensor touchSensor;
     private RangedDouble sightLength;
     private RangedDouble smellRadius;
+    private double biggestSenseRadius;
     private float horisontalFOV = 120;
     private float verticalFOV = 90;
     public GameObject targetGameObject;
@@ -96,6 +97,8 @@ public abstract class Animal : Entity, IConsumable
         this.heatTimer = traits.heatTimer;
         this.sightLength = traits.sightLength;
         this.smellRadius = traits.smellRadius;
+
+        biggestSenseRadius = Math.Max(sightLength.GetValue(), smellRadius.GetValue());
 
         this.traits = traits;
         senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
@@ -172,6 +175,14 @@ public abstract class Animal : Entity, IConsumable
         thirst.Add(cdt / timeToDeathByThirst);
 
         //age the animal
+        energy -= cdt / lifespan;
+
+        if((size.GetValue() / maxSize.GetValue()) > 0.99)
+        {
+            energy -= cdt / lifespan;
+        }
+            
+            //age the animal
         energy -= cdt / lifespan;
 
         if (immobalized)
@@ -756,7 +767,7 @@ public abstract class Animal : Entity, IConsumable
 
     private void DepleteSize()
     {
-        double overallCostFactor = 1; // increase or decrease to change hunger depletion speed
+        double overallCostFactor = 2; // increase or decrease to change hunger depletion speed
 
         double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
         double speedCost = speed.GetValue() * size.GetValue(); // mass * speed
@@ -783,7 +794,7 @@ public abstract class Animal : Entity, IConsumable
 
     public float GetTimeAlive()
     {
-        return (Time.time - timeAtBirth) * Time.timeScale;
+        return (Time.time - timeAtBirth) * SimulationController.Instance().gameSpeed;
     }
 
     public void Kill()
@@ -802,6 +813,11 @@ public abstract class Animal : Entity, IConsumable
             return true;
         }
         return false;
+    }
+
+    public double GetSenseRadius()
+    {
+        return biggestSenseRadius;
     }
 
 }

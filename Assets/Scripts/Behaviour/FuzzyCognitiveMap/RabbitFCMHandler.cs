@@ -70,7 +70,7 @@ public class RabbitFCMHandler : FCMHandler
         if(sensedObject != null)
         {
             float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
-            standard = fuzzifier.Fuzzify(0, 100, dist);
+            standard = fuzzifier.Fuzzify(0, (float)animal.GetSenseRadius(), dist);
             inverse = 1 - standard;
         }
         fcm.SetState((EntityField)close, standard);

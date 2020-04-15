@@ -7,6 +7,7 @@ public class FCM
 {
     double[,] weights;
     double[] states;
+    double[] stateIncreases;
     int NOFields;
     int NOMiddles;
     int NOActions;
@@ -24,6 +25,7 @@ public class FCM
 
         weights = new double[NOFields, NOFields];
         states = new double[NOFields];
+        stateIncreases = new double[NOFields];
 
 
         EntityField[] fields = new EntityField[NOFields];
@@ -87,7 +89,9 @@ public class FCM
                 // we're affecting actions
                 if (_to >= NOActions)
                 {
-                    new_states[_to] += weights[_from, _to] * states[_from] * action_Constant;
+                    double addition = weights[_from, _to] * states[_from] * action_Constant;
+                    new_states[_to] += addition;
+                    stateIncreases[_to] += addition;
                     new_states[_to] = Mathf.Clamp((float)new_states[_to], 0, 1);
                 }
                 // we're affecting middles
@@ -136,15 +140,24 @@ public class FCM
         */
 
         double best = 0;
+        double bests_increase = 0;
         int best_action = 0;
         for (int i = NOInputs + NOMiddles; i < NOFields; i++)
         {
-            if (states[i] >= best)
+            if (states[i] > best)
             {
                 best = states[i];
+                bests_increase = stateIncreases[i];
                 best_action = i;
             }
+            else if (states[i] == best && stateIncreases[i] > bests_increase)
+            {
 
+                best = states[i];
+                bests_increase = stateIncreases[i];
+                best_action = i;
+            }
+            stateIncreases[i] = 0;
         }
 
         return (EntityAction)translation.Reverse[best_action];
@@ -284,18 +297,21 @@ public class FCM
 
     internal void BreedFields(EntityField [] from, EntityField [] to, FCM mateFCM, FCM childFCM)
     {
-        foreach (EntityField ei in from)
+        foreach (EntityField _from in from)
         {
-            foreach (EntityField ea in to)
+            foreach (EntityField _to in to)
             {
-                EntityField _from = (EntityField)Enum.Parse(typeof(EntityField), ei.ToString());
-                EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
                 int i_from = translation.Forward[(int)_from];
                 int i_to = translation.Forward[(int)_to];
 
                 // get weights and mutate
+
                 RangedDouble geneA = new RangedDouble(weights[i_from, i_to], -1, 1);
                 RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1, 1);
+                if (geneA.GetValue() != 0 || geneB.GetValue() != 0)
+                {
+                    int x = 0;
+                }
                 childFCM.SetWeight(_from, _to, ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue());
             }
         }
@@ -323,7 +339,7 @@ public class FCM
                 EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
 
                 // randomise weights
-                SetWeight(_from, _to, MathUtility.RandomUniform(-1, 1));
+                SetWeight(_from, _to, MathUtility.RandomUniform(-0.05, 0.05));
             }
         }
     }
