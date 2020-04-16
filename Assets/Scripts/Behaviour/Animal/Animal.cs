@@ -203,7 +203,7 @@ public abstract class Animal : Entity, IConsumable
 			action.Execute();
 
 		Move();
-
+		
 	}
 
 

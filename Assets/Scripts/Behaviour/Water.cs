@@ -42,7 +42,7 @@ public class Water : Entity, IConsumable
 		int x = verts.Length / 25;
 		for (int i = 0; i < verts.Length; i++)
 		{
-			if (i / x == 0) { vec.Add(verts[i]); }
+			if (i % x == 0) { vec.Add(verts[i]); }
 		}
 
 

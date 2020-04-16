@@ -9,7 +9,7 @@ class Fox : Animal
 	}
 	protected override void Start()
 	{
-		runAnimationspeedFactor = 1f;
+		runAnimationspeedFactor = 0.4f;
 		base.Start();
 	}
 }

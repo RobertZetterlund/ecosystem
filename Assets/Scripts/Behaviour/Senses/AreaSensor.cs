@@ -92,6 +92,11 @@ public class AreaSensor : AbstractSensor
 			//If the sensor can be blocked by other objects
 			if (blockable)
 			{
+				if(ComponentNavigator.GetSpecies(sensedObject) == Species.Water)
+				{ 
+					sensedGameObjects.Add(ComponentNavigator.GoToHighestObject(sensedObject));
+					continue; 
+				}
 				Vector3[] verts = ComponentNavigator.GetVerts(ComponentNavigator.GetEntity(sensedObject));
 				foreach (Vector3 vert in verts)
 					pointList.Add(vert);
