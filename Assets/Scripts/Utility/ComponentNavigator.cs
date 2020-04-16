@@ -146,31 +146,5 @@ public class ComponentNavigator
 
 	}
 
-	// Scans all vertices to find nearest
-	public static Vector3 GetClosesVert(Vector3 fromPoint, GameObject gameObj)
-	{
-		if (GetSpecies(gameObj) == Species.Water)
-		{
-			return GetClosesVert(fromPoint, GetVerts(GetEntity(gameObj)));
-		}
-		return gameObj.transform.position;
-	}
-
-	public static Vector3 GetClosesVert(Vector3 fromPoint, Vector3[] verts)
-	{
-		float minDistanceSqr = Mathf.Infinity;
-		Vector3 nearestVertex = Vector3.zero;
-		foreach (Vector3 vertex in verts)
-		{
-			Vector3 diff = fromPoint - vertex;
-			float distSqr = diff.sqrMagnitude;
-			if (distSqr < minDistanceSqr)
-			{
-				minDistanceSqr = distSqr;
-				nearestVertex = vertex;
-			}
-		}
-		return nearestVertex;
-	}
 
 }
