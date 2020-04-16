@@ -2,7 +2,7 @@
 
 public enum ConsumptionType
 {
-    Animal,
-    Plant,
-    Water
+	Animal,
+	Plant,
+	Water
 }

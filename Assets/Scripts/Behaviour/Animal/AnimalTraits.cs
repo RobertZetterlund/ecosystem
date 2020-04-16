@@ -35,9 +35,9 @@ public class AnimalTraits
 		this.mates = mates;
 	}
 
- 
-    public AnimalTraits(AnimalTraits traits)
-{
+
+	public AnimalTraits(AnimalTraits traits)
+	{
 		this.species = traits.species;
 		this.maxSize = traits.maxSize;
 		this.dietFactor = traits.dietFactor;
@@ -62,8 +62,8 @@ public class AnimalTraits
 		traits[3] = (infantFactor.GetValue(), "infant factor");
 		traits[4] = (speed.GetValue(), "speed");
 		traits[5] = (heatTimer.GetValue(), "heat Timer");
-        traits[6] = (sightLength.GetValue(), "sight length");
-        traits[7] = (smellRadius.GetValue(), "smell radius");
+		traits[6] = (sightLength.GetValue(), "sight length");
+		traits[7] = (smellRadius.GetValue(), "smell radius");
 
 		return traits;
 	}

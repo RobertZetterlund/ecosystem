@@ -1,8 +1,8 @@
 ﻿public enum Species
 {
-    Undefined,
-    Rabbit,
-    Fox,
-    Plant,
-    Water
+	Undefined,
+	Rabbit,
+	Fox,
+	Plant,
+	Water
 }

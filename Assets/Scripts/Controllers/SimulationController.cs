@@ -223,6 +223,5 @@ abstract class SimulationController : MonoBehaviour
     {
         return _instance;
     }
-
 }
 

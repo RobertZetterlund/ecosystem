@@ -5,7 +5,6 @@ using UnityEngine;
 
 class FitnessSimulation : SimulationController
 {
-
     //The double is meant as the fitness function, so you can tie a trait to the fitness of the trait
     private Dictionary<Species, SortedList<TraitsComparable, double>> finishedTraits = new Dictionary<Species, SortedList<TraitsComparable, double>>();
     private List<Species> speciesToEvolve = new List<Species>();

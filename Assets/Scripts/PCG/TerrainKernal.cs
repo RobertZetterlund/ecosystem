@@ -9,55 +9,55 @@ using System.Collections;
 
 public class TerrainKernal : MonoBehaviour
 {
-    public int side;
-    public int resolution;
-    [Range(1, 10)]
-    public int octaves;
-    public float lacunarity;
-    [Range(0f, 1f)]
-    public float persistance;
-    public GameObject previewPlane;
-    float[,] heightMap;
-    public bool autoUpdate;
-    public float amplifier;
-    public AnimationCurve animCurve;
-    public int seed;
-    public GameObject waterPrefab;
-    public GameObject ground;
-    public Material terrainMaterial;
-    public Material waterTempMaterial;
+	public int side;
+	public int resolution;
+	[Range(1, 10)]
+	public int octaves;
+	public float lacunarity;
+	[Range(0f, 1f)]
+	public float persistance;
+	public GameObject previewPlane;
+	float[,] heightMap;
+	public bool autoUpdate;
+	public float amplifier;
+	public AnimationCurve animCurve;
+	public int seed;
+	public GameObject waterPrefab;
+	public GameObject ground;
+	public Material terrainMaterial;
+	public Material waterTempMaterial;
 
-    Texture2D texture;
-    Color[] colors;
+	Texture2D texture;
+	Color[] colors;
 
-    List<List<Vector2>> waterList;
-    [SerializeField]
-    List<GameObject> puddleList = new List<GameObject>();
+	List<List<Vector2>> waterList;
+	[SerializeField]
+	List<GameObject> puddleList = new List<GameObject>();
 
-    GenerateMesh generator;
-    ColorIndexer colorIndex;
+	GenerateMesh generator;
+	ColorIndexer colorIndex;
 
-    //[SerializeField]
-    //List<Vector3> debugList;
+	//[SerializeField]
+	//List<Vector3> debugList;
 
-    private void Awake()
-    {
-        
-        UpdateMap();
-        
-    }
+	private void Awake()
+	{
 
-    
+		UpdateMap();
 
-    private void Start()
-    {
-        UpdateMap();
-        
+	}
 
-    }
-    private void Update()
-    {
-        /*
+
+
+	private void Start()
+	{
+		UpdateMap();
+
+
+	}
+	private void Update()
+	{
+		/*
         Debug.Log(debugList.Count);
         Debug.Log(puddleList.Count);
         Vector3 last = new Vector3(0, 0, 0);
@@ -75,84 +75,87 @@ public class TerrainKernal : MonoBehaviour
             }
         }
         */
-    }
+	}
 
-    public void UpdateMap()
-    {
+	public void UpdateMap()
+	{
 
-        if(side > 300){side = 300;}else if(side <= 0){side = 1;}
-        if(octaves > 10){octaves = 10;}else if(octaves <= 0){octaves = 1;}
-        if(resolution > 256){resolution = 256;}else if(resolution < 1){resolution = 1;}
-        if(lacunarity > 30) { lacunarity = 30; } else if(lacunarity < 1) { lacunarity = 1; }
-        
-
-        heightMap = PerlinNoise.GeneratePerlinNoise(side, side, resolution, octaves, lacunarity, persistance, seed);
+		if (side > 300) { side = 300; } else if (side <= 0) { side = 1; }
+		if (octaves > 10) { octaves = 10; } else if (octaves <= 0) { octaves = 1; }
+		if (resolution > 256) { resolution = 256; } else if (resolution < 1) { resolution = 1; }
+		if (lacunarity > 30) { lacunarity = 30; } else if (lacunarity < 1) { lacunarity = 1; }
 
 
-        colorIndex = gameObject.GetComponent<ColorIndexer>();
-        colors = new Color[resolution*resolution];
-        texture = new Texture2D(resolution, resolution);
-        texture.filterMode = FilterMode.Point;
-        texture.wrapMode = TextureWrapMode.Clamp;
-
-        for(int i = 0; i < resolution; i++) {
-            for(int j = 0; j < resolution; j++) {
-
-                colors[i * resolution + j] = colorIndex.GetColor(heightMap[i, j]);
-
-            }
-        }
-        terrainMaterial.SetTexture("_MainTex", texture);
-        texture.SetPixels(colors);
-        texture.Apply();
-        
-    }
+		heightMap = PerlinNoise.GeneratePerlinNoise(side, side, resolution, octaves, lacunarity, persistance, seed);
 
 
-    public void GenerateMesh(){
-        
-        generator = gameObject.GetComponent<GenerateMesh>();
-        Mesh mesh = generator.MakeMesh(resolution, resolution, heightMap, texture,animCurve, amplifier);
+		colorIndex = gameObject.GetComponent<ColorIndexer>();
+		colors = new Color[resolution * resolution];
+		texture = new Texture2D(resolution, resolution);
+		texture.filterMode = FilterMode.Point;
+		texture.wrapMode = TextureWrapMode.Clamp;
 
-        ground.GetComponent<MeshCollider>().sharedMesh = mesh;
-        ground.GetComponent<MeshFilter>().sharedMesh = mesh;
-        ground.GetComponent<MeshRenderer>().material = terrainMaterial;
+		for (int i = 0; i < resolution; i++)
+		{
+			for (int j = 0; j < resolution; j++)
+			{
 
-        
+				colors[i * resolution + j] = colorIndex.GetColor(heightMap[i, j]);
 
-      
-        WaterGenerator waterGen = new WaterGenerator();
-        waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
-        if (puddleList.Count != 0)
-        {
-            foreach (GameObject obj in puddleList)
-            {
-                
-                DestroyImmediate(obj);
-            }
-            puddleList = new List<GameObject>();
-        }
+			}
+		}
+		terrainMaterial.SetTexture("_MainTex", texture);
+		texture.SetPixels(colors);
+		texture.Apply();
 
-        foreach (List<Vector2> cluster in waterList)
-        {
-            GameObject obj = new GameObject();
-            puddleList.Add(obj);
-            AddWater(cluster, obj);
-
-         
-        }
-
-        
+	}
 
 
-    }
+	public void GenerateMesh()
+	{
 
-    public float[,] GetHeightMap()
-    {
-        return heightMap;
-    }
+		generator = gameObject.GetComponent<GenerateMesh>();
+		Mesh mesh = generator.MakeMesh(resolution, resolution, heightMap, texture, animCurve, amplifier);
 
-    /*
+		ground.GetComponent<MeshCollider>().sharedMesh = mesh;
+		ground.GetComponent<MeshFilter>().sharedMesh = mesh;
+		ground.GetComponent<MeshRenderer>().material = terrainMaterial;
+
+
+
+
+		WaterGenerator waterGen = new WaterGenerator();
+		waterList = waterGen.GenerateWater(resolution, resolution, heightMap, 0.25f);
+		if (puddleList.Count != 0)
+		{
+			foreach (GameObject obj in puddleList)
+			{
+
+				DestroyImmediate(obj);
+			}
+			puddleList = new List<GameObject>();
+		}
+
+		foreach (List<Vector2> cluster in waterList)
+		{
+			GameObject obj = new GameObject();
+			puddleList.Add(obj);
+			AddWater(cluster, obj);
+
+
+		}
+
+
+
+
+	}
+
+	public float[,] GetHeightMap()
+	{
+		return heightMap;
+	}
+
+	/*
     public void AddWater(List<Vector2> cluster, GameObject puddle)
     {
         float maxX = float.MinValue;
@@ -191,59 +194,59 @@ public class TerrainKernal : MonoBehaviour
 
     }*/
 
-    public void AddWater(List<Vector2> lVertices2D, GameObject newObject)
-    {
-       
-
-        lVertices2D.OrderBy(p => p.y).ThenBy(p => p.x);
-            
-
-        Vector2[] vertices2D = lVertices2D.ToArray();
-        List<IPoint> points = new List<IPoint>();
-
-        foreach (Vector2 vec in vertices2D)
-        {
-            points.Add(new Point(vec.x, vec.y));
-        }
-        DelaunatorSharp.Delaunator del = new DelaunatorSharp.Delaunator(points);
+	public void AddWater(List<Vector2> lVertices2D, GameObject newObject)
+	{
 
 
-        // Create the Vector3 vertices
-        Vector3[] vertices = new Vector3[vertices2D.Length];
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            vertices[i] = new Vector3(vertices2D[i].x, amplifier * animCurve.Evaluate(0.25f), vertices2D[i].y);
-        }
+		lVertices2D.OrderBy(p => p.y).ThenBy(p => p.x);
 
-        int[] indices = del.Triangles;
-        // Create the mesh
-        Mesh msh = new Mesh();
-        msh.vertices = vertices;
-        msh.triangles = indices;
-        msh.RecalculateNormals();
-        msh.RecalculateBounds();
 
-        // Set up game object with mesh;
+		Vector2[] vertices2D = lVertices2D.ToArray();
+		List<IPoint> points = new List<IPoint>();
 
-        newObject.layer = 4;
-        newObject.AddComponent(typeof(MeshRenderer));
-        
-        
-        
-        var rend = newObject.GetComponent<MeshRenderer>();
-        Material[] mat = new Material[1];
-        mat[0] = waterTempMaterial;
-        rend.materials = mat;
-        MeshFilter filter = newObject.AddComponent(typeof(MeshFilter)) as MeshFilter;
-        MeshCollider meshCollider = newObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
-        meshCollider.sharedMesh = msh;
-        filter.mesh = msh;
-        newObject.AddComponent(typeof(NavMeshModifier));
-        NavMeshModifier nMM = (NavMeshModifier)newObject.GetComponent(typeof(NavMeshModifier));
-        nMM.overrideArea = true;
-        nMM.area = 1;
+		foreach (Vector2 vec in vertices2D)
+		{
+			points.Add(new Point(vec.x, vec.y));
+		}
+		DelaunatorSharp.Delaunator del = new DelaunatorSharp.Delaunator(points);
 
-        /*
+
+		// Create the Vector3 vertices
+		Vector3[] vertices = new Vector3[vertices2D.Length];
+		for (int i = 0; i < vertices.Length; i++)
+		{
+			vertices[i] = new Vector3(vertices2D[i].x, amplifier * animCurve.Evaluate(0.25f), vertices2D[i].y);
+		}
+
+		int[] indices = del.Triangles;
+		// Create the mesh
+		Mesh msh = new Mesh();
+		msh.vertices = vertices;
+		msh.triangles = indices;
+		msh.RecalculateNormals();
+		msh.RecalculateBounds();
+
+		// Set up game object with mesh;
+
+		newObject.layer = 4;
+		newObject.AddComponent(typeof(MeshRenderer));
+
+
+
+		var rend = newObject.GetComponent<MeshRenderer>();
+		Material[] mat = new Material[1];
+		mat[0] = waterTempMaterial;
+		rend.materials = mat;
+		MeshFilter filter = newObject.AddComponent(typeof(MeshFilter)) as MeshFilter;
+		MeshCollider meshCollider = newObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
+		meshCollider.sharedMesh = msh;
+		filter.mesh = msh;
+		newObject.AddComponent(typeof(NavMeshModifier));
+		NavMeshModifier nMM = (NavMeshModifier)newObject.GetComponent(typeof(NavMeshModifier));
+		nMM.overrideArea = true;
+		nMM.area = 1;
+
+		/*
         List<Tuple<Vector3, Vector3>> tmp = GetAllOutliningEdges(del.Triangles, vertices);
         
         foreach(Tuple<Vector3, Vector3> tup in tmp)
@@ -253,42 +256,43 @@ public class TerrainKernal : MonoBehaviour
         }
         Debug.Log(debugList.Count);
         */
-        // Add WaterPond script to object
+		// Add WaterPond script to object
 
-        newObject.AddComponent(typeof(Water));
-        newObject.AddComponent<WaterPuddle>();
-        newObject.GetComponent<Water>().SetVerts(vertices);
-    }
-    
-
-    public void GenerateMap(){
-        
+		newObject.AddComponent(typeof(Water));
+		newObject.AddComponent<WaterPuddle>();
+		newObject.GetComponent<Water>().SetVerts(vertices);
+	}
 
 
-        Material mat = new Material(Shader.Find("Unlit/Texture"));
-        mat.SetFloat("_Glossiness", 0f);
-        
+	public void GenerateMap()
+	{
 
-        mat.SetTexture("_MainTex", texture);
 
-        previewPlane.GetComponent<MeshRenderer>().material = mat;
-    }
 
-    public List<GameObject> GetPuddleList()
-    {
-        return puddleList;
-    }
+		Material mat = new Material(Shader.Find("Unlit/Texture"));
+		mat.SetFloat("_Glossiness", 0f);
 
-    private void OnApplicationQuit()
-    {
-        Debug.Log("hej");
-        foreach (GameObject obj in puddleList)
-        {
 
-            DestroyImmediate(obj);
-            puddleList = new List<GameObject>();
-        }
-        
-    }
+		mat.SetTexture("_MainTex", texture);
+
+		previewPlane.GetComponent<MeshRenderer>().material = mat;
+	}
+
+	public List<GameObject> GetPuddleList()
+	{
+		return puddleList;
+	}
+
+	private void OnApplicationQuit()
+	{
+		Debug.Log("hej");
+		foreach (GameObject obj in puddleList)
+		{
+
+			DestroyImmediate(obj);
+			puddleList = new List<GameObject>();
+		}
+
+	}
 
 }

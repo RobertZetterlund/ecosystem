@@ -1,9 +1,9 @@
 ﻿
 public enum SensorType
 {
-    SIGHT,
-    HEARING,
-    SMELL,
-    TOUCH
+	SIGHT,
+	HEARING,
+	SMELL,
+	TOUCH
 }
 
