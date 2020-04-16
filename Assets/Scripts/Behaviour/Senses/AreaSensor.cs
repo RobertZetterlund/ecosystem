@@ -48,7 +48,7 @@ public class AreaSensor : AbstractSensor
 				continue;
 			}
 
-			Vector3 pointOfInterest = Utility.GetClosesVert(transform.position, ComponentNavigator.GoToHighestObject(sensedObject));
+			Vector3 pointOfInterest = DistanceBetweenUtility.GetClosesVert(transform.position, ComponentNavigator.GoToHighestObject(sensedObject));
 			Vector3 dir;
 			Vector3 forward;
 

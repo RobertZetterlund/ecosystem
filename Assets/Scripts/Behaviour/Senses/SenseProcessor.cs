@@ -41,7 +41,7 @@ public class SenseProcessor
 
 	private void ProcessFoe(GameObject foe)
 	{
-		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, foe);
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, foe);
 		Animal sensedFoe = foe.GetComponent<Animal>();
 		double foeSpeed = sensedFoe.GetSpeed();
 		double mySpeed = self.GetMaxSpeed();
@@ -66,7 +66,7 @@ public class SenseProcessor
 
 	private void ProcessWater(GameObject water)
 	{
-		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, water);
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, water);
 		if (closestWaterDist > distanceBetween)
 		{
 			closestWaterObj = water;
@@ -77,7 +77,7 @@ public class SenseProcessor
 	private void ProcessMate(GameObject mate, ArrayList sensedGameObjects)
 	{
 		Animal sensedMate = mate.GetComponent<Animal>();
-		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, mate);
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, mate);
 
 		if (self.isMale ^ sensedMate.isMale) // closestMateDist > distanceBetween &&
 		{
@@ -107,7 +107,7 @@ public class SenseProcessor
 
   private void ProcessFood(GameObject foodObj)
 	{
-		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
 		IConsumable food = foodObj.GetComponent<IConsumable>();
 		double foodCurrentSpeed = food.GetSpeed();
 		double myMaxSpeed = self.GetMaxSpeed();

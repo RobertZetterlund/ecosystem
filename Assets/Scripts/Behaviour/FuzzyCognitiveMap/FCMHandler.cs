@@ -12,6 +12,9 @@ using UnityEngine;
  */
 public abstract class FCMHandler
 {
+
+    public IFuzzifier fuzzifier;
+
 	protected FCM fcm;
 
 	public FCMHandler(FCM fcm)
@@ -63,6 +66,52 @@ public abstract class FCMHandler
 		return fcm.GetTranslatedWeights();
 	}
 
+	// Fuzzifier for presence
+	private float calculatePresenceInput(int count)
+	{
+		float weight = (float)Math.Log10(count + 1);
+		return weight > 1 ? 1 : weight;
+	}
+
+	public void SetInversePresenceInputFields(EntityInput close, EntityInput far, float value)
+	{
+		fcm.SetState((EntityField)close, value);
+		fcm.SetState((EntityField)far, 1 - value);
+	}
+
+
+	public Dictionary<string, float> CorrectWeightMapToInputs(Dictionary<string, int> weightMap)
+	{
+
+		Dictionary<string, int>.Enumerator enumerator = weightMap.GetEnumerator();
+		Dictionary<string, float> fcmInput = new Dictionary<string, float>();
+
+		while (enumerator.MoveNext())
+		{
+			KeyValuePair<string, int> curr = enumerator.Current;
+			float adjustedvalue = calculatePresenceInput(curr.Value);
+			fcmInput.Add(curr.Key, adjustedvalue);
+		}
+
+		return fcmInput;
+	}
+
+	// Sets the two input fields as "komplement" to eachother in the fcm.
+	public void SetInverseDistanceInputFields(EntityInput close, EntityInput far, GameObject sensedObject, Animal animal)
+	{
+		float standard = 0;
+		float inverse = 1;
+		if (sensedObject != null)
+		{
+			float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
+			standard = fuzzifier.Fuzzify(0, 100, dist);
+			inverse = 1 - standard;
+		}
+		fcm.SetState((EntityField)close, standard);
+		fcm.SetState((EntityField)far, inverse);
+	}
+
+
 	public StringBuilder ToCsv()
 	{
 		return ToCsv(GetWeights());
@@ -88,5 +137,4 @@ public abstract class FCMHandler
 		return csv;
 
 	}
-
 }
