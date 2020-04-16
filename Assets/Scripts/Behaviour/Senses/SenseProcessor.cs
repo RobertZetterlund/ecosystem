@@ -55,20 +55,12 @@ public class SenseProcessor
 		}
 
 		// if only one negative, choose that one (foe will never catch up)
-		if ((longestTimeBeforeEaten < 0) ^ (timeBeforeEaten < 0))
-		{
-			// if the new one was negative, take it
-			if (timeBeforeEaten < 0) 
-			{
-				closestFoeObj = foe;
-				longestTimeBeforeEaten = timeBeforeEaten;
-			}
-		} 
-		else if (longestTimeBeforeEaten < timeBeforeEaten) // else, if both are negative or postive, choose the longest time
+		if (longestTimeBeforeEaten > timeBeforeEaten)
 		{
 			closestFoeObj = foe;
 			longestTimeBeforeEaten = timeBeforeEaten;
-		}
+		} 
+
 	}
 
 	private void ProcessWater(GameObject water)

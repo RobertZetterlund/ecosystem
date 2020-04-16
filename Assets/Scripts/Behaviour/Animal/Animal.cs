@@ -27,7 +27,7 @@ public abstract class Animal : Entity, IConsumable
 	private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
 	double timeToDeathByThirst = 30;
 	private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
-	private const double AdultSizeFactor = 0.4; // how big you have to be to mate
+	private const double AdultSizeFactor = 0.3; // how big you have to be to mate
 	double lifespan = 45;
 	bool dead;
 	private bool immobalized;
@@ -38,7 +38,7 @@ public abstract class Animal : Entity, IConsumable
 	private ArrayList sensedGameObjects;
 	private RangedDouble maxSize;
 	private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
-									// senses
+	// senses
 	private TickTimer senseTimer, fcmTimer, searchTimer, overallTimer;
 	private AbstractSensor[] sensors;
 	private AbstractSensor touchSensor;
@@ -106,7 +106,7 @@ public abstract class Animal : Entity, IConsumable
 		// drar en riktigt cheeky här...
 
 		if (!traits.diet[0].Equals("Plant"))
-			goToFoodAction = new GoToConsumable<Animal>(this);
+			goToFoodAction = new HuntAction<Animal>(this);
 		else
 			goToFoodAction = new GoToConsumable<Plant>(this);
 
@@ -437,7 +437,7 @@ public abstract class Animal : Entity, IConsumable
 		// do eating calculations
 		if (consumable != null)
 		{
-			double biteSize = size.GetValue() * BiteFactor;
+			double biteSize = size.GetValue() * BiteFactor*1000;
 			// todo removed *time.deltaTime for now
 			ConsumptionType type = consumable.GetConsumptionType();
 			swallow(consumable.Consume(biteSize), type);
@@ -766,7 +766,7 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 4; // increase or decrease to change hunger depletion speed
+		double overallCostFactor = 2.5; // increase or decrease to change hunger depletion speed
 
 		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
 		double speedCost = currentSpeed * currentSpeed * size.GetValue(); // mass * speed

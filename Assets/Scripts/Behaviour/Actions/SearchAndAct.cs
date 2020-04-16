@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -79,9 +80,9 @@ public abstract class SearchAndAct : AbstractAction
 			return false;
 		}
 
-
 		if (!animal.CloseEnoughToAct(animal.targetGameObject))
 		{
+
 			if (approachTimer.IsDone())
 			{
 				try
@@ -89,8 +90,9 @@ public abstract class SearchAndAct : AbstractAction
 					Vector3 pos = targetPos.GetPos();
 					animal.GoToStationaryPosition(pos);
 				}
-				catch (Exception)
+				catch ( MissingReferenceException)
 				{
+					Reset();
 				}
 
 				approachTimer.Reset();
