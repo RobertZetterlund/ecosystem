@@ -3,6 +3,7 @@
 
 class GaussianMutation : SingletonBase<GaussianMutation>, IMutation
 {
+
 	private static double STD_DEVIATION_FACTOR = 0.2;
 
 	public RangedDouble Mutate(RangedDouble gene)
