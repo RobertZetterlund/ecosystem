@@ -69,7 +69,7 @@ public class RabbitFCMHandler : FCMHandler
 		float inverse = 1;
 		if (sensedObject != null)
 		{
-			float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
+			float dist = Utility.DistanceBetweenTwoGameObjects(sensedObject, animal.gameObject);
 			standard = fuzzifier.Fuzzify(0, 100, dist);
 			inverse = 1 - standard;
 		}

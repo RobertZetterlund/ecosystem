@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,14 +43,7 @@ public class Water : Entity, IConsumable
 
 	public Vector3[] GetVerts()
 	{
-		List<Vector3> vec = new List<Vector3>();
-		int x = verts.Length / 25;
-		for (int i = 0; i < verts.Length; i++)
-		{
-			if (i / x == 0) { vec.Add(verts[i]); }
-		}
-
-
-		return vec.ToArray();
+		return verts;
 	}
+
 }

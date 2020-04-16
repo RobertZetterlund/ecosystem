@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class SenseProcessor
 {
 	private Animal self;
@@ -40,7 +41,7 @@ public class SenseProcessor
 
 	private void ProcessFoe(GameObject foe)
 	{
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foe);
+		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, foe);
 		Animal sensedFoe = foe.GetComponent<Animal>();
 		double foeSpeed = sensedFoe.GetSpeed();
 		double mySpeed = self.GetMaxSpeed();
@@ -73,7 +74,7 @@ public class SenseProcessor
 
 	private void ProcessWater(GameObject water)
 	{
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, water);
+		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, water);
 		if (closestWaterDist > distanceBetween)
 		{
 			closestWaterObj = water;
@@ -84,7 +85,7 @@ public class SenseProcessor
 	private void ProcessMate(GameObject mate, ArrayList sensedGameObjects)
 	{
 		Animal sensedMate = mate.GetComponent<Animal>();
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, mate);
+		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, mate);
 
 		if (self.isMale ^ sensedMate.isMale) // closestMateDist > distanceBetween &&
 		{
@@ -114,7 +115,7 @@ public class SenseProcessor
 
   private void ProcessFood(GameObject foodObj)
 	{
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
+		double distanceBetween = Utility.DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
 		IConsumable food = foodObj.GetComponent<IConsumable>();
 		double foodCurrentSpeed = food.GetSpeed();
 		double myMaxSpeed = self.GetMaxSpeed();
@@ -215,15 +216,7 @@ public class SenseProcessor
 		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, bestFoodObj);
 	}
 
-	private double DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
-	{
-		if (obj1 == null || obj2 == null)
-		{
-			return Int32.MaxValue;
-		}
-		return Vector3.Distance(obj1.transform.position, obj2.transform.position);
-	}
-
+	
 
 	public GameObject GetClosestFoodObj()
 	{
