@@ -143,9 +143,14 @@ public class AreaSensor : AbstractSensor
 		return sensedGameObjects.ToArray();
 	}
 
-	public override void setRadius(float r)
+	public override void SetRadius(float r)
 	{
 		senseRadius = r;
+	}
+
+	public override float GetRadius()
+	{
+		return senseRadius;
 	}
 
 }

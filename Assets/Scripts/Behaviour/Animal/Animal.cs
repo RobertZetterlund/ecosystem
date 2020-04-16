@@ -61,6 +61,7 @@ public abstract class Animal : Entity, IConsumable
 	public bool showSenseRadiusGizmo;
 	public bool showSightGizmo = false;
 	public bool showSmellGizmo = false;
+	public bool showTouchGizmo = false;
 	public bool showTargetDestinationGizmo = true;
 	UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
 	public Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
@@ -165,7 +166,7 @@ public abstract class Animal : Entity, IConsumable
 
 		currentSpeed = navMeshAgent.velocity.magnitude;
 		DepleteSize();
-
+		UpdateSize();
 		// update thirst
 		thirst.Add(cdt / timeToDeathByThirst);
 
@@ -251,7 +252,6 @@ public abstract class Animal : Entity, IConsumable
 			UpdateStatusBars();
 			UpdateAnimation();
 		}
-		UpdateSize();
 	}
 
 	void Sense()
@@ -520,7 +520,20 @@ public abstract class Animal : Entity, IConsumable
 #if show_gizmos
 	void OnDrawGizmos()
 	{
+		if (showTouchGizmo)
+		{
+			var pos11 = transform.position + Quaternion.AngleAxis(0, transform.up) * transform.forward * touchSensor.GetRadius();
 
+			var prev1 = pos11;
+			for (int i = 20; i <= 360; i += 20)
+			{
+				var newpos1 = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * touchSensor.GetRadius();
+				Gizmos.DrawLine(prev1, newpos1);
+				prev1 = newpos1;
+			}
+
+		}
+		
 		if (drawRaycast)
 		{
 
@@ -681,12 +694,15 @@ public abstract class Animal : Entity, IConsumable
 
 	private void UpdateSize()
 	{
-		// should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
+		float sizeRadius = 0;
+		float baseRadius = navMeshAgent.radius * 1.1f;
 		if (gameObject != null && (float)size.GetValue() > 0.01)
 		{
 			try
 			{
-				gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+				sizeRadius = (float)Math.Pow(size.GetValue(), 1f / 3f);
+				gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * sizeRadius;
+				//navMeshAgent.radius = 0.5f * radiusF;
 			}
 			catch (Exception)
 			{
@@ -694,10 +710,8 @@ public abstract class Animal : Entity, IConsumable
 			}
 
 		}
-
-		Renderer rend = (Renderer)childRenderers[0];
-		float radius = rend.bounds.extents.magnitude;
-		touchSensor.setRadius(1 + radius * 1.1f);
+		float radius = (sizeRadius > baseRadius) ? sizeRadius : baseRadius;
+		touchSensor.SetRadius(radius);
 	}
 
 	// update position and value of status bars
