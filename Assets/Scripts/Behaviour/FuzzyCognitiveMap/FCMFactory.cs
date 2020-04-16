@@ -38,6 +38,8 @@ public static class FCMFactory
 			fcm.SetWeight(EntityField.Hungry, EntityField.SearchingForMate, -0.1);
 			fcm.SetWeight(EntityField.NotHungry, EntityField.SearchingForMate, 0.1);
 
+			fcm.SetWeight(EntityField.Hungry, EntityField.Escaping, -0.2);
+
 
 			// WATER AND THIRST
 			fcm.SetWeight(EntityField.WaterClose, EntityField.GoingToWater, 0.05);
@@ -47,6 +49,11 @@ public static class FCMFactory
 
 			fcm.SetWeight(EntityField.Thirsty, EntityField.GoingToWater, 0.3);
 			fcm.SetWeight(EntityField.NotThirsty, EntityField.GoingToWater, -0.2);
+
+
+			fcm.SetWeight(EntityField.Thirsty, EntityField.Escaping, -0.2);
+
+
 
 
 			// MATE AND FERTILITY
@@ -67,8 +74,8 @@ public static class FCMFactory
 
 
 			// FEAR AND ESCAPING
-			fcm.SetWeight(EntityField.FoeClose, EntityField.Fear, 0.3);
-			fcm.SetWeight(EntityField.FoeFar, EntityField.Fear, -0.1);
+			fcm.SetWeight(EntityField.FoeClose, EntityField.Fear, 0.5);
+			fcm.SetWeight(EntityField.FoeFar, EntityField.Fear, -0.5);
 			fcm.SetWeight(EntityField.FoePresenceHigh, EntityField.Fear, 0.15);
 			fcm.SetWeight(EntityField.FoePresenceLow, EntityField.Fear, -0.05);
 

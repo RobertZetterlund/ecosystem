@@ -32,6 +32,7 @@ public class EscapeAction : AbstractAction
 			catch (MissingReferenceException)
 			{
 				// target died
+				Reset();
 			}
 		}
 		else
