@@ -816,7 +816,6 @@ public abstract class Animal : Entity, IConsumable
 		return false;
 	}
 
-<<<<<<< HEAD
 	public double GetSpeed()
 	{
 		return currentSpeed;
@@ -826,12 +825,10 @@ public abstract class Animal : Entity, IConsumable
 	{
 		return speed.GetValue();
 	}
-||||||| merged common ancestors
-=======
+
 	public double GetSenseRadius()
 	{
 		return biggestSenseRadius;
 	}
 
->>>>>>> dev
 }
