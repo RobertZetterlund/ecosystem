@@ -51,6 +51,7 @@ public abstract class Animal : Entity, IConsumable
 	private Transform currentTargetTransform;
 	private Memory memory;
 	private SenseProcessor senseProcessor;
+	private double biggestSenseRadius = 0;
 
 	// ui
 	private StatusBars statusBars;
@@ -100,6 +101,7 @@ public abstract class Animal : Entity, IConsumable
 		this.traits = traits;
 		senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
 
+		biggestSenseRadius = Math.Max(sightLength.GetValue(), smellRadius.GetValue());
 		// drar en riktigt cheeky här...
 
 		if (!traits.diet[0].Equals("Plant"))
@@ -231,15 +233,15 @@ public abstract class Animal : Entity, IConsumable
 		}
 	}
 	/*
-    void Move()
-    {
-        var oldPos = transform.position;
-        for (var f = 0f; f < 1.0f; f += Time.fixedDeltaTime)
-        {
-            navMeshAgent.transform.position = Vector3.Lerp(oldPos, navMeshAgent.nextPosition, f);
-        }
-    }
-    */
+		void Move()
+		{
+			var oldPos = transform.position;
+			for (var f = 0f; f < 1.0f; f += Time.fixedDeltaTime)
+			{
+				navMeshAgent.transform.position = Vector3.Lerp(oldPos, navMeshAgent.nextPosition, f);
+			}
+		}
+		*/
 
 	void Update()
 	{
@@ -523,7 +525,6 @@ public abstract class Animal : Entity, IConsumable
 	}
 
 
-	//Draws a sphere corresponding to its sense radius
 #if show_gizmos
 	void OnDrawGizmos()
 	{
@@ -566,12 +567,12 @@ public abstract class Animal : Entity, IConsumable
 		}
 
 		/*
-        if (showSenseRadiusGizmo)
-        {
-            Gizmos.color = SphereGizmoColor;
-            Gizmos.DrawSphere(transform.position, senseRadius);
-        }
-        */
+		if (showSenseRadiusGizmo)
+		{
+			Gizmos.color = SphereGizmoColor;
+			Gizmos.DrawSphere(transform.position, senseRadius);
+		}
+		*/
 		if (showSightGizmo)
 		{
 			float hFOV = horisontalFOV;
@@ -625,6 +626,7 @@ public abstract class Animal : Entity, IConsumable
 	}
 
 #endif
+
 	public NavMeshAgent GetNavMeshAgent()
 	{
 		return navMeshAgent;
@@ -805,6 +807,11 @@ public abstract class Animal : Entity, IConsumable
 			return true;
 		}
 		return false;
+	}
+
+	public double GetSenseRadius()
+	{
+		return biggestSenseRadius;
 	}
 
 }
