@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Utility
+public static class DistanceBetweenUtility
 {
 	public static float DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
 	{
