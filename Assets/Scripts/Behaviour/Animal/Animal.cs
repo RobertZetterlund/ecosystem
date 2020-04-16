@@ -61,7 +61,7 @@ public abstract class Animal : Entity, IConsumable
 	public bool showSenseRadiusGizmo;
 	public bool showSightGizmo = false;
 	public bool showSmellGizmo = false;
-	public bool showTouchGizmo = false;
+	public bool showTouchGizmo = true;
 	public bool showTargetDestinationGizmo = true;
 	UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
 	public Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
@@ -701,7 +701,7 @@ public abstract class Animal : Entity, IConsumable
 			try
 			{
 				sizeRadius = (float)Math.Pow(size.GetValue(), 1f / 3f);
-				gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * sizeRadius;
+				gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
 				//navMeshAgent.radius = 0.5f * radiusF;
 			}
 			catch (Exception)
@@ -766,18 +766,18 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 7; // increase or decrease to change hunger depletion speed
+		double overallCostFactor = 4; // increase or decrease to change hunger depletion speed
 
-		double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
-		double speedCost = currentSpeed * size.GetValue(); // mass * speed
+		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
+		double speedCost = currentSpeed * currentSpeed * size.GetValue(); // mass * speed
 		double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
 		double sightCost = sightLength.GetValue() * horisontalFOV / 360;
 		// each cost is divided by some arbitrary constant to balance it
 
 		sizeCost /= 120;
-		speedCost /= 1200;
-		smellCost /= 5000;
-		sightCost /= 5000;
+		speedCost /= 1400;
+		smellCost /= 4000;
+		sightCost /= 4000;
 
 		// deplete size based on traits.
 		double depletion = overallCostFactor * cdt * (sizeCost + speedCost + smellCost + sightCost);

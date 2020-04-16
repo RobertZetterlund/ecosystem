@@ -149,8 +149,8 @@ abstract class SimulationController : MonoBehaviour
 		String[] emptyArr = new string[] { "" };
 
 		double smellRadius = 25;
-		AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, 5, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
-		AnimalTraits foxTraits = new AnimalTraits(Species.Fox, maxSize, 1, 2, 3, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
+		AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, 5, 13, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+		AnimalTraits foxTraits = new AnimalTraits(Species.Fox, maxSize, 1, 2, 3, 13, 30, smellRadius, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
 
 		baseTraits[(int)Species.Rabbit] = rabbitTraits;
 		baseTraits[(int)Species.Fox] = foxTraits;
