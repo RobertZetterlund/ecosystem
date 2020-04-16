@@ -50,7 +50,8 @@ public class SenseProcessor
 		try
 		{
 			timeBeforeEaten = distanceBetween / (foeSpeed - mySpeed);
-		} catch (DivideByZeroException)
+		}
+		catch (DivideByZeroException)
 		{
 			timeBeforeEaten = double.MaxValue;
 		}
@@ -60,7 +61,7 @@ public class SenseProcessor
 		{
 			closestFoeObj = foe;
 			longestTimeBeforeEaten = timeBeforeEaten;
-		} 
+		}
 
 	}
 
@@ -105,7 +106,7 @@ public class SenseProcessor
 		}
 	}
 
-  private void ProcessFood(GameObject foodObj)
+	private void ProcessFood(GameObject foodObj)
 	{
 		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
 		IConsumable food = foodObj.GetComponent<IConsumable>();
@@ -208,7 +209,7 @@ public class SenseProcessor
 		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, bestFoodObj);
 	}
 
-	
+
 
 	public GameObject GetClosestFoodObj()
 	{

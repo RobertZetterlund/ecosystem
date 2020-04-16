@@ -127,7 +127,7 @@ abstract class SimulationController : MonoBehaviour
 
 	protected void SpawnAnimal(AnimalTraits traits, Vector3 spawnPoint)
 	{
-		OrganismFactory.CreateAnimal(traits, spawnPoint, startSizeFactor*maxSize, startThirst);
+		OrganismFactory.CreateAnimal(traits, spawnPoint, startSizeFactor * maxSize, startThirst);
 	}
 
 	protected void SpawnPlant(Vector3 spawnPoint)

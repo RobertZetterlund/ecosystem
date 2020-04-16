@@ -13,7 +13,7 @@ using UnityEngine;
 public abstract class FCMHandler
 {
 
-    public IFuzzifier fuzzifier;
+	public IFuzzifier fuzzifier;
 
 	protected FCM fcm;
 

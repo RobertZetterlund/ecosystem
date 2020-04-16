@@ -38,7 +38,7 @@ public abstract class Animal : Entity, IConsumable
 	private ArrayList sensedGameObjects;
 	private RangedDouble maxSize;
 	private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
-	// senses
+									// senses
 	private TickTimer senseTimer, fcmTimer, searchTimer, overallTimer;
 	private AbstractSensor[] sensors;
 	private AbstractSensor touchSensor;
@@ -401,14 +401,14 @@ public abstract class Animal : Entity, IConsumable
 					nbrChildren = MathUtility.RandomChance(oddsOfExtraChild) ? Math.Truncate(nbrChildren) + 1 : Math.Truncate(nbrChildren);
 
 					// calculate size for each parent and child
-					double individualSize = (size.GetValue() + mate.size.GetValue()) / (2+nbrChildren);
+					double individualSize = (size.GetValue() + mate.size.GetValue()) / (2 + nbrChildren);
 					size.SetValue(0);
 					mate.size.SetValue(0);
 					size.Add(individualSize);
 					mate.size.Add(individualSize);
 
 					// calculate thirst for each parent and child
-					double individualThirst = 1- ((1 - thirst.GetValue()) + (1 - mate.thirst.GetValue())) / (2 + nbrChildren);
+					double individualThirst = 1 - ((1 - thirst.GetValue()) + (1 - mate.thirst.GetValue())) / (2 + nbrChildren);
 					thirst.SetValue(0);
 					mate.thirst.SetValue(0);
 					thirst.Add(individualThirst);
@@ -437,7 +437,7 @@ public abstract class Animal : Entity, IConsumable
 		// do eating calculations
 		if (consumable != null)
 		{
-			double biteSize = size.GetValue() * BiteFactor*1000;
+			double biteSize = size.GetValue() * BiteFactor * 1000;
 			// todo removed *time.deltaTime for now
 			ConsumptionType type = consumable.GetConsumptionType();
 			swallow(consumable.Consume(biteSize), type);
@@ -533,7 +533,7 @@ public abstract class Animal : Entity, IConsumable
 			}
 
 		}
-		
+
 		if (drawRaycast)
 		{
 

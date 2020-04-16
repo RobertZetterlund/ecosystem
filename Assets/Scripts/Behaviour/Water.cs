@@ -30,8 +30,8 @@ public class Water : Entity, IConsumable
 	{
 		return -amount; // don't need to do anything if we assume there's infinite amount of water
 	}
-  
-  public double GetSpeed()
+
+	public double GetSpeed()
 	{
 		return 0;
 	}
