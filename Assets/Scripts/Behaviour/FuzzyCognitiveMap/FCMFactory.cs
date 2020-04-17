@@ -94,6 +94,7 @@ public static class FCMFactory
 			fcm.SetWeight(EntityField.Escaping, EntityField.SearchingForMate, -0.15);
 			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);
 
+
 		}
 		else
 		{

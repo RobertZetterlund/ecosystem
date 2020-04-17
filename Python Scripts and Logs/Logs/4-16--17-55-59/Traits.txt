@@ -1,9 +1,0 @@
-Rabbit-population,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-speed,Rabbit-heat Timer,Rabbit-sight length,Rabbit-smell radius,Fox-population,Fox-max size,Fox-diet factor,Fox-#children,Fox-speed,Fox-heat Timer,Fox-sight length,Fox-smell radius
-20,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-18,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-16,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-14,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-13,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-9,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-6,3,0,2.1,4,13,30,25,20,3,1,2,4,13,30,25
-7,2.93570125879436,0,2.12511736712463,4.18282558993771,12.6598723841162,31.6444987929335,26.0362633439061,20,3,1,2,4,13,30,25
