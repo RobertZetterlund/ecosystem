@@ -6,7 +6,7 @@ using UnityEngine.AI;
  */
 public static class OrganismFactory
 {
-	public static Animal CreateAnimal(AnimalTraits traits, Vector3 location)
+	public static Animal CreateAnimal(AnimalTraits traits, Vector3 location, double size, double thirst)
 	{
 		Animal animal;
 		switch (traits.species)
@@ -22,7 +22,7 @@ public static class OrganismFactory
 				break;
 		}
 
-		animal.Init(traits);
+		animal.Init(traits, size, thirst);
 		animal.transform.position = location;
 		return animal;
 	}
@@ -32,7 +32,6 @@ public static class OrganismFactory
 		//return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 		GameObject model = GameObject.Instantiate((GameObject)Resources.Load("testF")); //name a Fox to testF in unity
 		Animal animal = model.AddComponent<Fox>();
-		//model.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
 		return animal;
 	}
 
@@ -87,6 +86,8 @@ public static class OrganismFactory
 				return new Vector3(1f, 1f, 1f);
 			case Species.Plant:
 				return new Vector3(1f, 1f, 1f);
+			case Species.Fox:
+				return new Vector3(0.2f, 0.2f, 0.2f);
 			default:
 				return new Vector3(1f, 1f, 1f);
 		}

@@ -27,7 +27,7 @@ public abstract class Animal : Entity, IConsumable
 	private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
 	double timeToDeathByThirst = 70;
 	private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
-	private const double AdultSizeFactor = 0.4; // how big you have to be to mate
+	private const double AdultSizeFactor = 0.3; // how big you have to be to mate
 	double lifespan = 80;
 	bool dead;
 	private bool immobalized;
@@ -37,7 +37,6 @@ public abstract class Animal : Entity, IConsumable
 	private string targetGametag = "";
 	private ArrayList sensedGameObjects;
 	private RangedDouble maxSize;
-	private RangedDouble infantFactor; // how big the child is in %
 	private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
 									// senses
 	private TickTimer senseTimer, fcmTimer, searchTimer, overallTimer;
@@ -53,6 +52,8 @@ public abstract class Animal : Entity, IConsumable
 	private SenseProcessor senseProcessor;
 	private double biggestSenseRadius = 0;
 
+	private double currentSpeed = 0;
+
 	// ui
 	private StatusBars statusBars;
 	private Component[] childRenderers;
@@ -61,6 +62,7 @@ public abstract class Animal : Entity, IConsumable
 	public bool showSenseRadiusGizmo;
 	public bool showSightGizmo = false;
 	public bool showSmellGizmo = false;
+	public bool showTouchGizmo = true;
 	public bool showTargetDestinationGizmo = true;
 	UnityEngine.Color SphereGizmoColor = new UnityEngine.Color(1, 1, 0, 0.3f);
 	public Vector3 targetDestinationGizmo = new Vector3(0, 0, 0);
@@ -83,20 +85,21 @@ public abstract class Animal : Entity, IConsumable
 	private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action, escapeAction;
 	private SimulationController simulation = SimulationController.Instance();
 
-	public virtual void Init(AnimalTraits traits)
+	public virtual void Init(AnimalTraits traits, double size, double thirst)
 	{
 		this.species = traits.species;
 		this.dietFactor = traits.dietFactor;
 		this.maxSize = traits.maxSize;
-		this.size = new RangedDouble(traits.maxSize.GetValue() * traits.infantFactor.GetValue(), 0, traits.maxSize.GetValue());
+		this.size = new RangedDouble(0, 0, traits.maxSize.GetValue());
+		this.size.Add(size);
 		this.nChildren = traits.nChildren;
-		this.infantFactor = traits.infantFactor;
 		this.speed = traits.speed;
 		this.fcmHandler = traits.fcmHandler;
 		isMale = rand.NextDouble() >= 0.5;
 		this.heatTimer = traits.heatTimer;
 		this.sightLength = traits.sightLength;
 		this.smellRadius = traits.smellRadius;
+		this.thirst.Add(thirst);
 
 		this.traits = traits;
 		senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
@@ -105,7 +108,7 @@ public abstract class Animal : Entity, IConsumable
 		// drar en riktigt cheeky här...
 
 		if (!traits.diet[0].Equals("Plant"))
-			goToFoodAction = new GoToConsumable<Animal>(this);
+			goToFoodAction = new HuntAction<Animal>(this);
 		else
 			goToFoodAction = new GoToConsumable<Plant>(this);
 
@@ -163,6 +166,7 @@ public abstract class Animal : Entity, IConsumable
 		if (isDead())
 			return;
 
+		currentSpeed = navMeshAgent.velocity.magnitude;
 		DepleteSize();
 		UpdateSize();
 
@@ -403,36 +407,26 @@ public abstract class Animal : Entity, IConsumable
 					double nbrChildren = mother.nChildren.GetValue();
 					double oddsOfExtraChild = nbrChildren - Math.Truncate(nbrChildren);
 					nbrChildren = MathUtility.RandomChance(oddsOfExtraChild) ? Math.Truncate(nbrChildren) + 1 : Math.Truncate(nbrChildren);
-					Animal[] children = new Animal[(int)nbrChildren];
-					int bornChildren = 0;
+
+					// calculate size for each parent and child
+					double individualSize = (size.GetValue() + mate.size.GetValue()) / (2 + nbrChildren);
+					size.SetValue(0);
+					mate.size.SetValue(0);
+					size.Add(individualSize);
+					mate.size.Add(individualSize);
+
+					// calculate thirst for each parent and child
+					double individualThirst = 1 - ((1 - thirst.GetValue()) + (1 - mate.thirst.GetValue())) / (2 + nbrChildren);
+					thirst.SetValue(0);
+					mate.thirst.SetValue(0);
+					thirst.Add(individualThirst);
+					mate.thirst.Add(individualThirst);
 
 					for (int i = 0; i < nbrChildren; i++)
 					{
 						AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.traits);
-
-						// deplete size for each child born
-						// stop when your size would run out
-						double sizeRemoved = mother.size.Add(-child.maxSize.GetValue() * child.infantFactor.GetValue());
-						if (sizeRemoved != -child.maxSize.GetValue() * child.infantFactor.GetValue())
-						{
-							mother.size.Add(-sizeRemoved); // restore because child wasnt born.
-							return false;
-						}
-
-						Animal childAnimal = OrganismFactory.CreateAnimal(child, mother.transform.position);
-						bornChildren++;
-						children[i] = childAnimal;
+						Animal childAnimal = OrganismFactory.CreateAnimal(child, mother.transform.position, individualSize, individualThirst);
 					}
-					// divide water reserve from mother among itself and children
-					double waterRation = (1 - mother.thirst.GetValue()) / (bornChildren + 1);
-					foreach (Animal child in children)
-					{
-						if (child != null)
-						{
-							child.thirst.SetValue(1 - waterRation);
-						}
-					}
-					mother.thirst.SetValue(1 - waterRation);
 				}
 			}
 		}
@@ -451,7 +445,7 @@ public abstract class Animal : Entity, IConsumable
 		// do eating calculations
 		if (consumable != null)
 		{
-			double biteSize = size.GetValue() * BiteFactor;
+			double biteSize = size.GetValue() * BiteFactor * 1000;
 			// todo removed *time.deltaTime for now
 			ConsumptionType type = consumable.GetConsumptionType();
 			swallow(consumable.Consume(biteSize), type);
@@ -533,6 +527,19 @@ public abstract class Animal : Entity, IConsumable
 #if show_gizmos
 	void OnDrawGizmos()
 	{
+		if (showTouchGizmo)
+		{
+			var pos11 = transform.position + Quaternion.AngleAxis(0, transform.up) * transform.forward * touchSensor.GetRadius();
+
+			var prev1 = pos11;
+			for (int i = 20; i <= 360; i += 20)
+			{
+				var newpos1 = transform.position + Quaternion.AngleAxis(i, transform.up) * transform.forward * touchSensor.GetRadius();
+				Gizmos.DrawLine(prev1, newpos1);
+				prev1 = newpos1;
+			}
+
+		}
 
 		if (drawRaycast)
 		{
@@ -695,12 +702,15 @@ public abstract class Animal : Entity, IConsumable
 
 	private void UpdateSize()
 	{
-		// should be Math.Pow(size.GetValue(), 1/3) but size barely changes so it's kinda boring
+		float sizeRadius = 0;
+		float baseRadius = navMeshAgent.radius * 1.1f;
 		if (gameObject != null && (float)size.GetValue() > 0.01)
 		{
 			try
 			{
+				sizeRadius = (float)Math.Pow(size.GetValue(), 1f / 3f);
 				gameObject.transform.localScale = OrganismFactory.GetOriginalScale(species) * (float)size.GetValue();
+				//navMeshAgent.radius = 0.5f * radiusF;
 			}
 			catch (Exception)
 			{
@@ -708,10 +718,8 @@ public abstract class Animal : Entity, IConsumable
 			}
 
 		}
-
-		Renderer rend = (Renderer)childRenderers[0];
-		float radius = rend.bounds.extents.magnitude;
-		touchSensor.setRadius(1 + radius * 1.1f);
+		float radius = (sizeRadius > baseRadius) ? sizeRadius : baseRadius;
+		touchSensor.SetRadius(radius);
 	}
 
 	// update position and value of status bars
@@ -766,10 +774,10 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 1.5; // increase or decrease to change hunger depletion speed
+		double overallCostFactor = 7; // increase or decrease to change hunger depletion speed
 
-		double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
-		double speedCost = speed.GetValue() * size.GetValue(); // mass * speed
+		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
+		double speedCost = currentSpeed * size.GetValue(); // mass * speed
 		double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
 		double sightCost = sightLength.GetValue() * horisontalFOV / 360;
 		// each cost is divided by some arbitrary constant to balance it
@@ -812,6 +820,16 @@ public abstract class Animal : Entity, IConsumable
 			return true;
 		}
 		return false;
+	}
+
+	public double GetSpeed()
+	{
+		return currentSpeed;
+	}
+
+	public double GetMaxSpeed()
+	{
+		return speed.GetValue();
 	}
 
 	public double GetSenseRadius()

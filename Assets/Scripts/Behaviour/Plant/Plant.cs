@@ -58,16 +58,19 @@ public class Plant : Entity, IConsumable
 			deleted = true;
 			OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
 		}
-
 	}
-
-	public double GetAmount()
+	double IConsumable.GetSpeed()
 	{
-		return amountRemaining.GetValue();
+		return 0;
 	}
 
-	public ConsumptionType GetConsumptionType()
+	ConsumptionType IConsumable.GetConsumptionType()
 	{
 		return ConsumptionType.Plant;
+	}
+
+	double IConsumable.GetAmount()
+	{
+		return amountRemaining.GetValue();
 	}
 }

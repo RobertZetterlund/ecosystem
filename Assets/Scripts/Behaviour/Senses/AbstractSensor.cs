@@ -28,6 +28,7 @@ public abstract class AbstractSensor
 		}
 		return false;
 	}
-	public abstract void setRadius(float r);
+	public abstract void SetRadius(float r);
+	public abstract float GetRadius();
 }
 

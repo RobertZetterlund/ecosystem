@@ -2,19 +2,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+
 
 public class SenseProcessor
 {
-
 	private Animal self;
-	private GameObject closestFoodObj;
+	private GameObject bestFoodObj;
 	private GameObject closestFoeObj;
 	private GameObject closestWaterObj;
 	private GameObject closestMateObj;
 
-	private double closestFoodDist = Int32.MaxValue;
-	private double closestFoeDist = Int32.MaxValue;
+	private double highestFoodValue = double.MinValue;
+	private double shortestTimeBeforeEaten = double.MinValue;
 	private double closestWaterDist = Int32.MaxValue;
 	private double closestMateDist = Int32.MaxValue;
 
@@ -41,17 +42,54 @@ public class SenseProcessor
 
 	private void ProcessFoe(GameObject foe)
 	{
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, foe);
-		if (closestFoeDist > distanceBetween)
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, foe);
+		Animal sensedFoe = foe.GetComponent<Animal>();
+		double foeSpeed = sensedFoe.GetSpeed();
+		double mySpeed = self.GetMaxSpeed();
+
+		double timeBeforeEaten;
+		double speedDifference = (foeSpeed - mySpeed);
+		// calculate time before eaten
+		if (speedDifference == 0) {
+			timeBeforeEaten = double.MaxValue;
+		}
+		else if (speedDifference < 0) // (distance / -speed) nor (distance * -speed) will work
+		{
+			timeBeforeEaten = -distanceBetween;
+		}
+		else
+		{
+			timeBeforeEaten = distanceBetween / speedDifference;
+		}
+
+		// determine most dangerous foe
+		if (shortestTimeBeforeEaten  >= 0 && timeBeforeEaten >=  0) // if both positive, take smallest time
+		{
+			if (shortestTimeBeforeEaten >= timeBeforeEaten)
+			{
+				closestFoeObj = foe;
+				shortestTimeBeforeEaten = timeBeforeEaten;
+			}
+		}
+		else if (shortestTimeBeforeEaten < 0 && timeBeforeEaten < 0) // else if both negative take biggest (smallest distance)
+		{
+			if (shortestTimeBeforeEaten <= timeBeforeEaten)
+			{
+				closestFoeObj = foe;
+				shortestTimeBeforeEaten = timeBeforeEaten;
+			}
+		}
+		else if (timeBeforeEaten >= 0) // else, one is negative (meaning not dangerous, so take the positive one)
 		{
 			closestFoeObj = foe;
-			closestFoeDist = distanceBetween;
+			shortestTimeBeforeEaten = timeBeforeEaten;
 		}
-	}
+	} 
+
 
 	private void ProcessWater(GameObject water)
 	{
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, water);
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, water);
 		if (closestWaterDist > distanceBetween)
 		{
 			closestWaterObj = water;
@@ -62,7 +100,7 @@ public class SenseProcessor
 	private void ProcessMate(GameObject mate, ArrayList sensedGameObjects)
 	{
 		Animal sensedMate = mate.GetComponent<Animal>();
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, mate);
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, mate);
 
 		if (self.isMale ^ sensedMate.isMale) // closestMateDist > distanceBetween &&
 		{
@@ -90,14 +128,53 @@ public class SenseProcessor
 		}
 	}
 
-	private void ProcessFood(GameObject food)
+	private void ProcessFood(GameObject foodObj)
 	{
-		double distanceBetween = DistanceBetweenTwoGameObjects(self.gameObject, food);
-		if (closestFoodDist > distanceBetween)
+		double distanceBetween = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(self.gameObject, foodObj);
+		IConsumable food = foodObj.GetComponent<IConsumable>();
+		double foodCurrentSpeed = food.GetSpeed();
+		double myMaxSpeed = self.GetMaxSpeed();
+		double amount = food.GetAmount();
+		if (amount == 0)
+			return;
+		double chaseTime;
+		double speedDifference = myMaxSpeed - foodCurrentSpeed;
+		double foodTimeRatio;
+
+		// calculate chase time
+		if (speedDifference == 0) 
 		{
-			closestFoodObj = food;
-			closestFoodDist = distanceBetween;
+			chaseTime = double.MaxValue;
 		}
+		else if (speedDifference < 0) // (distance / -speed) nor (distance * -speed) will work
+		{
+			chaseTime = -distanceBetween;
+		}
+		else
+		{
+			chaseTime = distanceBetween / speedDifference;
+		}
+
+
+		// calculate food time ratio
+		if (chaseTime > 0) {
+			foodTimeRatio = amount / chaseTime;
+		}
+		else if (chaseTime < 0)
+		{
+			foodTimeRatio = chaseTime / amount;
+		}
+		else
+		{
+			foodTimeRatio = double.MaxValue;
+		}
+
+		// determine best food
+		if (highestFoodValue <= foodTimeRatio)
+		{
+			bestFoodObj = foodObj;
+			highestFoodValue = foodTimeRatio;
+		} 
 	}
 
 	// returns a sensedEvent that can be written to memory
@@ -107,12 +184,12 @@ public class SenseProcessor
 		int foeCount = 0;
 		int mateCount = 0;
 		int waterCount = 0;
-		closestFoodDist = Int32.MaxValue;
-		closestFoeDist = Int32.MaxValue;
+		highestFoodValue = double.MinValue;
+		shortestTimeBeforeEaten = double.MinValue;
 		closestMateDist = Int32.MaxValue;
 		closestWaterDist = Int32.MaxValue;
 
-		closestFoodObj = null;
+		bestFoodObj = null;
 		closestFoeObj = null;
 		closestWaterObj = null;
 		closestMateObj = null;
@@ -169,24 +246,13 @@ public class SenseProcessor
 		};
 
 		// return a sensedEvent that can be written to memory.
-		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, closestFoodObj);
+		return new SensedEvent(weightMap, closestWaterObj, closestFoeObj, closestMateObj, bestFoodObj);
 	}
 
-	private double DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
-	{
-		if (obj1 == null || obj2 == null)
-		{
-			return Int32.MaxValue;
-		}
-		return Vector3.Distance(obj1.transform.position, obj2.transform.position);
-	}
 
 
 	public GameObject GetClosestFoodObj()
 	{
-		return closestFoodObj;
+		return bestFoodObj;
 	}
-
-
-
 }

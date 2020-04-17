@@ -48,7 +48,7 @@ public class AreaSensor : AbstractSensor
 				continue;
 			}
 
-			Vector3 pointOfInterest = ComponentNavigator.GetClosesVert(transform.position, ComponentNavigator.GoToHighestObject(sensedObject));
+			Vector3 pointOfInterest = DistanceBetweenUtility.GetClosesVert(transform.position, ComponentNavigator.GoToHighestObject(sensedObject));
 			Vector3 dir;
 			Vector3 forward;
 
@@ -92,10 +92,10 @@ public class AreaSensor : AbstractSensor
 			//If the sensor can be blocked by other objects
 			if (blockable)
 			{
-				if(ComponentNavigator.GetSpecies(sensedObject) == Species.Water)
-				{ 
+				if (ComponentNavigator.GetSpecies(sensedObject) == Species.Water)
+				{
 					sensedGameObjects.Add(ComponentNavigator.GoToHighestObject(sensedObject));
-					continue; 
+					continue;
 				}
 				Vector3[] verts = ComponentNavigator.GetVerts(ComponentNavigator.GetEntity(sensedObject));
 				foreach (Vector3 vert in verts)
@@ -148,9 +148,14 @@ public class AreaSensor : AbstractSensor
 		return sensedGameObjects.ToArray();
 	}
 
-	public override void setRadius(float r)
+	public override void SetRadius(float r)
 	{
 		senseRadius = r;
+	}
+
+	public override float GetRadius()
+	{
+		return senseRadius;
 	}
 
 }

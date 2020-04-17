@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 abstract class SimulationController : MonoBehaviour
 {
@@ -45,6 +46,12 @@ abstract class SimulationController : MonoBehaviour
 
     public static ICrossover CROSSOVER_OPERATOR = AlwaysSameCrossover.Instance;
     public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
+
+    // start values
+    double maxSize = 3;
+    private double startSizeFactor = 0.5;
+    private double startThirst = 0.3;
+
 
     protected virtual void Awake()
     {
@@ -119,7 +126,10 @@ abstract class SimulationController : MonoBehaviour
                 break;
             }
         }
-        return new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z);
+        		Vector3 location = new Vector3(x, terrainKernal.amplifier * terrainKernal.animCurve.Evaluate(heightMap[x, z]), z);
+		NavMeshHit hit = new NavMeshHit();
+		NavMesh.SamplePosition(location, out hit, 100, NavMesh.AllAreas);
+		return hit.position;
     }
 
     private void SpawnPlants()
@@ -136,7 +146,7 @@ abstract class SimulationController : MonoBehaviour
         foreach (Species s in animalsToSpawn.Keys)
         {
             foreach (AnimalTraits traits in animalsToSpawn[s])
-            {
+            { 
                 Vector3 spawnPoint = GetSpawnLocation();
                 SpawnAnimal(traits, spawnPoint);
             }
@@ -145,7 +155,7 @@ abstract class SimulationController : MonoBehaviour
 
     protected void SpawnAnimal(AnimalTraits traits, Vector3 spawnPoint)
     {
-        OrganismFactory.CreateAnimal(traits, spawnPoint);
+        OrganismFactory.CreateAnimal(traits, spawnPoint, startSizeFactor * maxSize, startThirst);
     }
 
     protected void SpawnPlant(Vector3 spawnPoint)
@@ -185,13 +195,12 @@ abstract class SimulationController : MonoBehaviour
         String[] emptyArr = new string[] { "" };
 
         double maxSize = 3;
-        double infantFactor = 0.2;
         double smellRadius = 25;
         double rabbitSpeed = 10;
         double foxSpeed = 8;
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, infantFactor, rabbitSpeed, 20, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, 2, 1, 2, 0.1, foxSpeed, 20, 30, 25, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
-
+        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, rabbitSpeed, 13, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
+        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, maxSize, 1, 2, foxSpeed, 13, 30, smellRadius, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
+    
         baseTraits[Species.Rabbit] = rabbitTraits;
         baseTraits[Species.Fox] = foxTraits;
     }
@@ -224,4 +233,3 @@ abstract class SimulationController : MonoBehaviour
         return _instance;
     }
 }
-

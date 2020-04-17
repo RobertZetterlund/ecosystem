@@ -19,6 +19,7 @@ public class EscapeAction : AbstractAction
 
 	protected virtual void Escape()
 	{
+		escapeTimer.Tick();
 		if (escapeTimer.IsDone() && animal.targetGameObject != null) // roam if nothing to escape from
 		{
 			escapeTimer.Reset();
@@ -31,6 +32,7 @@ public class EscapeAction : AbstractAction
 			catch (MissingReferenceException)
 			{
 				// target died
+				Reset();
 			}
 		}
 		else
