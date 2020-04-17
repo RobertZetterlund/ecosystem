@@ -143,7 +143,7 @@ abstract class SimulationController : MonoBehaviour
         foreach (Species s in animalsToSpawn.Keys)
         {
             foreach (AnimalTraits traits in animalsToSpawn[s])
-            {
+            { 
                 Vector3 spawnPoint = GetSpawnLocation();
                 SpawnAnimal(traits, spawnPoint);
             }

@@ -132,6 +132,8 @@ public static class FCMFactory
 			fcm.SetWeight(EntityField.Hungry, EntityField.SearchingForMate, -0.1);
 			fcm.SetWeight(EntityField.NotHungry, EntityField.SearchingForMate, 0.1);
 
+			fcm.SetState(EntityField.pFear, 0);
+
 			//This should start of has being far away, unless anything else has been sensed
 			/*fcm.SetState(EntityField.FoodFar, 1);
             fcm.SetState(EntityField.WaterFar, 1);
