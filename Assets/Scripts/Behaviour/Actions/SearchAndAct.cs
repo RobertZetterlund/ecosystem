@@ -87,6 +87,7 @@ public abstract class SearchAndAct : AbstractAction
 			{
 				try
 				{
+					targetPos = PositionToApproach();
 					Vector3 pos = targetPos.GetPos();
 					animal.GoToStationaryPosition(pos);
 				}

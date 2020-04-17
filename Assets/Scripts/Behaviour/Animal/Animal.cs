@@ -141,9 +141,9 @@ public abstract class Animal : Entity, IConsumable
 		lastPos = transform.position;
 
 
-		sensors = new AbstractSensor[1];
+		sensors = new AbstractSensor[2];
 		sensors[0] = SensorFactory.SmellSensor((float)smellRadius.GetValue());
-		//sensors[1] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
+		sensors[1] = SensorFactory.SightSensor((float)sightLength.GetValue(), horisontalFOV, verticalFOV);
 		touchSensor = SensorFactory.TouchSensor(1);
 
 		senseTimer = new TickTimer(1f);
