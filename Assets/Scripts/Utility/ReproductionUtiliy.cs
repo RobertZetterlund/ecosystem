@@ -49,7 +49,6 @@ public static class ReproductionUtility
 		FCMHandler fcmHandler = sc.EvolveFcm ? traitsA.fcmHandler.Reproduce(traitsB.fcmHandler) : FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(species), species);
 
 		AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, infantFactor, speed, heatTimer, sightLength, smellRadius, fcmHandler, traitsA.diet, traitsA.foes, traitsA.mates);
-
 		return child;
 	}
 

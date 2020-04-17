@@ -5,9 +5,15 @@ class GaussianMutation : SingletonBase<GaussianMutation>, IMutation
 {
 
 	private static double STD_DEVIATION_FACTOR = 0.2;
+	private static double MUTATION_CHANCE = 0.05;
+	private Random r = new Random();
 
 	public RangedDouble Mutate(RangedDouble gene)
 	{
+		if (r.NextDouble() >= MUTATION_CHANCE)
+		{
+			return gene.Duplicate();
+		}
 		double value = gene.GetValue();
 		double lower = gene.GetLower();
 		double upper = gene.GetUpper();
