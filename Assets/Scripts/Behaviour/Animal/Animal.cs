@@ -38,7 +38,7 @@ public abstract class Animal : Entity, IConsumable
 	private ArrayList sensedGameObjects;
 	private RangedDouble maxSize;
 	private RangedDouble heatTimer; // how many ticks the heat should increase before maxing out
-	// senses
+									// senses
 	private TickTimer senseTimer, fcmTimer, searchTimer, overallTimer;
 	private AbstractSensor[] sensors;
 	private AbstractSensor touchSensor;
@@ -50,6 +50,7 @@ public abstract class Animal : Entity, IConsumable
 	private Transform currentTargetTransform;
 	private Memory memory;
 	private SenseProcessor senseProcessor;
+	private double biggestSenseRadius = 0;
 
 	private double currentSpeed = 0;
 
@@ -103,6 +104,7 @@ public abstract class Animal : Entity, IConsumable
 		this.traits = traits;
 		senseProcessor = new SenseProcessor(this, traits.diet, traits.foes, traits.mates);
 
+		biggestSenseRadius = Math.Max(sightLength.GetValue(), smellRadius.GetValue());
 		// drar en riktigt cheeky här...
 
 		if (!traits.diet[0].Equals("Plant"))
@@ -167,10 +169,15 @@ public abstract class Animal : Entity, IConsumable
 		currentSpeed = navMeshAgent.velocity.magnitude;
 		DepleteSize();
 		UpdateSize();
+
 		// update thirst
 		thirst.Add(cdt / timeToDeathByThirst);
 
 		//age the animal
+		if(size.GetValue() / maxSize.GetValue() > 0.99)
+		{
+			energy -= cdt / lifespan;
+		}
 		energy -= cdt / lifespan;
 
 		if (immobalized)
@@ -205,7 +212,7 @@ public abstract class Animal : Entity, IConsumable
 			action.Execute();
 
 		Move();
-
+		
 	}
 
 
@@ -235,15 +242,15 @@ public abstract class Animal : Entity, IConsumable
 		}
 	}
 	/*
-    void Move()
-    {
-        var oldPos = transform.position;
-        for (var f = 0f; f < 1.0f; f += Time.fixedDeltaTime)
-        {
-            navMeshAgent.transform.position = Vector3.Lerp(oldPos, navMeshAgent.nextPosition, f);
-        }
-    }
-    */
+		void Move()
+		{
+			var oldPos = transform.position;
+			for (var f = 0f; f < 1.0f; f += Time.fixedDeltaTime)
+			{
+				navMeshAgent.transform.position = Vector3.Lerp(oldPos, navMeshAgent.nextPosition, f);
+			}
+		}
+		*/
 
 	void Update()
 	{
@@ -298,6 +305,7 @@ public abstract class Animal : Entity, IConsumable
 		}
 		else if (energy <= 0)
 		{
+			Debug.Log("Dead by age");
 			Die(CauseOfDeath.Age);
 		}
 		else if (size.GetValue() == 0)
@@ -315,7 +323,7 @@ public abstract class Animal : Entity, IConsumable
 	{
 		if (!dead)
 		{
-			Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
+			//Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
 			dead = true;
 			StopAllCoroutines();
 			SimulationController.Instance().Unregister(this);
@@ -401,14 +409,14 @@ public abstract class Animal : Entity, IConsumable
 					nbrChildren = MathUtility.RandomChance(oddsOfExtraChild) ? Math.Truncate(nbrChildren) + 1 : Math.Truncate(nbrChildren);
 
 					// calculate size for each parent and child
-					double individualSize = (size.GetValue() + mate.size.GetValue()) / (2+nbrChildren);
+					double individualSize = (size.GetValue() + mate.size.GetValue()) / (2 + nbrChildren);
 					size.SetValue(0);
 					mate.size.SetValue(0);
 					size.Add(individualSize);
 					mate.size.Add(individualSize);
 
 					// calculate thirst for each parent and child
-					double individualThirst = 1- ((1 - thirst.GetValue()) + (1 - mate.thirst.GetValue())) / (2 + nbrChildren);
+					double individualThirst = 1 - ((1 - thirst.GetValue()) + (1 - mate.thirst.GetValue())) / (2 + nbrChildren);
 					thirst.SetValue(0);
 					mate.thirst.SetValue(0);
 					thirst.Add(individualThirst);
@@ -437,7 +445,7 @@ public abstract class Animal : Entity, IConsumable
 		// do eating calculations
 		if (consumable != null)
 		{
-			double biteSize = size.GetValue() * BiteFactor*1000;
+			double biteSize = size.GetValue() * BiteFactor * 1000;
 			// todo removed *time.deltaTime for now
 			ConsumptionType type = consumable.GetConsumptionType();
 			swallow(consumable.Consume(biteSize), type);
@@ -516,7 +524,6 @@ public abstract class Animal : Entity, IConsumable
 	}
 
 
-	//Draws a sphere corresponding to its sense radius
 #if show_gizmos
 	void OnDrawGizmos()
 	{
@@ -533,7 +540,7 @@ public abstract class Animal : Entity, IConsumable
 			}
 
 		}
-		
+
 		if (drawRaycast)
 		{
 
@@ -572,12 +579,12 @@ public abstract class Animal : Entity, IConsumable
 		}
 
 		/*
-        if (showSenseRadiusGizmo)
-        {
-            Gizmos.color = SphereGizmoColor;
-            Gizmos.DrawSphere(transform.position, senseRadius);
-        }
-        */
+		if (showSenseRadiusGizmo)
+		{
+			Gizmos.color = SphereGizmoColor;
+			Gizmos.DrawSphere(transform.position, senseRadius);
+		}
+		*/
 		if (showSightGizmo)
 		{
 			float hFOV = horisontalFOV;
@@ -631,6 +638,7 @@ public abstract class Animal : Entity, IConsumable
 	}
 
 #endif
+
 	public NavMeshAgent GetNavMeshAgent()
 	{
 		return navMeshAgent;
@@ -823,4 +831,10 @@ public abstract class Animal : Entity, IConsumable
 	{
 		return speed.GetValue();
 	}
+
+	public double GetSenseRadius()
+	{
+		return biggestSenseRadius;
+	}
+
 }

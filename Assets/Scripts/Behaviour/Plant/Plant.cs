@@ -23,14 +23,6 @@ public class Plant : Entity, IConsumable
 	{
 		gameObject.tag = "Plant";
 		species = Species.Plant;
-
-		//navMeshAgent = gameObject.AddComponent(typeof(UnityEngine.AI.NavMeshAgent)) as UnityEngine.AI.NavMeshAgent;
-		//navMeshAgent.speed = 0;
-		// calculate properly instead if possible
-		//navMeshAgent.baseOffset = OrganismFactory.GetOffset(species);
-		//senseRadius = 0;
-		//senseRegistrator = new SenseRegistrator(this);
-		//sensor = new AreaSensor(transform, senseRegistrator, senseRadius);
 	}
 
 	[MethodImpl(MethodImplOptions.Synchronized)]
@@ -64,7 +56,6 @@ public class Plant : Entity, IConsumable
 		if (!deleted)
 		{
 			deleted = true;
-			Debug.Log("Transformed");
 			OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
 		}
 	}

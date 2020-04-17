@@ -1,194 +1,219 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 class FitnessSimulation : SimulationController
 {
+    //The double is meant as the fitness function, so you can tie a trait to the fitness of the trait
+    private Dictionary<Species, SortedList<TraitsComparable, double>> finishedTraits = new Dictionary<Species, SortedList<TraitsComparable, double>>();
+    private List<Species> speciesToEvolve = new List<Species>();
+    private Timer roundTimer;
+    public int secondsPerRounds = 500;
+    public int parentsPerRound = 10;
 
-	//The double is meant as the fitness function, so you can tie a trait to the fitness of the trait
-	//private List<(AnimalTraits, double)>[] allTraits = new List<(AnimalTraits, double)>[Species.GetValues(typeof(Species)).Length];
-	private SortedList<TraitsComparable, double>[] finishedTraits = new SortedList<TraitsComparable, double>[Species.GetValues(typeof(Species)).Length];
-	private List<Species> speciesToEvolve = new List<Species>();
-	private Timer roundTimer;
-	public int secondsPerRounds = 500;
-	public int parentsPerRound = 10;
+    private int finishedRounds = 0;
+    private int evolvingAnimalsAlive = 0;
 
-	private int finishedRounds = 0;
-	private int evolvingAnimalsAlive = 0;
-
-	private static ISelection SELECTION_OPERATOR = RouletteSelection.Instance;
+    private static ISelection SELECTION_OPERATOR = RouletteSelection.Instance;
 
 
-	protected override void Start()
-	{
-		speciesToEvolve.Add(Species.Rabbit);
-		speciesToEvolve.Add(Species.Fox);
-		roundTimer = new Timer(secondsPerRounds);
-		base.Start();
-	}
+    protected override void Start()
+    {
+        speciesToEvolve.Add(Species.Rabbit);
+        speciesToEvolve.Add(Species.Fox);
+        roundTimer = new Timer(secondsPerRounds);
+        InitLists();
+        base.Start();
+    }
 
-	private void Update()
-	{
-		if (roundTimer.IsDone() || evolvingAnimalsAlive == 0)
-		{
-			EndRound();
-			roundTimer.Reset();
-			roundTimer.Start();
-		}
-	}
+    private void Update()
+    {
+        if(roundTimer.IsDone() || evolvingAnimalsAlive == 0) {
+            EndRound();
+        }
+    }
 
-	public void EndRound()
-	{
-		finishedRounds++;
-		for (int i = 0; i < organisms.Length; i++)
-		{
-			KillRemainingAnimals((Species)i);
-		}
-		StartRound();
-	}
+    protected override void InitLists()
+    {
+        base.InitLists();
+        foreach(Species s in nAnimals.Keys)
+        {
+            finishedTraits[s] = new SortedList<TraitsComparable, double>();
+        }
+    }
 
-	private void KillRemainingAnimals(Species s)
-	{
-		foreach (Animal animal in organisms[(int)s].ToArray())
-		{
-			animal.Die(CauseOfDeath.ForceDeleted);
-		}
-	}
+    public void EndRound()
+    {
+        finishedRounds++;
+        Debug.Log("Finished round + " + finishedRounds + " -  Fitness: " + totalFitness / totalCreatures + "    RoundTime: " + roundTimer.TimeSinceStart() + "    Animals alive at round finish: " + evolvingAnimalsAlive + "   Max alive: " + maxCreatures);
+        totalCreatures = 0;
+        totalFitness = 0;
+        maxCreatures = 0;
+        KillRemainingAnimals();
+        PrepareNextRound();
+        StartRound();
+    }
 
-	public void StartRound()
-	{
+    /**
+     * Prepares everything for the next round, which mainly means creating new populations
+     */
+    private void PrepareNextRound()
+    {
+        evolvingAnimalsAlive = 0;
 
-		evolvingAnimalsAlive = 0;
-		AnimalTraits[][] traitsToBeSpawned = new AnimalTraits[Species.GetValues(typeof(Species)).Length][];
+        foreach (Species s in nAnimals.Keys)
+        {
+            if (speciesToEvolve.Contains(s))
+            {
+                animalsToSpawn[s] = NewPopulation(s);
+            }
+        }
 
-		for (int i = 0; i < organisms.Length; i++)
-		{
-			if (speciesToEvolve.Contains((Species)i))
-			{
-				traitsToBeSpawned[i] = NewGeneration((Species)i);
-			}
-		}
+        ResetFinishedTraits();
+    }
 
-		for (int i = 0; i < organisms.Length; i++)
-		{
-			if (speciesToEvolve.Contains((Species)i))
-			{
-				foreach (AnimalTraits traits in traitsToBeSpawned[i])
-				{
-					//Jag fuskar lite här för tillfället.
-					if (speciesToEvolve.Contains((Species)i))
-					{
-						SpawnAnimal(traits, GetSpawnLocation());
-					}
-				}
-			}
-		}
+    /**
+     * Kills off all animals still in the simulation
+     */
+    private void KillRemainingAnimals()
+    {
+        foreach (Species s in animalsToSpawn.Keys)
+        {
+            foreach (Animal animal in animalsInSimulation[s].ToList())
+            {
+                animal.Die(CauseOfDeath.ForceDeleted);
+            }
+        }
+    }
 
-		ResetFinishedTraits();
-		TraitLogger.ResetTimer();
+    /**
+     * Starts of the round by spawning animals and resetting timers
+     */
+    public void StartRound()
+    {
+        TraitLogger.ResetTimer();
+        roundTimer.Reset();
+        roundTimer.Start();
+        SpawnAnimals();
 
-	}
+    }
 
-	private void ResetFinishedTraits()
-	{
-		for (int i = 0; i < finishedTraits.Length; i++)
-		{
-			finishedTraits[i].Clear();
-		}
-	}
+    // Reset list
+    private void ResetFinishedTraits()
+    {
+        foreach (Species s in finishedTraits.Keys)
+        {
+            finishedTraits[s].Clear();
+        }
+    }
 
-	private AnimalTraits[] NewGeneration(Species s)
-	{
-		if (nOrganisms[(int)s] == 0)
-			return new AnimalTraits[0];
+    /**
+     * 
+     * Generates a new population for a given species. This occurs in 3 steps.
+     * 
+     * 1: Parents are selected via the selection operator
+     * 2: New children are bred from the parents
+     * 3: The 5 top performing animals from the species gets to live during the next round as well
+     * 
+     */
+    private AnimalTraits[] NewPopulation(Species s)
+    {
+        if (nAnimals[s] == 0)
+            return new AnimalTraits[0];
 
-		List<AnimalTraits> population = new List<AnimalTraits>();
-		foreach (TraitsComparable tc in finishedTraits[(int)s].Keys)
-		{
-			population.Add(tc.traits);
-		}
-		AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[(int)s].Values.ToArray<double>(), parentsPerRound);
+        List<AnimalTraits> population = new List<AnimalTraits>();
+        foreach (TraitsComparable tc in finishedTraits[s].Keys)
+        {
+            population.Add(tc.traits);
+        }
+        AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
 
-		return BreedChildren(parents, nOrganisms[(int)s]);
-	}
+        int nTop = 5;
+        AnimalTraits[] children = BreedChildren(parents, nAnimals[s] - nTop);
+        AnimalTraits[] topPerformers = BestSelection.Instance.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), nTop);
+        return children.Concat(topPerformers).ToArray();
+    }
 
-	private AnimalTraits[] BreedChildren(AnimalTraits[] parents, int amount)
-	{
-		AnimalTraits[] children = new AnimalTraits[amount];
-		if (parents.Length < 2)
-			throw new Exception("Can't breed with less than 2 parents");
 
-		int i = 0;
-		while (true)
-		{
-			for (int parent1Index = 0; parent1Index < parents.Length; parent1Index++, i++)
-			{
-				if (i == amount)
-					return children;
+    private AnimalTraits[] BreedChildren(AnimalTraits[] parents, int amount)
+    {
+        AnimalTraits[] children = new AnimalTraits[amount];
+        if (parents.Length < 2)
+            throw new Exception("Can't breed with less than 2 parents");
 
-				int parent2Index = random.Next(parents.Length);
+        int i = 0;
+        while(true)
+        {
+            for (int parent1Index = 0; parent1Index < parents.Length; parent1Index++, i++)
+            {
+                if (i == amount)
+                    return children;
 
-				//No inbreeding allowed
-				if (parent2Index == parent1Index)
-				{
-					if (parent2Index == 0)
-						parent2Index += 1;
-					else
-						parent2Index -= 1;
-				}
+                int parent2Index = random.Next(parents.Length);
 
-				AnimalTraits parent1 = parents[parent1Index];
-				AnimalTraits parent2 = parents[parent2Index];
+                //No inbreeding allowed
+                if (parent2Index == parent1Index)
+                {
+                    if (parent2Index == 0)
+                        parent2Index += 1;
+                    else
+                        parent2Index -= 1;
+                }
 
-				children[i] = ReproductionUtility.ReproduceAnimal(parent1, parent2);
-			}
-		}
-	}
+                AnimalTraits parent1 = parents[parent1Index];
+                AnimalTraits parent2 = parents[parent2Index];
 
-	protected override void StartSimulation()
-	{
-		roundTimer.Reset();
-		roundTimer.Start();
-		if (finishedRounds == 0)
-			SpawnOrganisms();
-		else
-			StartRound();
-	}
+                children[i] = ReproductionUtility.ReproduceAnimal(parent1, parent2);
+            }
+        }
+    }
 
-	protected override void InitLists()
-	{
-		base.InitLists();
-		for (int i = 0; i < organisms.Length; i++)
-			finishedTraits[i] = new SortedList<TraitsComparable, double>();
-	}
+    protected override void StartSimulation()
+    {
+        base.StartSimulation();
+        roundTimer.Reset();
+        roundTimer.Start();
 
-	public override void Unregister(Animal animal)
-	{
-		base.Unregister(animal);
-		AnimalTraits traits = animal.GetTraits();
-		double fitness = CalculateFitness(animal);
-		finishedTraits[(int)traits.species].Add(new TraitsComparable(traits, fitness), fitness);
+    }
 
-		if (speciesToEvolve.Contains(traits.species))
-		{
-			evolvingAnimalsAlive -= 1;
-		}
-	}
+    // Called when an animal dies
+    public override void Unregister(Animal animal)
+    {
+        base.Unregister(animal);
+        AnimalTraits traits = animal.GetTraits();
+        double fitness = CalculateFitness(animal);
+        totalFitness += fitness;
+        finishedTraits[traits.species].Add(new TraitsComparable(traits, fitness), fitness);
 
-	public override void Register(Animal animal)
-	{
-		base.Register(animal);
-		if (speciesToEvolve.Contains(animal.GetTraits().species))
-		{
-			evolvingAnimalsAlive += 1;
-		}
-	}
+        if(speciesToEvolve.Contains(traits.species)) {
+            evolvingAnimalsAlive -= 1;
+        }
+    }
 
-	private double CalculateFitness(Animal animal)
-	{
-		//return animal.GetTimeAlive();
-		return roundTimer.TimeSinceStart();
-	}
+    // Called when an animal is spawned
+    public override void Register(Animal animal)
+    {
+        base.Register(animal);
+        if (speciesToEvolve.Contains(animal.GetTraits().species))
+        {
+            evolvingAnimalsAlive += 1;
+            if (evolvingAnimalsAlive > maxCreatures)
+                maxCreatures = evolvingAnimalsAlive;
+            totalCreatures += 1;
+        }
+    }
+
+    double totalFitness = 0;
+    double totalCreatures = 0;
+    double maxCreatures = 0;
+    // Evaluates the fitness of an animal. 
+    private double CalculateFitness(Animal animal)
+    {
+        //return animal.GetTimeAlive();
+        //Debug.Log("Fitness: " + roundTimer.TimeSinceStart());
+        return Math.Pow(roundTimer.TimeSinceStart(), 2);
+    }
 
 }
 

@@ -90,7 +90,7 @@ public abstract class SearchAndAct : AbstractAction
 					Vector3 pos = targetPos.GetPos();
 					animal.GoToStationaryPosition(pos);
 				}
-				catch ( MissingReferenceException)
+				catch (MissingReferenceException)
 				{
 					Reset();
 				}

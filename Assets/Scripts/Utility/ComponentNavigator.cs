@@ -18,39 +18,22 @@ public class ComponentNavigator
 
 		// The rabbit has it's rotationa and scale values on a different child than the mesh
 		entity = (GameObject)Resources.Load("testR");
-		baseVerts = entity.transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().sharedMesh.vertices;
-		for (int i = 0; i < baseVerts.Length; i++)
-		{
-			if (i / 38 != 0) { continue; }
-			baseVerts[i] = entity.transform.GetChild(0).localPosition + Quaternion.Euler(entity.transform.GetChild(0).rotation.eulerAngles) * Vector3.Scale(baseVerts[i], entity.transform.GetChild(0).localScale);
-		}
-		rabbitMeshVerts = new Vector3[baseVerts.Length];
-		baseVerts.CopyTo(rabbitMeshVerts, 0);
+		rabbitMeshVerts = GetVertsFromBox(entity.GetComponent<BoxCollider>());
 
 
 		// The fox has it's values on the child with the mesh
 		entity = (GameObject)Resources.Load("testF");
-		renderObjectTransform = entity.transform.GetChild(0).GetChild(0);
-		baseVerts = renderObjectTransform.GetComponent<SkinnedMeshRenderer>().sharedMesh.vertices;
-		for (int i = 0; i < baseVerts.Length; i++)
-		{
-			if (i / 25 != 0) { continue; }
-			baseVerts[i] = new Vector3(0, 2.1f, 0) + renderObjectTransform.parent.GetChild(0).position + Quaternion.Euler(renderObjectTransform.rotation.eulerAngles) * Vector3.Scale(baseVerts[i], renderObjectTransform.lossyScale);
-		}
-		foxMeshVerts = new Vector3[baseVerts.Length];
-		baseVerts.CopyTo(foxMeshVerts, 0);
+		foxMeshVerts = GetVertsFromBox(entity.GetComponent<BoxCollider>());
 
 
 		// The tree is like the fox and the sappling has the same mesh
-		entity = (GameObject)Resources.Load("Tree");
-		baseVerts = entity.transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh.vertices;
-		for (int i = 0; i < baseVerts.Length; i++)
-		{
-			if (i / 14 != 0) { continue; }
-			baseVerts[i] = entity.transform.GetChild(0).localPosition + Quaternion.Euler(entity.transform.GetChild(0).rotation.eulerAngles) * Vector3.Scale(baseVerts[i], entity.transform.GetChild(0).localScale);
-		}
-		treeMeshVerts = new Vector3[baseVerts.Length];
-		baseVerts.CopyTo(treeMeshVerts, 0);
+		treeMeshVerts = new Vector3[6];
+		treeMeshVerts[0] = new Vector3(0, 0.1f, 0.18f);
+		treeMeshVerts[1] = new Vector3(0, 2.5f, 0.25f);
+		treeMeshVerts[2] = new Vector3(0, 2f, 1f);
+		treeMeshVerts[3] = new Vector3(0.5f, 1.7f, -0.33f);
+		treeMeshVerts[4] = new Vector3(-0.57f, 1.7f, -0.33f);
+		treeMeshVerts[5] = new Vector3(0, 1.7f, -1.28f);
 
 		foreach (GameObject waterpuddle in puddleList)
 		{
@@ -108,6 +91,30 @@ public class ComponentNavigator
 
 		return GetVerts(GetEntity(collider.gameObject));
 
+	}
+
+	public static Vector3[] GetVertsFromBox(BoxCollider boxCollider)
+	{
+		Vector3[] verts = new Vector3[13];
+		Vector3 center = boxCollider.center;
+		Vector3 size = boxCollider.size/2f;
+
+		int count = 0;
+		for(int i = -1; i <= 1; i++)
+		{
+			for(int j = -1; j <= 1; j++)
+			{
+				for(int k = -1; k <= 1; k++)
+				{
+					if( (i + j + k)%2 == 0)
+					{
+						verts[count] = center + new Vector3(i*size.x, j*size.y, k*size.z);
+						count++;
+					}
+				}
+			}
+		}
+		return verts;
 	}
 
 	public static Species GetSpecies(GameObject gameObj)

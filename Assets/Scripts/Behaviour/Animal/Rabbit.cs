@@ -12,7 +12,7 @@ class Rabbit : Animal
 
 	protected override void Start()
 	{
-		runAnimationspeedFactor = 1.3f;
+		runAnimationspeedFactor = 0.5f;
 		base.Start();
 
 	}
