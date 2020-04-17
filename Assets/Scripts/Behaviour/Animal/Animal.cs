@@ -25,10 +25,11 @@ public abstract class Animal : Entity, IConsumable
 	protected EntityAction currentAction = EntityAction.Idle;
 	protected ActionState state = new ActionState();
 	private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-	double timeToDeathByThirst = 30;
+
+	double timeToDeathByThirst = 70;
 	private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
-	private const double AdultSizeFactor = 0.3; // how big you have to be to mate
-	double lifespan = 45;
+	private const double AdultSizeFactor = 0.4; // how big you have to be to mate
+	double lifespan = 80;
 	bool dead;
 	private bool immobalized;
 	[SerializeField]
@@ -169,10 +170,15 @@ public abstract class Animal : Entity, IConsumable
 		currentSpeed = navMeshAgent.velocity.magnitude;
 		DepleteSize();
 		UpdateSize();
+
 		// update thirst
 		thirst.Add(cdt / timeToDeathByThirst);
 
 		//age the animal
+		if(size.GetValue() / maxSize.GetValue() > 0.99)
+		{
+			energy -= cdt / lifespan;
+		}
 		energy -= cdt / lifespan;
 
 		if (immobalized)
@@ -300,6 +306,7 @@ public abstract class Animal : Entity, IConsumable
 		}
 		else if (energy <= 0)
 		{
+			Debug.Log("Dead by age");
 			Die(CauseOfDeath.Age);
 		}
 		else if (size.GetValue() == 0)
@@ -317,7 +324,7 @@ public abstract class Animal : Entity, IConsumable
 	{
 		if (!dead)
 		{
-			Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
+			//Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
 			dead = true;
 			StopAllCoroutines();
 			SimulationController.Instance().Unregister(this);
@@ -768,7 +775,7 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 2.5; // increase or decrease to change hunger depletion speed
+		double overallCostFactor = 1.5; // increase or decrease to change hunger depletion speed
 
 		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
 		double speedCost = currentSpeed * currentSpeed * size.GetValue(); // mass * speed
