@@ -43,7 +43,7 @@ abstract class SimulationController : MonoBehaviour
     //public static ICrossover CROSSOVER_OPERATOR = BlendCrossover.Instance;
     //public static IMutation MUTATION_OPERATOR = NoMutation.Instance;
 
-    public static ICrossover CROSSOVER_OPERATOR = UniformCrossover.Instance;
+    public static ICrossover CROSSOVER_OPERATOR = AlwaysSameCrossover.Instance;
     public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
 
     protected virtual void Awake()

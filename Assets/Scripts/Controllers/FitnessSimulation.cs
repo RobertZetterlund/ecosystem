@@ -46,6 +46,10 @@ class FitnessSimulation : SimulationController
     public void EndRound()
     {
         finishedRounds++;
+        Debug.Log("Finished round + " + finishedRounds + " -  Fitness: " + totalFitness / totalCreatures + "    RoundTime: " + roundTimer.TimeSinceStart() + "    Animals alive at round finish: " + evolvingAnimalsAlive + "   Max alive: " + maxCreatures);
+        totalCreatures = 0;
+        totalFitness = 0;
+        maxCreatures = 0;
         KillRemainingAnimals();
         PrepareNextRound();
         StartRound();
@@ -179,6 +183,7 @@ class FitnessSimulation : SimulationController
         base.Unregister(animal);
         AnimalTraits traits = animal.GetTraits();
         double fitness = CalculateFitness(animal);
+        totalFitness += fitness;
         finishedTraits[traits.species].Add(new TraitsComparable(traits, fitness), fitness);
 
         if(speciesToEvolve.Contains(traits.species)) {
@@ -193,15 +198,21 @@ class FitnessSimulation : SimulationController
         if (speciesToEvolve.Contains(animal.GetTraits().species))
         {
             evolvingAnimalsAlive += 1;
+            if (evolvingAnimalsAlive > maxCreatures)
+                maxCreatures = evolvingAnimalsAlive;
+            totalCreatures += 1;
         }
     }
 
+    double totalFitness = 0;
+    double totalCreatures = 0;
+    double maxCreatures = 0;
     // Evaluates the fitness of an animal. 
     private double CalculateFitness(Animal animal)
     {
         //return animal.GetTimeAlive();
-        Debug.Log("Fitness: " + roundTimer.TimeSinceStart());
-        return roundTimer.TimeSinceStart();
+        //Debug.Log("Fitness: " + roundTimer.TimeSinceStart());
+        return Math.Pow(roundTimer.TimeSinceStart(), 2);
     }
 
 }

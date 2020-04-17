@@ -56,7 +56,6 @@ public class Plant : Entity, IConsumable
 		if (!deleted)
 		{
 			deleted = true;
-			Debug.Log("Transformed");
 			OrganismFactory.CreateSappling((int)size.GetValue(), transform.position);
 		}
 

@@ -6,8 +6,8 @@ using UnityEngine;
 public class TestSensor : MonoBehaviour
 {
     public bool allRaycastHits;
-    private bool drawRaycast = true;
-    private bool showSightGizmo = true;
+    private bool drawRaycast = false;
+    private bool showSightGizmo = false;
     private ArrayList sensedGameObjects;
     private AbstractSensor[] sensors;
     private float sightLength = 25;
@@ -38,7 +38,7 @@ public class TestSensor : MonoBehaviour
         GameObject[] objectArray = sensors[0].Sense(transform);
         foreach(GameObject gameObj in objectArray)
         {
-            Debug.Log("Sensed " + ComponentNavigator.GoToHighestObject(gameObj).tag);
+            //Debug.Log("Sensed " + ComponentNavigator.GoToHighestObject(gameObj).tag);
         }
 
     }

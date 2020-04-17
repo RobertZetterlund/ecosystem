@@ -308,10 +308,6 @@ public class FCM
 
 				RangedDouble geneA = new RangedDouble(weights[i_from, i_to], -1, 1);
 				RangedDouble geneB = new RangedDouble(mateFCM.weights[i_from, i_to], -1, 1);
-				if (geneA.GetValue() != 0 || geneB.GetValue() != 0)
-				{
-					int x = 0;
-				}
 				childFCM.SetWeight(_from, _to, ReproductionUtility.ReproduceRangedDouble(geneA, geneB).GetValue());
 			}
 		}

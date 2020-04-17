@@ -25,10 +25,10 @@ public abstract class Animal : Entity, IConsumable
 	protected EntityAction currentAction = EntityAction.Idle;
 	protected ActionState state = new ActionState();
 	private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-	double timeToDeathByThirst = 108000;
+	double timeToDeathByThirst = 70;
 	private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
 	private const double AdultSizeFactor = 0.4; // how big you have to be to mate
-	double lifespan = 15000;
+	double lifespan = 80;
 	bool dead;
 	private bool immobalized;
 	[SerializeField]
@@ -164,11 +164,16 @@ public abstract class Animal : Entity, IConsumable
 			return;
 
 		DepleteSize();
+		UpdateSize();
 
 		// update thirst
 		thirst.Add(cdt / timeToDeathByThirst);
 
 		//age the animal
+		if(size.GetValue() / maxSize.GetValue() > 0.99)
+		{
+			energy -= cdt / lifespan;
+		}
 		energy -= cdt / lifespan;
 
 		if (immobalized)
@@ -247,7 +252,6 @@ public abstract class Animal : Entity, IConsumable
 	{
 		if (simulation.gameSpeed <= 1)
 		{
-			UpdateSize();
 			UpdateStatusBars();
 			UpdateAnimation();
 		}
@@ -297,6 +301,7 @@ public abstract class Animal : Entity, IConsumable
 		}
 		else if (energy <= 0)
 		{
+			Debug.Log("Dead by age");
 			Die(CauseOfDeath.Age);
 		}
 		else if (size.GetValue() == 0)
@@ -314,7 +319,7 @@ public abstract class Animal : Entity, IConsumable
 	{
 		if (!dead)
 		{
-			Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
+			//Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
 			dead = true;
 			StopAllCoroutines();
 			SimulationController.Instance().Unregister(this);
@@ -761,7 +766,7 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 1; // increase or decrease to change hunger depletion speed
+		double overallCostFactor = 1.5; // increase or decrease to change hunger depletion speed
 
 		double sizeCost = Math.Pow(size.GetValue(), 2 / 3); // surface area heat radiation
 		double speedCost = speed.GetValue() * size.GetValue(); // mass * speed
