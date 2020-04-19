@@ -20,7 +20,7 @@ public class TraitLogger : MonoBehaviour
 	private static int logInterval = 5; // seconds
 	private static bool firstSave = true;
 	private static string folder;
-	private static string fcmFolder;
+	//private static string fcmFolder;
 	private static int round = 0;
 
 	private static Hashtable animals = new Hashtable();
@@ -35,9 +35,9 @@ public class TraitLogger : MonoBehaviour
 		if (enable)
 		{
 			folder = "Python Scripts and Logs/Logs/" + DateTime.Now.ToString("M-dd--HH-mm-ss");
-			fcmFolder = folder + "/fcms";
+			//fcmFolder = folder + "/fcms";
 			Directory.CreateDirectory(folder);
-			Directory.CreateDirectory(fcmFolder);
+			//Directory.CreateDirectory(fcmFolder);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class TraitLogger : MonoBehaviour
 	}
 
 	// Generate an average fcm of a species
-	public double[,] GenerateAverageFCM(Species s)
+	public static double[,] GenerateAverageFCM(Species s)
 	{
 		int nFields = Enum.GetNames(typeof(EntityField)).Length;
 		double[,] averageWeights = new double[nFields, nFields];
@@ -88,7 +88,7 @@ public class TraitLogger : MonoBehaviour
 		return averageWeights;
 	}
 
-	public void SaveFCM(string content, string path)
+	public static void SaveFCM(string content, string path)
 	{
 		string name = path + ".txt";
 #if UNITY_EDITOR
@@ -246,7 +246,7 @@ public class TraitLogger : MonoBehaviour
 		timer.Start();
 		logFirst = true;
 		bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
-		round++;
+		WriteFCMsToFile();
 	}
 
 	public static void RegisterBirth(Species s)
@@ -254,7 +254,7 @@ public class TraitLogger : MonoBehaviour
 		bornAnimals[(int)s]++;
 	}
 
-	private void WriteFCMsToFile()
+	private static void WriteFCMsToFile()
 	{
 		// save fcm
 		for (int i = 0; i < recentFCMs.Length; i++)
@@ -262,8 +262,9 @@ public class TraitLogger : MonoBehaviour
 			if (recentFCMs[i] != null)
 			{
 				StringBuilder s = FCMHandler.ToCsv(GenerateAverageFCM((Species)i));
-				SaveFCM(s.ToString(), fcmFolder  + '/' + ((Species)i).ToString() + "_fcm" + " round " + round);
+				SaveFCM(s.ToString(), folder  + "/round " + round + " " + ((Species)i).ToString() + "_fcm");
 			}
 		}
+		round++;
 	}
 }
