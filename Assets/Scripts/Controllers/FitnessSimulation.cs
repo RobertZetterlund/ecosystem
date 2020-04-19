@@ -92,7 +92,7 @@ class FitnessSimulation : SimulationController
      */
     public void StartRound()
     {
-        TraitLogger.ResetTimer();
+        TraitLogger.StartNewRound();
         roundTimer.Reset();
         roundTimer.Start();
         SpawnAnimals();

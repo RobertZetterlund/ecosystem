@@ -426,6 +426,7 @@ public abstract class Animal : Entity, IConsumable
 					{
 						AnimalTraits child = ReproductionUtility.ReproduceAnimal(traits, mate.traits);
 						Animal childAnimal = OrganismFactory.CreateAnimal(child, mother.transform.position, individualSize, individualThirst);
+						SimulationController.Instance().RegisterBirth(species);
 					}
 				}
 			}

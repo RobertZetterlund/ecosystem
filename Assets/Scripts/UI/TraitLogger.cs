@@ -16,9 +16,12 @@ public class TraitLogger : MonoBehaviour
 	private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
 	// current total might not exist when all animals are dead, but we still want to log so we need this
 	private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
+	private static int[] bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
 	private static int logInterval = 5; // seconds
 	private static bool firstSave = true;
 	private static string folder;
+	private static string fcmFolder;
+	private static int round = 0;
 
 	private static Hashtable animals = new Hashtable();
 	private static Timer timer;
@@ -32,7 +35,9 @@ public class TraitLogger : MonoBehaviour
 		if (enable)
 		{
 			folder = "Python Scripts and Logs/Logs/" + DateTime.Now.ToString("M-dd--HH-mm-ss");
+			fcmFolder = folder + "/fcms";
 			Directory.CreateDirectory(folder);
+			Directory.CreateDirectory(fcmFolder);
 		}
 	}
 
@@ -60,15 +65,7 @@ public class TraitLogger : MonoBehaviour
 	{
 		if (enable)
 		{
-			// save fcm
-			for (int i = 0; i < recentFCMs.Length; i++)
-			{
-				if (recentFCMs[i] != null)
-				{
-					StringBuilder s = FCMHandler.ToCsv(GenerateAverageFCM((Species)i));
-					SaveFCM(s.ToString(), folder + '/' + ((Species)i).ToString() + "_fcm");
-				}
-			}
+			WriteFCMsToFile();
 		}
 	}
 
@@ -173,17 +170,25 @@ public class TraitLogger : MonoBehaviour
 			// make 1 column or each trait and species
 			if (loggableSpecies[i] == 1)
 			{
-				// make entry for each population
+				// make entry for each population and born children
 				if (isHeader)
 				{
 					row.Append(((Species)i).ToString());
 					row.Append('-');
 					row.Append("population,");
+
+					row.Append(((Species)i).ToString());
+					row.Append('-');
+					row.Append("born children,");
 				}
 				else
 				{
 					row.Append(nAnimals[i]);
 					row.Append(",");
+
+					row.Append(bornAnimals[i]);
+					row.Append(",");
+
 				}
 				// make an entry for each trait
 				for (int j = 0; j < currentTraitTotals[i].Length; j++)
@@ -235,10 +240,30 @@ public class TraitLogger : MonoBehaviour
 		Save();
 	}
 
-	public static void ResetTimer()
+	public static void StartNewRound()
 	{
 		timer.Reset();
 		timer.Start();
 		logFirst = true;
+		bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
+		round++;
+	}
+
+	public static void RegisterBirth(Species s)
+	{
+		bornAnimals[(int)s]++;
+	}
+
+	private void WriteFCMsToFile()
+	{
+		// save fcm
+		for (int i = 0; i < recentFCMs.Length; i++)
+		{
+			if (recentFCMs[i] != null)
+			{
+				StringBuilder s = FCMHandler.ToCsv(GenerateAverageFCM((Species)i));
+				SaveFCM(s.ToString(), fcmFolder  + '/' + ((Species)i).ToString() + "_fcm" + " round " + round);
+			}
+		}
 	}
 }

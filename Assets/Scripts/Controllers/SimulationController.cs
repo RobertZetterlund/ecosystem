@@ -232,4 +232,9 @@ abstract class SimulationController : MonoBehaviour
     {
         return _instance;
     }
+
+    public void RegisterBirth(Species s)
+    {
+        TraitLogger.RegisterBirth(s);
+    }
 }
