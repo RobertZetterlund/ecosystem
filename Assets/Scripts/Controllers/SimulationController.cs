@@ -229,6 +229,20 @@ public abstract class SimulationController : MonoBehaviour
         Time.timeScale = 1;
         //Ändras 0.25f så måste det ändras i ticktimer också atm.
         Time.fixedDeltaTime = 0.25f / settings.gameSpeed;
+
+
+        SyncAnimalsGameSpeed();
+    }
+
+    private void SyncAnimalsGameSpeed()
+    {
+        foreach(Species s in animalsInSimulation.Keys)
+        {
+            foreach(Animal animal in animalsInSimulation[s])
+            {
+                animal.SyncGameSpeed();
+            }
+        }
     }
 
     public static SimulationController Instance()

@@ -134,7 +134,7 @@ public abstract class Animal : Entity, IConsumable
 		memory = new Memory();
 
 		navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
-		navMeshAgent.speed = (float)(speed.GetValue() * simulation.settings.gameSpeed);
+		SyncGameSpeed();
 		navMeshAgent.angularSpeed = 10000;
 		navMeshAgent.acceleration = 10000;
 		// calculate instead if possible
@@ -838,6 +838,11 @@ public abstract class Animal : Entity, IConsumable
 	public double GetSenseRadius()
 	{
 		return biggestSenseRadius;
+	}
+
+	public void SyncGameSpeed()
+	{
+		navMeshAgent.speed = (float)(speed.GetValue() * simulation.settings.gameSpeed);
 	}
 
 }
