@@ -69,7 +69,8 @@ public abstract class FCMHandler
 	// Fuzzifier for presence
 	private float calculatePresenceInput(int count)
 	{
-		float weight = (float)Math.Log10(count + 1);
+        // using base 7
+		float weight = (float)Math.Log(count + 1, 7);
 		return weight > 1 ? 1 : weight;
 	}
 
