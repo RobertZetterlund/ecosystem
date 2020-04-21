@@ -103,7 +103,7 @@ public abstract class FCMHandler
 		float inverse = 1;
 		if (sensedObject != null)
 		{
-			float dist = (sensedObject.transform.position - animal.transform.position).magnitude;
+			float dist = DistanceBetweenUtility.DistanceBetweenTwoGameObjects(sensedObject, animal);
 			standard = fuzzifier.Fuzzify(0, 100, dist);
 			inverse = 1 - standard;
 		}
