@@ -446,10 +446,47 @@ public abstract class Animal : Entity, IConsumable
 		// do eating calculations
 		if (consumable != null)
 		{
-			double biteSize = size.GetValue() * BiteFactor * 1000;
-			// todo removed *time.deltaTime for now
 			ConsumptionType type = consumable.GetConsumptionType();
-			swallow(consumable.Consume(biteSize), type);
+
+
+			// determine how much you CAN eat 
+			double biteSize = size.GetValue() * BiteFactor;
+			double effectiveAmount = 0;
+
+			switch (type)
+			{
+				case ConsumptionType.Water:
+					effectiveAmount = biteSize;
+					break;
+				case ConsumptionType.Animal:
+					effectiveAmount = biteSize * dietFactor.GetValue();
+					break;
+				case ConsumptionType.Plant:
+					effectiveAmount = biteSize * (1 - dietFactor.GetValue());
+					break;
+			}
+
+			// determine how much you can fit in your belly
+			double maxAmountPossible = maxSize.GetValue() - size.GetValue();
+			if ( maxAmountPossible - effectiveAmount < 0)
+				effectiveAmount = maxAmountPossible;
+
+			// determine how much THE TARGET has
+			double amount = consumable.Consume(effectiveAmount);
+
+			// swallow
+			switch (type)
+			{
+				case ConsumptionType.Water:
+					thirst.Add(amount);
+					break;
+				case ConsumptionType.Animal:
+					size.Add(effectiveAmount);
+					break;
+				case ConsumptionType.Plant:
+					size.Add(effectiveAmount);
+					break;
+			}
 		}
 
 	}
@@ -463,27 +500,6 @@ public abstract class Animal : Entity, IConsumable
 	}
 
 	// swallow the food/water that this animal ate
-	private void swallow(double amount, ConsumptionType type)
-	{
-		amount /= (size.GetValue()); // balance according to size. (note that amount will be higher if your size is bigger)
-									 // increment energy / hunger / thirst
-		double effectiveAmount;
-		switch (type)
-		{
-			case ConsumptionType.Water:
-				thirst.Add(amount);
-				break;
-			case ConsumptionType.Animal:
-				effectiveAmount = amount * dietFactor.GetValue();
-				size.Add(-effectiveAmount);
-				break;
-			case ConsumptionType.Plant:
-				effectiveAmount = amount * (1 - dietFactor.GetValue());
-				size.Add(-effectiveAmount);
-				break;
-		}
-
-	}
 
 	public void GoToStationaryPosition(Vector3 pos)
 	{
