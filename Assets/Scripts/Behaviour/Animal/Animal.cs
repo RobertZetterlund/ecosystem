@@ -25,10 +25,10 @@ public abstract class Animal : Entity, IConsumable
 	protected EntityAction currentAction = EntityAction.Idle;
 	protected ActionState state = new ActionState();
 	private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-	double timeToDeathByThirst = 70;
-	private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
-	private const double AdultSizeFactor = 0.3; // how big you have to be to mate
-	double lifespan = 80;
+	protected double timeToDeathByThirst;
+	protected double BiteFactor; // use to calculate how much you eat in one bite
+	protected double AdultSizeFactor; // how big you have to be to mate
+	protected double lifespan;
 	bool dead;
 	private bool immobalized;
 	[SerializeField]
@@ -80,10 +80,11 @@ public abstract class Animal : Entity, IConsumable
 	public bool drawRaycast;
 	public bool allRaycastHits;
 
-	public float cdt = 0.1f;
+	public float cdt;
+	public float overallCostFactor;
 
 	private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action, escapeAction;
-	private SimulationController simulation = SimulationController.Instance();
+	protected SimulationController simulation = SimulationController.Instance();
 
 	public virtual void Init(AnimalTraits traits, double size, double thirst)
 	{
@@ -128,10 +129,12 @@ public abstract class Animal : Entity, IConsumable
 	// Start is called before the first frame update
 	protected virtual void Start()
 	{
+		cdt = simulation.settings.cdt;
+		overallCostFactor = simulation.settings.overallCostFactor;
 		memory = new Memory();
 
 		navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
-		navMeshAgent.speed = (float)(speed.GetValue() * simulation.gameSpeed);
+		navMeshAgent.speed = (float)(speed.GetValue() * simulation.settings.gameSpeed);
 		navMeshAgent.angularSpeed = 10000;
 		navMeshAgent.acceleration = 10000;
 		// calculate instead if possible
@@ -173,7 +176,7 @@ public abstract class Animal : Entity, IConsumable
 		// update thirst
 		thirst.Add(cdt / timeToDeathByThirst);
 
-		//age the animal
+		//Punishment for overeating
 		if(size.GetValue() / maxSize.GetValue() > 0.99)
 		{
 			energy -= cdt / lifespan;
@@ -254,7 +257,7 @@ public abstract class Animal : Entity, IConsumable
 
 	void Update()
 	{
-		if (simulation.gameSpeed <= 1)
+		if (simulation.settings.gameSpeed <= 1)
 		{
 			UpdateStatusBars();
 			UpdateAnimation();
@@ -446,7 +449,7 @@ public abstract class Animal : Entity, IConsumable
 		// do eating calculations
 		if (consumable != null)
 		{
-			double biteSize = size.GetValue() * BiteFactor * 1000;
+			double biteSize = size.GetValue() * BiteFactor;
 			// todo removed *time.deltaTime for now
 			ConsumptionType type = consumable.GetConsumptionType();
 			swallow(consumable.Consume(biteSize), type);
@@ -775,7 +778,6 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 7; // increase or decrease to change hunger depletion speed
 
 		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
 		double speedCost = currentSpeed * size.GetValue(); // mass * speed
