@@ -5,6 +5,13 @@ using UnityEngine;
 
 public static class DistanceBetweenUtility
 {
+
+	public static float DistanceBetweenTwoGameObjects(GameObject obj1, Animal animal)
+    {
+		return DistanceBetweenTwoGameObjects(obj1, animal.gameObject);
+	}
+
+
 	public static float DistanceBetweenTwoGameObjects(GameObject obj1, GameObject obj2)
 	{
 		if (obj1 == null || obj2 == null)
