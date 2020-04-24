@@ -131,6 +131,10 @@ class FitnessSimulation : SimulationController
         {
             population.Add(tc.traits);
         }
+
+        AnimalTraits avgAnimal = GenerateAverageAnimal(finishedTraits[s], s);
+
+
         //Minimum 2 parents
         int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
         AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
@@ -141,6 +145,72 @@ class FitnessSimulation : SimulationController
         return children.Concat(topPerformers).ToArray();
     }
 
+    private AnimalTraits GenerateAverageAnimal(SortedList<TraitsComparable, double> weightedTraits, Species specie)
+    {
+
+        double totalFitness = weightedTraits.Values.Sum();
+
+        // c_____ means combined/cumulative
+        double cMaxSize = 0;
+        double cDietFactor = 0;
+        double cNChildren = 0;
+        double cSpeed = 0;
+        double cHeatTimer = 0;
+        double cSightLength = 0;
+        double cSmellRadius = 0;
+
+        // this fcm is emtpy, but will have cumulative weights.
+        FCM cFCM = FCMFactory.GetBaseFCM();
+
+        // Extract animaltrait to fix compiler complaining when extracting diet,foes and mates.
+        AnimalTraits currTrait = weightedTraits.Keys.First().traits;
+
+        foreach(KeyValuePair<TraitsComparable, double> kvP in weightedTraits)
+        {
+            currTrait = kvP.Key.traits;
+            double currFitness = kvP.Value;
+            double adjustedFitness = currFitness / totalFitness;
+            FCMHandler currHandler = currTrait.fcmHandler;
+
+
+            FCM currFCM = currHandler.GetFCM();
+
+            // average fcm
+            for(int _from = 0; _from < currFCM.NOFields; _from++)
+            {
+                for(int _to=0; _to < currFCM.NOFields; _to++)
+                {
+                    cFCM.weights[_from, _to] += currFCM.weights[_from, _to] * adjustedFitness;
+                }
+            }
+
+
+            // average traits
+            cMaxSize += currTrait.maxSize.GetValue() * currFitness;
+            cDietFactor += currTrait.dietFactor.GetValue() * currFitness;
+            cNChildren += currTrait.nChildren.GetValue() * currFitness;
+            cSpeed += currTrait.speed.GetValue() * currFitness;
+            cHeatTimer += currTrait.heatTimer.GetValue() * currFitness;
+            cSightLength += currTrait.sightLength.GetValue() * currFitness;
+            cSmellRadius += currTrait.smellRadius.GetValue() * currFitness;
+        }
+
+
+        // Create fcm based on specie
+        FCMHandler cFCMHandler;
+        switch (specie)
+        {
+            case Species.Rabbit: cFCMHandler = new RabbitFCMHandler(cFCM); break;
+
+            case Species.Fox: cFCMHandler = new FoxFCMHandler(cFCM); break;
+
+            default: cFCMHandler = new RabbitFCMHandler(cFCM); break;
+        }
+
+        AnimalTraits averagedTraits = new AnimalTraits(specie, cMaxSize, cDietFactor, cNChildren, cSpeed, cHeatTimer, cSightLength, cSmellRadius, cFCMHandler, currTrait.diet, currTrait.foes, currTrait.mates);
+
+        return averagedTraits;
+    }
 
     private AnimalTraits[] BreedChildren(AnimalTraits[] parents, int amount)
     {

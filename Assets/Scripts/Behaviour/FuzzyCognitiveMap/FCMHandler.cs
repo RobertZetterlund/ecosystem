@@ -22,6 +22,12 @@ public abstract class FCMHandler
 		this.fcm = fcm;
 	}
 
+
+	public FCMHandler()
+	{
+		this.fcm = FCMFactory.GetBaseFCM();
+	}
+
 	public void CalculateFCM()
 	{
 		fcm.Calculate();

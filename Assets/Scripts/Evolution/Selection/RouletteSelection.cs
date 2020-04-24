@@ -8,11 +8,7 @@ public class RouletteSelection : AbstractSelection<RouletteSelection>
 
 	public override int Select(double[] values)
 	{
-		double totalValue = 0;
-		for (int i = 0; i < values.Length; i++)
-		{
-			totalValue += values[i];
-		}
+		double totalValue = values.Sum();
 
 		double[] probabilities = new double[values.Length];
 
