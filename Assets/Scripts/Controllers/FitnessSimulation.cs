@@ -9,9 +9,9 @@ class FitnessSimulation : SimulationController
     private Dictionary<Species, SortedList<TraitsComparable, double>> finishedTraits = new Dictionary<Species, SortedList<TraitsComparable, double>>();
     private List<Species> speciesToEvolve = new List<Species>();
     private Timer roundTimer;
-    public int secondsPerRounds = 500;
-    public int parentsPerRound = 10;
 
+    private double parentPercentage;
+    private double roundTime;
     private int finishedRounds = 0;
     private int evolvingAnimalsAlive = 0;
 
@@ -20,9 +20,13 @@ class FitnessSimulation : SimulationController
 
     protected override void Start()
     {
-        speciesToEvolve.Add(Species.Rabbit);
-        speciesToEvolve.Add(Species.Fox);
-        roundTimer = new Timer(secondsPerRounds);
+        parentPercentage = settings.parentsPercentage;
+        roundTime = settings.roundTime;
+        if(settings.evolveRabbit)
+            speciesToEvolve.Add(Species.Rabbit);
+        if(settings.evolveFox)
+            speciesToEvolve.Add(Species.Fox);
+        roundTimer = new Timer(settings.roundTime);
         InitLists();
         base.Start();
     }
@@ -127,6 +131,8 @@ class FitnessSimulation : SimulationController
         {
             population.Add(tc.traits);
         }
+        //Minimum 2 parents
+        int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
         AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
 
         int nTop = 5;

@@ -3,23 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-abstract class SimulationController : MonoBehaviour
+public abstract class SimulationController : MonoBehaviour
 {
     //Singleton
     private static SimulationController _instance;
 
-    //Available to the editor
-    public int nPlants;
-    public int nRabbits;
-    public int nFoxes;
-    [Range(0.1f, 100)]
-    public float gameSpeed = 1;
-    public bool animalsCanDie = true;
-    public bool randomiseRabbitFCM;
-    public bool randomiseFoxFCM;
+    //public int Test = SimulationSettings.Instance.TEST_VARIABLE;
+    [SerializeField]
+    public SimulationSettings settings = new SimulationSettings();
 
-    public bool EvovleMaxSize = true, EvolveDietFactor = true, EvolveNChildren = true, EvolveInfantFactor = true, 
-        EvolveSpeed = true, EvolveHeatTimer = true, EvolveSightLength = true, EvovleSmellRadius = true, EvolveFcm = true;
 
     //The number of animals that should spawn each round
     protected Dictionary<Species, int> nAnimals = new Dictionary<Species, int>();
@@ -95,8 +87,8 @@ abstract class SimulationController : MonoBehaviour
     private void InitAmountOfOrganisms()
     {
         //nAnimals[Species.Plant] = nPlants;
-        nAnimals[Species.Rabbit] = nRabbits;
-        nAnimals[Species.Fox] = nFoxes;
+        nAnimals[Species.Rabbit] = settings.nRabbits;
+        nAnimals[Species.Fox] = settings.nFoxes;
     }
 
     protected virtual void InitLists()
@@ -134,7 +126,7 @@ abstract class SimulationController : MonoBehaviour
 
     private void SpawnPlants()
     {
-        for(int i = 0; i < nPlants; i++)
+        for(int i = 0; i < settings.nPlants; i++)
         {
             Vector3 spawnPoint = GetSpawnLocation();
             SpawnPlant(spawnPoint);
@@ -194,17 +186,28 @@ abstract class SimulationController : MonoBehaviour
         String[] plantArr = new String[] { "Plant" };
         String[] emptyArr = new string[] { "" };
 
-        double maxSize = 3;
-        double smellRadius = 25;
-        double rabbitSpeed = 10;
-        double foxSpeed = 8;
-        AnimalTraits rabbitTraits = new AnimalTraits(Species.Rabbit, maxSize, 0, 2.1, rabbitSpeed, 13, 30, smellRadius, new RabbitFCMHandler(FCMFactory.RabbitFCM()), plantArr, foxArr, rabbitArr);
-        AnimalTraits foxTraits = new AnimalTraits(Species.Fox, maxSize, 1, 2, foxSpeed, 13, 30, smellRadius, new FoxFCMHandler(FCMFactory.FoxFCM()), rabbitArr, emptyArr, foxArr);
+        AnimalTraits rabbitTraits = InitTraitsFromSettings(settings.rabbit);
+        rabbitTraits.species = Species.Rabbit;
+        rabbitTraits.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
+        rabbitTraits.diet = plantArr;
+        rabbitTraits.foes = foxArr;
+        rabbitTraits.mates = rabbitArr;
+
+        AnimalTraits foxTraits = InitTraitsFromSettings(settings.fox);
+        foxTraits.species = Species.Fox;
+        foxTraits.fcmHandler = new FoxFCMHandler(FCMFactory.FoxFCM());
+        foxTraits.diet = rabbitArr;
+        foxTraits.foes = emptyArr;
+        foxTraits.mates = foxArr;
     
         baseTraits[Species.Rabbit] = rabbitTraits;
         baseTraits[Species.Fox] = foxTraits;
     }
 
+    private AnimalTraits InitTraitsFromSettings(AnimalSettings s)
+    {
+        return new AnimalTraits(0, s.maxSize, s.dietFactor, s.nChildren, s.speed, s.heatTimer, s.sightLength, s.smellRadius, null, null, null, null);
+    }
     // register spawned animal
     public virtual void Register(Animal animal)
     {
@@ -225,7 +228,21 @@ abstract class SimulationController : MonoBehaviour
     {
         Time.timeScale = 1;
         //Ändras 0.25f så måste det ändras i ticktimer också atm.
-        Time.fixedDeltaTime = 0.25f / gameSpeed;
+        Time.fixedDeltaTime = 0.25f / settings.gameSpeed;
+
+
+        SyncAnimalsGameSpeed();
+    }
+
+    private void SyncAnimalsGameSpeed()
+    {
+        foreach(Species s in animalsInSimulation.Keys)
+        {
+            foreach(Animal animal in animalsInSimulation[s])
+            {
+                animal.SyncGameSpeed();
+            }
+        }
     }
 
     public static SimulationController Instance()

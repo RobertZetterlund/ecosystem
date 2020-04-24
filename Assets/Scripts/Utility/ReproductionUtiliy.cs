@@ -38,14 +38,14 @@ public static class ReproductionUtility
 	{
 		SimulationController sc = SimulationController.Instance();
 		Species species = traitsA.species;
-		double maxSize = sc.EvovleMaxSize ? ReproduceRangedDouble(traitsA.maxSize, traitsB.maxSize).GetValue() : traitsA.maxSize.GetValue();
-		double dietFactor = sc.EvolveDietFactor ? ReproduceRangedDouble(traitsA.dietFactor, traitsB.dietFactor).GetValue() : traitsA.dietFactor.GetValue();
-		double nChildren = sc.EvolveNChildren ? ReproduceRangedDouble(traitsA.nChildren, traitsB.nChildren).GetValue() : traitsA.nChildren.GetValue();
-		double speed = sc.EvolveSpeed ? ReproduceRangedDouble(traitsA.speed, traitsB.speed).GetValue() : traitsA.speed.GetValue();
-		double heatTimer = sc.EvolveHeatTimer ? ReproduceRangedDouble(traitsA.heatTimer, traitsB.heatTimer).GetValue() : traitsA.heatTimer.GetValue();
-		double sightLength = sc.EvolveSightLength ? ReproduceRangedDouble(traitsA.sightLength, traitsB.sightLength).GetValue() : traitsA.sightLength.GetValue();
-		double smellRadius = sc.EvovleSmellRadius ? ReproduceRangedDouble(traitsA.smellRadius, traitsB.smellRadius).GetValue() : traitsA.smellRadius.GetValue();
-		FCMHandler fcmHandler = sc.EvolveFcm ? traitsA.fcmHandler.Reproduce(traitsB.fcmHandler) : FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(species), species);
+		double maxSize = sc.settings.EvovleMaxSize ? ReproduceRangedDouble(traitsA.maxSize, traitsB.maxSize).GetValue() : traitsA.maxSize.GetValue();
+		double dietFactor = sc.settings.EvolveDietFactor ? ReproduceRangedDouble(traitsA.dietFactor, traitsB.dietFactor).GetValue() : traitsA.dietFactor.GetValue();
+		double nChildren = sc.settings.EvolveNChildren ? ReproduceRangedDouble(traitsA.nChildren, traitsB.nChildren).GetValue() : traitsA.nChildren.GetValue();
+		double speed = sc.settings.EvolveSpeed ? ReproduceRangedDouble(traitsA.speed, traitsB.speed).GetValue() : traitsA.speed.GetValue();
+		double heatTimer = sc.settings.EvolveHeatTimer ? ReproduceRangedDouble(traitsA.heatTimer, traitsB.heatTimer).GetValue() : traitsA.heatTimer.GetValue();
+		double sightLength = sc.settings.EvolveSightLength ? ReproduceRangedDouble(traitsA.sightLength, traitsB.sightLength).GetValue() : traitsA.sightLength.GetValue();
+		double smellRadius = sc.settings.EvovleSmellRadius ? ReproduceRangedDouble(traitsA.smellRadius, traitsB.smellRadius).GetValue() : traitsA.smellRadius.GetValue();
+		FCMHandler fcmHandler = sc.settings.EvolveFcm ? traitsA.fcmHandler.Reproduce(traitsB.fcmHandler) : FCMHandlerFactory.getFCMHandlerSpecies(FCMFactory.getSpeciesFCM(species), species);
 
 		AnimalTraits child = new AnimalTraits(species, maxSize, dietFactor, nChildren, speed, heatTimer, sightLength, smellRadius, fcmHandler, traitsA.diet, traitsA.foes, traitsA.mates);
 

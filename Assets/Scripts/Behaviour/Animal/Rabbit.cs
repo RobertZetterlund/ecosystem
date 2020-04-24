@@ -13,6 +13,10 @@ class Rabbit : Animal
 	protected override void Start()
 	{
 		runAnimationspeedFactor = 0.5f;
+		timeToDeathByThirst = simulation.settings.rabbit.timeToDeathByThirst;
+		BiteFactor = simulation.settings.rabbit.BiteFactor;
+		AdultSizeFactor = simulation.settings.rabbit.AdultSizeFactor;
+		lifespan = simulation.settings.rabbit.lifespan;
 		base.Start();
 
 	}

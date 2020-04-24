@@ -47,7 +47,7 @@ public class Timer
 
 	public float TimeSinceStart()
 	{
-		return (Time.time - startTime) * SimulationController.Instance().gameSpeed;
+		return (Time.time - startTime) * SimulationController.Instance().settings.gameSpeed;
 	}
 
 }

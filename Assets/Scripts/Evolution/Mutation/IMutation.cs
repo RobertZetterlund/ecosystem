@@ -1,6 +1,6 @@
 ﻿using System;
 
-interface IMutation
+public interface IMutation
 {
 	RangedDouble Mutate(RangedDouble gene);
 }

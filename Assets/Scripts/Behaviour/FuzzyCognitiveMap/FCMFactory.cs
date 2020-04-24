@@ -23,7 +23,7 @@ public static class FCMFactory
 
 		FCM fcm = new FCM(inputs, middles, actions);
 
-		if (!SimulationController.Instance().randomiseRabbitFCM)
+		if (!SimulationController.Instance().settings.rabbit.randomiseFCM)
 		{
 			// FOOD AND HUNGER
 			fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 0.05);
@@ -113,7 +113,7 @@ public static class FCMFactory
 
 		FCM fcm = new FCM(inputs, middles, actions);
 
-		if (SimulationController.Instance().randomiseFoxFCM)
+		if (SimulationController.Instance().settings.fox.randomiseFCM)
 		{
 			fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 0.05);
 			fcm.SetWeight(EntityField.FoodFar, EntityField.GoingToFood, -0.05);
