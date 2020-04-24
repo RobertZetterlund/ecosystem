@@ -69,7 +69,7 @@ public abstract class FCMHandler
 	// Fuzzifier for presence
 	private float calculatePresenceInput(int count)
 	{
-        // using base 7
+		// using base 7
 		float weight = (float)Math.Log(count + 1, 7);
 		return weight > 1 ? 1 : weight;
 	}
@@ -137,5 +137,62 @@ public abstract class FCMHandler
 
 		return csv;
 
+	}
+
+	public static StringBuilder ToCsvRow(double[,] weights, bool isHeader)
+	{
+		(EntityField, EntityField, double)[] output = new (EntityField, EntityField, double)[20];
+
+		EntityField[] inputs = (EntityField[])Enum.GetValues(typeof(EntityInput));
+		EntityField[] middles = (EntityField[])Enum.GetValues(typeof(EntityMiddle));
+		EntityField[] actions = (EntityField[])Enum.GetValues(typeof(EntityAction));
+
+		int index = 0;
+		int size = inputs.Length + middles.Length + actions.Length;
+
+		foreach (EntityField from in inputs)
+		{
+			foreach (EntityField to in middles)
+			{
+				output[index] = (from, to, weights[(int)from, (int)to]);
+				index++;
+			}
+		}
+
+		int index2 = index + middles.Length * middles.Length;
+
+		foreach (EntityField from in middles)
+		{
+			foreach (EntityField to in middles)
+			{
+				output[index] = (from, to, weights[(int)from, (int)to]);
+				index++;
+			}
+			foreach (EntityField to in actions)
+			{
+				output[index2] = (from, to, weights[(int)from, (int)to]);
+				index2++;
+			}
+		}
+
+		//
+
+		StringBuilder csv = new StringBuilder("");
+		for (int i = 0; i < output.Length; i++)
+		{
+			if (isHeader)
+			{
+				csv.Append(output[i].Item1.ToString());
+				csv.Append('-');
+				csv.Append(output[i].Item1.ToString());
+			}
+			else
+			{
+				csv.Append(output[i].Item3.ToString(System.Globalization.CultureInfo.InvariantCulture));
+			}
+			csv.Append(',');
+		}
+		csv.Length--;
+		return csv;
 	}
 }
