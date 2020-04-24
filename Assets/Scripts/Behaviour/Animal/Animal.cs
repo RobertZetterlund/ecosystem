@@ -25,10 +25,10 @@ public abstract class Animal : Entity, IConsumable
 	protected EntityAction currentAction = EntityAction.Idle;
 	protected ActionState state = new ActionState();
 	private RangedDouble heat = new RangedDouble(0, 0, 1); // aka fuq-o-meter
-	double timeToDeathByThirst = 70;
+	double timeToDeathByThirst = 50;
 	private const double BiteFactor = 0.25; // use to calculate how much you eat in one bite
 	private const double AdultSizeFactor = 0.3; // how big you have to be to mate
-	double lifespan = 80;
+	double lifespan = 110;
 	bool dead;
 	private bool immobalized;
 	[SerializeField]
@@ -305,7 +305,7 @@ public abstract class Animal : Entity, IConsumable
 		}
 		else if (energy <= 0)
 		{
-			Debug.Log("Dead by age");
+			//Debug.Log("Dead by age");
 			Die(CauseOfDeath.Age);
 		}
 		else if (size.GetValue() == 0)
@@ -321,6 +321,7 @@ public abstract class Animal : Entity, IConsumable
 
 	public void Die(CauseOfDeath cause)
 	{
+		Debug.Log("Dead by " + cause);
 		if (!dead)
 		{
 			//Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
@@ -791,7 +792,7 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-		double overallCostFactor = 7; // increase or decrease to change hunger depletion speed
+		double overallCostFactor = 2.5; // increase or decrease to change hunger depletion speed
 
 		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
 		double speedCost = currentSpeed * size.GetValue(); // mass * speed
@@ -800,7 +801,7 @@ public abstract class Animal : Entity, IConsumable
 		// each cost is divided by some arbitrary constant to balance it
 
 		sizeCost /= 120;
-		speedCost /= 1200;
+		speedCost /= 3200;
 		smellCost /= 5000;
 		sightCost /= 5000;
 
