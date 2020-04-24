@@ -141,11 +141,13 @@ public abstract class FCMHandler
 
 	public static StringBuilder ToCsvRow(double[,] weights, bool isHeader)
 	{
-		(EntityField, EntityField, double)[] output = new (EntityField, EntityField, double)[20];
-
 		EntityField[] inputs = (EntityField[])Enum.GetValues(typeof(EntityInput));
 		EntityField[] middles = (EntityField[])Enum.GetValues(typeof(EntityMiddle));
 		EntityField[] actions = (EntityField[])Enum.GetValues(typeof(EntityAction));
+
+		int nbrOfWeights = inputs.Length * middles.Length + middles.Length * middles.Length + middles.Length * actions.Length;
+		(EntityField, EntityField, double)[] output = new (EntityField, EntityField, double)[nbrOfWeights];
+
 
 		int index = 0;
 		int size = inputs.Length + middles.Length + actions.Length;

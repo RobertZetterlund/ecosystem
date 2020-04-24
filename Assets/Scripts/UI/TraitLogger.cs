@@ -175,7 +175,10 @@ public class TraitLogger : MonoBehaviour
 		traitRow.Append(MakeRow(false));
 
 		for (int i = 0; i < fcmRows.Length; i++)
-			fcmRows[i].Append(FCMHandler.ToCsvRow(GenerateAverageFCM((Species)i), false));
+		{
+			if (loggableSpecies[i] == 1)
+				fcmRows[i].Append(FCMHandler.ToCsvRow(GenerateAverageFCM((Species)i), false));
+		}
 
 		//File.WriteAllText(filename, row.ToString());
 		using (StreamWriter writeText = new StreamWriter(folder + '/' + "Traits" + ".txt", true))
