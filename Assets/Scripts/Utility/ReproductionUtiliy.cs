@@ -11,30 +11,16 @@ public static class ReproductionUtility
 
 
 
-	public static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
-	{
-		RangedDouble mutation = CROSSOVER_OPERATOR.Crossover(geneA, geneB);
-		mutation = MUTATION_OPERATOR.Mutate(mutation);
-		return mutation;
-	}
-
-
-	/*public static RangedInt ReproduceRangedInt(RangedInt geneA, RangedInt geneB)
+    public static RangedDouble ReproduceRangedDouble(RangedDouble geneA, RangedDouble geneB)
     {
-        int mutation = (int)CROSSOVER_OPERATOR.Crossover(geneA.GetValue(), geneB.GetValue());
-
-        if (geneA.GetLower() == geneB.GetLower() && geneA.GetUpper() == geneB.GetUpper())
-        {
-            mutation = (int)MathUtility.Clamp(mutation, geneA.GetLower(), geneB.GetUpper());
-            return new RangedInt(mutation, geneA.GetLower(), geneA.GetUpper());
-        }
-        else
-        {
-            throw new Exception("Attempted to reproduce genes with different bounds");
-        }
+        RangedDouble mutation = CROSSOVER_OPERATOR.Crossover(geneA, geneB);
+        mutation = MUTATION_OPERATOR.Mutate(mutation);
+        return mutation;
     }
-    */
-	public static AnimalTraits ReproduceAnimal(AnimalTraits traitsA, AnimalTraits traitsB)
+
+
+
+    public static AnimalTraits ReproduceAnimal(AnimalTraits traitsA, AnimalTraits traitsB)
 	{
 		SimulationController sc = SimulationController.Instance();
 		Species species = traitsA.species;

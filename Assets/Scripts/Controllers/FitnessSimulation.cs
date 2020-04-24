@@ -131,16 +131,99 @@ class FitnessSimulation : SimulationController
         {
             population.Add(tc.traits);
         }
-        //Minimum 2 parents
-        int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
-        AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
+
+        AnimalTraits avgAnimal = GenerateAverageAnimal(finishedTraits[s], s);
+        
+        AnimalTraits avgAnimalClone = new AnimalTraits(avgAnimal);
+
+        AnimalTraits[] parentsCloned = new AnimalTraits[] { avgAnimal, avgAnimalClone };
 
         int nTop = 5;
-        AnimalTraits[] children = BreedChildren(parents, nAnimals[s] - nTop);
+        AnimalTraits[] children;
+
+        if(settings.mutationSettings == SimulationSettings.MutationSettings.GA)
+        {
+            //Minimum 2 parents
+            int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
+            AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
+            children = BreedChildren(parents, nAnimals[s] - nTop);
+
+        }
+        else
+        {
+           children = BreedChildren(parentsCloned, nAnimals[s] - nTop);
+        }
+
         AnimalTraits[] topPerformers = BestSelection.Instance.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), nTop);
         return children.Concat(topPerformers).ToArray();
     }
 
+    private AnimalTraits GenerateAverageAnimal(SortedList<TraitsComparable, double> weightedTraits, Species specie)
+    {
+
+        double totalFitness = weightedTraits.Values.Sum();
+
+        // c_____ means combined/cumulative
+        double cMaxSize = 0;
+        double cDietFactor = 0;
+        double cNChildren = 0;
+        double cSpeed = 0;
+        double cHeatTimer = 0;
+        double cSightLength = 0;
+        double cSmellRadius = 0;
+
+        // this fcm is emtpy, but will have cumulative weights.
+        FCM cFCM = FCMFactory.GetBaseFCM();
+
+        // Extract animaltrait to fix compiler complaining when extracting diet,foes and mates.
+        AnimalTraits currTrait = weightedTraits.Keys.First().traits;
+
+        foreach(KeyValuePair<TraitsComparable, double> kvP in weightedTraits)
+        {
+            currTrait = kvP.Key.traits;
+            double currFitness = kvP.Value;
+            double adjustedFitness = currFitness / totalFitness;
+            FCMHandler currHandler = currTrait.fcmHandler;
+
+
+            FCM currFCM = currHandler.GetFCM();
+
+            // average fcm
+            for(int _from = 0; _from < currFCM.NOFields; _from++)
+            {
+                for(int _to=0; _to < currFCM.NOFields; _to++)
+                {
+                    cFCM.weights[_from, _to] += currFCM.weights[_from, _to] * adjustedFitness;
+                }
+            }
+
+
+            // average traits
+            cMaxSize += currTrait.maxSize.GetValue() * adjustedFitness;
+            cDietFactor += currTrait.dietFactor.GetValue() * adjustedFitness;
+            cNChildren += currTrait.nChildren.GetValue() * adjustedFitness;
+            cSpeed += currTrait.speed.GetValue() * adjustedFitness;
+            cHeatTimer += currTrait.heatTimer.GetValue() * adjustedFitness;
+            cSightLength += currTrait.sightLength.GetValue() * adjustedFitness;
+            cSmellRadius += currTrait.smellRadius.GetValue() * adjustedFitness;
+        }
+
+
+        // Create fcm based on specie
+        FCMHandler cFCMHandler;
+        switch (specie)
+        {
+            case Species.Rabbit: cFCMHandler = new RabbitFCMHandler(cFCM); break;
+
+            case Species.Fox: cFCMHandler = new FoxFCMHandler(cFCM); break;
+
+            default: cFCMHandler = new RabbitFCMHandler(cFCM); break;
+        }
+
+        AnimalTraits averagedTraits = new AnimalTraits(specie, cMaxSize, cDietFactor, cNChildren, cSpeed, cHeatTimer, cSightLength, cSmellRadius, cFCMHandler, currTrait.diet, currTrait.foes, currTrait.mates);
+
+        return averagedTraits;
+    }
 
     private AnimalTraits[] BreedChildren(AnimalTraits[] parents, int amount)
     {

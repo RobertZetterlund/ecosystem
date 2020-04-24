@@ -5,10 +5,10 @@ using System;
 
 public class FCM
 {
-	double[,] weights;
+	public double[,] weights;
 	double[] states;
 	double[] stateIncreases;
-	int NOFields;
+	public int NOFields;
 	int NOMiddles;
 	int NOActions;
 	int NOInputs;

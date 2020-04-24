@@ -10,6 +10,11 @@ public class RabbitFCMHandler : FCMHandler
 		fuzzifier = new DistanceFuzzifier();
 	}
 
+    public RabbitFCMHandler() : base()
+    {
+
+    }
+
 	// Sets the fcm values accordingly when something has been spotted
 
 
