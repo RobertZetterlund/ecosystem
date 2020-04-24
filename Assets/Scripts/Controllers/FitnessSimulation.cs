@@ -133,14 +133,27 @@ class FitnessSimulation : SimulationController
         }
 
         AnimalTraits avgAnimal = GenerateAverageAnimal(finishedTraits[s], s);
+        
+        AnimalTraits avgAnimalClone = new AnimalTraits(avgAnimal);
 
-
-        //Minimum 2 parents
-        int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
-        AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
+        AnimalTraits[] parentsCloned = new AnimalTraits[] { avgAnimal, avgAnimalClone };
 
         int nTop = 5;
-        AnimalTraits[] children = BreedChildren(parents, nAnimals[s] - nTop);
+        AnimalTraits[] children;
+
+        if(settings.mutationSettings == SimulationSettings.MutationSettings.GA)
+        {
+            //Minimum 2 parents
+            int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
+            AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
+            children = BreedChildren(parents, nAnimals[s] - nTop);
+
+        }
+        else
+        {
+           children = BreedChildren(parentsCloned, nAnimals[s] - nTop);
+        }
+
         AnimalTraits[] topPerformers = BestSelection.Instance.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), nTop);
         return children.Concat(topPerformers).ToArray();
     }
@@ -186,13 +199,13 @@ class FitnessSimulation : SimulationController
 
 
             // average traits
-            cMaxSize += currTrait.maxSize.GetValue() * currFitness;
-            cDietFactor += currTrait.dietFactor.GetValue() * currFitness;
-            cNChildren += currTrait.nChildren.GetValue() * currFitness;
-            cSpeed += currTrait.speed.GetValue() * currFitness;
-            cHeatTimer += currTrait.heatTimer.GetValue() * currFitness;
-            cSightLength += currTrait.sightLength.GetValue() * currFitness;
-            cSmellRadius += currTrait.smellRadius.GetValue() * currFitness;
+            cMaxSize += currTrait.maxSize.GetValue() * adjustedFitness;
+            cDietFactor += currTrait.dietFactor.GetValue() * adjustedFitness;
+            cNChildren += currTrait.nChildren.GetValue() * adjustedFitness;
+            cSpeed += currTrait.speed.GetValue() * adjustedFitness;
+            cHeatTimer += currTrait.heatTimer.GetValue() * adjustedFitness;
+            cSightLength += currTrait.sightLength.GetValue() * adjustedFitness;
+            cSmellRadius += currTrait.smellRadius.GetValue() * adjustedFitness;
         }
 
 

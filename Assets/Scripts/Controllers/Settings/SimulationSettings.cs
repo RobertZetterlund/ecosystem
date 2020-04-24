@@ -20,6 +20,15 @@ public class SimulationSettings
 
 
 
+    public enum MutationSettings
+    {
+        GA,
+        ES
+    }
+
+    public MutationSettings mutationSettings = MutationSettings.GA;
+
+
     /*public enum CrossoverOperator
     {
         BLX_ALPHA,

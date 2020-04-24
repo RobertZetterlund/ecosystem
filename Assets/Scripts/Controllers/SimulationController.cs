@@ -230,6 +230,18 @@ public abstract class SimulationController : MonoBehaviour
         //Ändras 0.25f så måste det ändras i ticktimer också atm.
         Time.fixedDeltaTime = 0.25f / settings.gameSpeed;
 
+        switch(settings.mutationSettings)
+        {
+            case SimulationSettings.MutationSettings.GA:
+                CROSSOVER_OPERATOR = UniformCrossover.Instance;
+                break;
+            case SimulationSettings.MutationSettings.ES:
+                CROSSOVER_OPERATOR = AlwaysSameCrossover.Instance;
+                break;
+
+            default: break;
+        }
+
 
         SyncAnimalsGameSpeed();
     }
