@@ -1,0 +1,12 @@
+Rabbit-population,Rabbit-born children,Rabbit-max size,Rabbit-diet factor,Rabbit-#children,Rabbit-speed,Rabbit-heat Timer,Rabbit-sight length,Rabbit-smell radius
+40,0,3,0,2.1,10,13,30,25
+40,0,3,0,2.1,10,13,30,25
+40,0,3,0,2.1,10,13,30,25
+40,0,3,0,2.1,10,13,30,25
+40,0,3,0,2.1,10,13,30,25
+40,0,3,0,2.1,10,13,30,25
+40,0,3,0,2.1,10,13,30,25
+46,6,3,0,2.1,10,13,30,25
+46,6,3,0,2.1,10,13,30,25
+46,6,3,0,2.1,10,13,30,25
+46,6,3,0,2.1,10,13,30,25

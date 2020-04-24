@@ -308,7 +308,7 @@ public abstract class Animal : Entity, IConsumable
 		}
 		else if (energy <= 0)
 		{
-			Debug.Log("Dead by age");
+			//Debug.Log("Dead by age");
 			Die(CauseOfDeath.Age);
 		}
 		else if (size.GetValue() == 0)
@@ -324,6 +324,7 @@ public abstract class Animal : Entity, IConsumable
 
 	public void Die(CauseOfDeath cause)
 	{
+		Debug.Log("Dead by " + cause);
 		if (!dead)
 		{
 			//Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
@@ -793,7 +794,6 @@ public abstract class Animal : Entity, IConsumable
 
 	private void DepleteSize()
 	{
-
 		double sizeCost = Math.Pow(size.GetValue(), 2f / 3f); // surface area heat radiation
 		double speedCost = currentSpeed * size.GetValue(); // mass * speed
 		double smellCost = smellRadius.GetValue() * 2; // times 2 because it is more op than sight
@@ -801,7 +801,7 @@ public abstract class Animal : Entity, IConsumable
 		// each cost is divided by some arbitrary constant to balance it
 
 		sizeCost /= 120;
-		speedCost /= 1200;
+		speedCost /= 3200;
 		smellCost /= 5000;
 		sightCost /= 5000;
 
