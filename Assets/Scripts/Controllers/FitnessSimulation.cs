@@ -51,6 +51,7 @@ class FitnessSimulation : SimulationController
     {
         finishedRounds++;
         Debug.Log("Finished round + " + finishedRounds + " -  Fitness: " + totalFitness / totalCreatures + "    RoundTime: " + roundTimer.TimeSinceStart() + "    Animals alive at round finish: " + evolvingAnimalsAlive + "   Max alive: " + maxCreatures);
+        TraitLogger.LogRound((int)(totalFitness / totalCreatures), (int)roundTimer.TimeSinceStart(), (int)maxCreatures);
         totalCreatures = 0;
         totalFitness = 0;
         maxCreatures = 0;
@@ -184,9 +185,9 @@ class FitnessSimulation : SimulationController
     }
 
     // Called when an animal dies
-    public override void Unregister(Animal animal)
+    public override void Unregister(Animal animal, CauseOfDeath cause)
     {
-        base.Unregister(animal);
+        base.Unregister(animal, cause);
         AnimalTraits traits = animal.GetTraits();
         double fitness = CalculateFitness(animal);
         totalFitness += fitness;

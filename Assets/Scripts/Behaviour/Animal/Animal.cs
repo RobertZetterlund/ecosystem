@@ -330,7 +330,7 @@ public abstract class Animal : Entity, IConsumable
 			//Debug.Log("Death by: " + cause.ToString() + "   Time alive: " + GetTimeAlive());
 			dead = true;
 			StopAllCoroutines();
-			SimulationController.Instance().Unregister(this);
+			SimulationController.Instance().Unregister(this, cause);
 			statusBars.Destroy();
 			Destroy(gameObject);
 		}

@@ -186,7 +186,7 @@ public abstract class FCMHandler
 			{
 				csv.Append(output[i].Item1.ToString());
 				csv.Append('-');
-				csv.Append(output[i].Item1.ToString());
+				csv.Append(output[i].Item2.ToString());
 			}
 			else
 			{

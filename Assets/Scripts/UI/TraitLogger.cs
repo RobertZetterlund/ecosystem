@@ -18,6 +18,8 @@ public class TraitLogger : MonoBehaviour
 	// current total might not exist when all animals are dead, but we still want to log so we need this
 	private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
 	private static int[] bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
+	private static int deaths = 0;
+	private static int ageDeaths = 0;
 	private static int logInterval = 5; // seconds
 	private static bool firstSave = true;
 	private static string folder;
@@ -82,14 +84,16 @@ public class TraitLogger : MonoBehaviour
 			{
 				for (int _to = 0; _to < weights.GetLength(1); _to++)
 				{
-					try
+					int denominator = nAnimals[(int)s];
+					if (denominator == 0)
 					{
-						averageWeights[_from, _to] += weights[_from, _to] / nAnimals[(int)s];
-					} catch (DivideByZeroException)
-					{
-						// if zero animals, take previous average
 						return previousAverageFCMs[(int)s];
 					}
+					else
+					{
+						averageWeights[_from, _to] += weights[_from, _to] / denominator;
+					}
+
 				}
 			}
 		}
@@ -262,9 +266,12 @@ public class TraitLogger : MonoBehaviour
 		animals.Add(a.GetHashCode(), a);
 	}
 
-	public static void Unregister(Animal a)
+	public static void Unregister(Animal a, CauseOfDeath cause)
 	{
 		animals.Remove(a.GetHashCode());
+		deaths++;
+		if (cause == CauseOfDeath.Age)
+			ageDeaths++;
 	}
 
 	public static void LogAndSave()
@@ -283,6 +290,7 @@ public class TraitLogger : MonoBehaviour
 		logFirst = true;
 		bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
 		WriteFCMsToFile();
+		round++;
 	}
 
 	public static void RegisterBirth(Species s)
@@ -301,6 +309,36 @@ public class TraitLogger : MonoBehaviour
 				SaveFCM(s.ToString(), folder  + "/round " + round + " " + ((Species)i).ToString() + "_fcm");
 			}
 		}
-		round++;
+	}
+
+	public static void LogRound(int fitness, int time, int maxCreatures)
+	{
+		string logRow = "";
+
+		if (round != 0)
+		{
+			// normal row
+			string deathRatio = "-1";
+			if (deaths != 0)
+			{
+				deathRatio = (ageDeaths / (double)deaths).ToString(System.Globalization.CultureInfo.InvariantCulture);
+			}
+			int bornAnimals = 0;
+			for (int i = 0; i < TraitLogger.bornAnimals.Length; i++)
+			{
+				bornAnimals += TraitLogger.bornAnimals[i];
+			}
+			logRow = fitness + "," + time + "," + maxCreatures + "," + deathRatio + "," + bornAnimals;
+		}
+		else
+		{
+			// header row
+			logRow = "Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals";
+		}
+
+		using (StreamWriter writeText = new StreamWriter(folder + '/' + "RoundSummary" + ".txt", true))
+		{
+			writeText.WriteLine(logRow);
+		}
 	}
 }

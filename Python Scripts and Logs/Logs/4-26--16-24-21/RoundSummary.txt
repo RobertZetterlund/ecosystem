@@ -1,0 +1,7 @@
+1628,66,44,0.0227272727272727,System.Int32[]
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
