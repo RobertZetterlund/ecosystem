@@ -11,9 +11,16 @@ class FitnessSimulation : SimulationController
     private Timer roundTimer;
 
     private double parentPercentage;
+    private double topPerformerPerctange;
     private double roundTime;
     private int finishedRounds = 0;
     private int evolvingAnimalsAlive = 0;
+    private int roundsPerGen = 2;
+    private int generation = 0;
+
+
+    private Dictionary<Species, AnimalTraits[]> genParents = new Dictionary<Species, AnimalTraits[]>();
+    private Dictionary<Species, AnimalTraits[]> genTopPerformers = new Dictionary<Species, AnimalTraits[]>();
 
     private static ISelection SELECTION_OPERATOR = RouletteSelection.Instance;
 
@@ -21,6 +28,7 @@ class FitnessSimulation : SimulationController
     protected override void Start()
     {
         parentPercentage = settings.parentsPercentage;
+        topPerformerPerctange = settings.topPerformersPercentage;
         roundTime = settings.roundTime;
         if(settings.evolveRabbit)
             speciesToEvolve.Add(Species.Rabbit);
@@ -49,14 +57,28 @@ class FitnessSimulation : SimulationController
 
     public void EndRound()
     {
+        if (finishedRounds % roundsPerGen == 0)
+            generation++;
         finishedRounds++;
-        Debug.Log("Finished round + " + finishedRounds + " -  Fitness: " + totalFitness / totalCreatures + "    RoundTime: " + roundTimer.TimeSinceStart() + "    Animals alive at round finish: " + evolvingAnimalsAlive + "   Max alive: " + maxCreatures);
+        Debug.Log("Finished round: " + generation + ", " + finishedRounds + " -  Fitness: " + totalFitness + "    RoundTime: " + roundTimer.TimeSinceStart() + "    Animals alive at round finish: " + evolvingAnimalsAlive + "   Max alive: " + maxCreatures);
         totalCreatures = 0;
         totalFitness = 0;
         maxCreatures = 0;
         KillRemainingAnimals();
         PrepareNextRound();
         StartRound();
+    }
+
+    protected override void StartSimulation()
+    {
+        base.StartSimulation();
+        foreach (Species s in nAnimals.Keys)
+        {
+            genParents[s] = animalsToSpawn[s];
+            genTopPerformers[s] = new AnimalTraits[0];
+        }
+        roundTimer.Reset();
+        roundTimer.Start();
     }
 
     /**
@@ -73,9 +95,12 @@ class FitnessSimulation : SimulationController
                 animalsToSpawn[s] = NewPopulation(s);
             }
         }
-
-        ResetFinishedTraits();
+        if (finishedRounds % roundsPerGen == 0)
+        {
+            ResetFinishedTraits();
+        }
     }
+
 
     /**
      * Kills off all animals still in the simulation
@@ -126,36 +151,62 @@ class FitnessSimulation : SimulationController
         if (nAnimals[s] == 0)
             return new AnimalTraits[0];
 
-        List<AnimalTraits> population = new List<AnimalTraits>();
-        foreach (TraitsComparable tc in finishedTraits[s].Keys)
-        {
-            population.Add(tc.traits);
-        }
-
-        AnimalTraits avgAnimal = GenerateAverageAnimal(finishedTraits[s], s);
         
-        AnimalTraits avgAnimalClone = new AnimalTraits(avgAnimal);
-
-        AnimalTraits[] parentsCloned = new AnimalTraits[] { avgAnimal, avgAnimalClone };
-
-        int nTop = 5;
+        AnimalTraits[] parents;
         AnimalTraits[] children;
+        AnimalTraits[] topPerformers;
+        int topPerformersPerRound = 0;
 
-        if(settings.mutationSettings == SimulationSettings.MutationSettings.GA)
+        if (finishedRounds % roundsPerGen != 0)
         {
-            //Minimum 2 parents
-            int parentsPerRound = Math.Max(2,(int)(parentPercentage * nAnimals[s])); 
-            AnimalTraits[] parents = SELECTION_OPERATOR.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), parentsPerRound);
-            children = BreedChildren(parents, nAnimals[s] - nTop);
-
-        }
+            parents = genParents[s];
+            topPerformers = genTopPerformers[s];
+        } 
         else
         {
-           children = BreedChildren(parentsCloned, nAnimals[s] - nTop);
+            List<AnimalTraits> population = new List<AnimalTraits>();
+            foreach (TraitsComparable tc in finishedTraits[s].Keys)
+            {
+                population.Add(tc.traits);
+            }
+            double[] adjustedFitness = AdjustFitness(finishedTraits[s].Values.ToArray<double>(), finishedTraits[s].Values[0]);
+            if (settings.mutationSettings == SimulationSettings.MutationSettings.ES)
+            {
+                AnimalTraits avgAnimal = GenerateAverageAnimal(finishedTraits[s], s);
+                AnimalTraits avgAnimalClone = new AnimalTraits(avgAnimal);
+                parents = new AnimalTraits[] { avgAnimal, avgAnimalClone };
+
+            }
+            else
+            {
+                //Minimum 2 parents
+                int parentsPerRound = Math.Max(2, (int)(parentPercentage * roundsPerGen * nAnimals[s]));
+                parents = SELECTION_OPERATOR.Select(population.ToArray(), adjustedFitness, parentsPerRound);
+            }
+
+            //How many we want to copy with elitism
+
+            topPerformersPerRound = Math.Max(1, (int)(topPerformerPerctange * roundsPerGen * nAnimals[s]));
+            topPerformers = BestSelection.Instance.Select(population.ToArray(), adjustedFitness, topPerformersPerRound);
+
+            genParents[s] = parents;
+            genTopPerformers[s] = topPerformers;
+        }
+        
+
+        children = BreedChildren(parents, nAnimals[s] - topPerformersPerRound);
+
+        return children.Concat(topPerformers).ToArray();
+    }
+
+    private double[] AdjustFitness(double[] fitness, double adjustment)
+    {
+        for(int i = 0; i < fitness.Length; i++)
+        {
+            fitness[i] -= adjustment;
         }
 
-        AnimalTraits[] topPerformers = BestSelection.Instance.Select(population.ToArray(), finishedTraits[s].Values.ToArray<double>(), nTop);
-        return children.Concat(topPerformers).ToArray();
+        return fitness;
     }
 
     private AnimalTraits GenerateAverageAnimal(SortedList<TraitsComparable, double> weightedTraits, Species specie)
@@ -258,25 +309,17 @@ class FitnessSimulation : SimulationController
         }
     }
 
-    protected override void StartSimulation()
-    {
-        base.StartSimulation();
-        roundTimer.Reset();
-        roundTimer.Start();
-
-    }
-
     // Called when an animal dies
     public override void Unregister(Animal animal)
     {
         base.Unregister(animal);
         AnimalTraits traits = animal.GetTraits();
-        double fitness = CalculateFitness(animal);
-        totalFitness += fitness;
-        finishedTraits[traits.species].Add(new TraitsComparable(traits, fitness), fitness);
 
-        if(speciesToEvolve.Contains(traits.species)) {
+        if (speciesToEvolve.Contains(traits.species)) {
             evolvingAnimalsAlive -= 1;
+            double fitness = CalculateFitness(animal);
+            totalFitness += fitness;
+            finishedTraits[traits.species].Add(new TraitsComparable(traits, fitness), fitness);
         }
     }
 

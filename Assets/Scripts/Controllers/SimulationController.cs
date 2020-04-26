@@ -152,7 +152,7 @@ public abstract class SimulationController : MonoBehaviour
 
     protected void SpawnPlant(Vector3 spawnPoint)
     {
-        OrganismFactory.CreatePlant(3, spawnPoint);
+        OrganismFactory.CreatePlant(1, spawnPoint);
     }
 
 
@@ -235,11 +235,10 @@ public abstract class SimulationController : MonoBehaviour
             case SimulationSettings.MutationSettings.GA:
                 CROSSOVER_OPERATOR = UniformCrossover.Instance;
                 break;
-            case SimulationSettings.MutationSettings.ES:
+            default:
                 CROSSOVER_OPERATOR = AlwaysSameCrossover.Instance;
                 break;
 
-            default: break;
         }
 
 

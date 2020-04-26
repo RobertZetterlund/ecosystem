@@ -7,6 +7,7 @@ public class FoxSettings : AnimalSettings
     {
         dietFactor = 1;
         speed = 8;
+        overallCostFactor = 0;
     }
 }
 

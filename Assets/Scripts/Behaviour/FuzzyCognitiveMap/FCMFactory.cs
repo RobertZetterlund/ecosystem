@@ -74,7 +74,7 @@ public static class FCMFactory
 
 
 			// FEAR AND ESCAPING
-			fcm.SetWeight(EntityField.FoeClose, EntityField.Fear, 0.5);
+			/*fcm.SetWeight(EntityField.FoeClose, EntityField.Fear, 0.5);
 			fcm.SetWeight(EntityField.FoeFar, EntityField.Fear, -0.5);
 			fcm.SetWeight(EntityField.FoePresenceHigh, EntityField.Fear, 0.15);
 			fcm.SetWeight(EntityField.FoePresenceLow, EntityField.Fear, -0.05);
@@ -92,7 +92,7 @@ public static class FCMFactory
 
 			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToWater, -0.15);
 			fcm.SetWeight(EntityField.Escaping, EntityField.SearchingForMate, -0.15);
-			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);
+			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);*/
 
 
 		}
@@ -113,9 +113,9 @@ public static class FCMFactory
 
 		FCM fcm = new FCM(inputs, middles, actions);
 
-		if (SimulationController.Instance().settings.fox.randomiseFCM)
+		if (!SimulationController.Instance().settings.fox.randomiseFCM)
 		{
-			fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 0.05);
+			/*fcm.SetWeight(EntityField.FoodClose, EntityField.GoingToFood, 0.05);
 			fcm.SetWeight(EntityField.FoodFar, EntityField.GoingToFood, -0.05);
 			fcm.SetWeight(EntityField.FoodPresenceHigh, EntityField.GoingToFood, 0.02);
 			fcm.SetWeight(EntityField.FoodPresenceLow, EntityField.GoingToFood, -0.02);
@@ -142,10 +142,12 @@ public static class FCMFactory
 
 			fcm.SetState(EntityField.pFear, 0);
 
-			//This should start of has being far away, unless anything else has been sensed
-			/*fcm.SetState(EntityField.FoodFar, 1);
+			//This should start of has being far away, unless anything else has been sensed*/
+			fcm.SetState(EntityField.FoodFar, 1);
             fcm.SetState(EntityField.WaterFar, 1);
-            fcm.SetState(EntityField.MateFar, 1);*/
+            fcm.SetState(EntityField.MateFar, 1);
+
+			fcm.SetState(EntityField.GoingToFood, 1);
 
 		}
 		else

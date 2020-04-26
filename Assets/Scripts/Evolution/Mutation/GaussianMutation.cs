@@ -4,7 +4,7 @@
 class GaussianMutation : SingletonBase<GaussianMutation>, IMutation
 {
 
-	private static double STD_DEVIATION_FACTOR = 0.2;
+	private static double STD_DEVIATION_FACTOR = 0.5;
 	private static double MUTATION_CHANCE = 0.05;
 	private Random r = new Random();
 
