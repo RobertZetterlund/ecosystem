@@ -12,8 +12,7 @@ public class SimulationSettings
     [Range(0.1f, 100)]
     public float gameSpeed = 1;
     public bool animalsCanDie = true;
-    public float cdt = 0.3f;
-    public float overallCostFactor = 1.5f;
+    public float cdt = 0.1f;
 
     public AnimalSettings rabbit = new RabbitSettings();
     public AnimalSettings fox = new FoxSettings();
@@ -23,7 +22,8 @@ public class SimulationSettings
     public enum MutationSettings
     {
         GA,
-        ES
+        ES,
+        Search
     }
 
     public MutationSettings mutationSettings = MutationSettings.GA;
@@ -51,11 +51,14 @@ public class SimulationSettings
     public bool evolveFox = true;
 
     public float parentsPercentage = 0.2f;
-    public int roundTime = 1000;
+    public float topPerformersPercentage = 0.05f;
+    public int roundTime = 100000;
 
+    [HideInInspector]
+    public bool EvovleMaxSize = false, EvolveDietFactor = false, EvolveNChildren = false, EvolveInfantFactor = false,
+    EvolveSpeed = false, EvolveHeatTimer = false, EvolveSightLength = false, EvovleSmellRadius = false;
 
-    public bool EvovleMaxSize = true, EvolveDietFactor = true, EvolveNChildren = true, EvolveInfantFactor = true,
-    EvolveSpeed = true, EvolveHeatTimer = true, EvolveSightLength = true, EvovleSmellRadius = true, EvolveFcm = true;
+    public bool EvolveFcm = true;
 
 }
 

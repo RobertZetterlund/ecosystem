@@ -10,6 +10,7 @@ class Fox : Animal
 		BiteFactor = simulation.settings.fox.BiteFactor;
 		AdultSizeFactor = simulation.settings.fox.AdultSizeFactor;
 		lifespan = simulation.settings.fox.lifespan;
+		overallCostFactor = simulation.settings.fox.overallCostFactor;
 		base.Start();
 	}
 }

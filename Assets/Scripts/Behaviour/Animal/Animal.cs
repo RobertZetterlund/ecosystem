@@ -130,7 +130,6 @@ public abstract class Animal : Entity, IConsumable
 	protected virtual void Start()
 	{
 		cdt = simulation.settings.cdt;
-		overallCostFactor = simulation.settings.overallCostFactor;
 		memory = new Memory();
 
 		navMeshAgent = gameObject.AddComponent(typeof(NavMeshAgent)) as NavMeshAgent;
@@ -177,10 +176,10 @@ public abstract class Animal : Entity, IConsumable
 		thirst.Add(cdt / timeToDeathByThirst);
 
 		//Punishment for overeating
-		if(size.GetValue() / maxSize.GetValue() > 0.99)
+		/*if(size.GetValue() / maxSize.GetValue() > 0.99)
 		{
 			energy -= cdt / lifespan;
-		}
+		}*/
 		energy -= cdt / lifespan;
 
 		if (immobalized)
@@ -453,7 +452,7 @@ public abstract class Animal : Entity, IConsumable
 			ConsumptionType type = consumable.GetConsumptionType();
 
 			// determine how much you CAN eat 
-			double biteSize = size.GetValue() * BiteFactor;
+			double biteSize = maxSize.GetValue() * BiteFactor;
 			double effectiveAmount = 0;
 
 			switch (type)
@@ -497,8 +496,11 @@ public abstract class Animal : Entity, IConsumable
 	// eat this animal
 	public double Consume(double amount)
 	{
+		/*
 		Immobalize();
 		double eaten = size.Add(-amount);
+		return eaten;*/
+		double eaten = size.Add(-1000000);
 		return eaten;
 	}
 

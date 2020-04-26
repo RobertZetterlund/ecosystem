@@ -12,6 +12,7 @@ public class RabbitSettings : AnimalSettings
         //heatTimer = 13;
         //sightLength = 30;
         //smellRadius = 20;
+        overallCostFactor = 2.5f;
     }
 }
 

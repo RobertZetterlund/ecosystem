@@ -17,6 +17,7 @@ class Rabbit : Animal
 		BiteFactor = simulation.settings.rabbit.BiteFactor;
 		AdultSizeFactor = simulation.settings.rabbit.AdultSizeFactor;
 		lifespan = simulation.settings.rabbit.lifespan;
+		overallCostFactor = simulation.settings.rabbit.overallCostFactor;
 		base.Start();
 
 	}

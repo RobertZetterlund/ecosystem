@@ -27,7 +27,6 @@ public enum EntityField
 	FoePresenceLow,
 	Thirsty,
 	NotThirsty,
-	Fear,
 
 	//Middles
 	pHeat,
