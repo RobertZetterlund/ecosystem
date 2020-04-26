@@ -217,11 +217,11 @@ public abstract class SimulationController : MonoBehaviour
     }
 
     // register animal death
-    public virtual void Unregister(Animal animal)
+    public virtual void Unregister(Animal animal, CauseOfDeath cause)
     {
         AnimalTraits traits = animal.GetTraits();
         animalsInSimulation[traits.species].Remove(animal);
-        TraitLogger.Unregister(animal);
+        TraitLogger.Unregister(animal, cause);
     }
 
     private void OnValidate()

@@ -61,6 +61,7 @@ class FitnessSimulation : SimulationController
             generation++;
         finishedRounds++;
         Debug.Log("Finished round: " + generation + ", " + finishedRounds + " -  Fitness: " + totalFitness + "    RoundTime: " + roundTimer.TimeSinceStart() + "    Animals alive at round finish: " + evolvingAnimalsAlive + "   Max alive: " + maxCreatures);
+        TraitLogger.LogRound((int)totalFitness, (int)roundTimer.TimeSinceStart(), (int)maxCreatures);
         totalCreatures = 0;
         totalFitness = 0;
         maxCreatures = 0;
@@ -310,9 +311,9 @@ class FitnessSimulation : SimulationController
     }
 
     // Called when an animal dies
-    public override void Unregister(Animal animal)
+    public override void Unregister(Animal animal, CauseOfDeath cause)
     {
-        base.Unregister(animal);
+        base.Unregister(animal, cause);
         AnimalTraits traits = animal.GetTraits();
 
         if (speciesToEvolve.Contains(traits.species)) {

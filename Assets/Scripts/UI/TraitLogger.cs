@@ -11,12 +11,15 @@ public class TraitLogger : MonoBehaviour
 	public bool enable = false; // set true to log
 
 	private static (double, string)[][] currentTraitTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
-	private static double[][] previousAverages = new double[Species.GetValues(typeof(Species)).Length][];
+	private static double[][] previousAveragTraits = new double[Species.GetValues(typeof(Species)).Length][];
+	private static double[][,] previousAverageFCMs = new double[Species.GetValues(typeof(Species)).Length][,];
 	private static List<FCMHandler>[] recentFCMs = new List<FCMHandler>[Species.GetValues(typeof(Species)).Length];
 	private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
 	// current total might not exist when all animals are dead, but we still want to log so we need this
 	private static int[] loggableSpecies = new int[Species.GetValues(typeof(Species)).Length];
 	private static int[] bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
+	private static int deaths = 0;
+	private static int ageDeaths = 0;
 	private static int logInterval = 5; // seconds
 	private static bool firstSave = true;
 	private static string folder;
@@ -81,10 +84,20 @@ public class TraitLogger : MonoBehaviour
 			{
 				for (int _to = 0; _to < weights.GetLength(1); _to++)
 				{
-					averageWeights[_from, _to] += weights[_from, _to] / nAnimals[(int)s];
+					int denominator = nAnimals[(int)s];
+					if (denominator == 0)
+					{
+						return previousAverageFCMs[(int)s];
+					}
+					else
+					{
+						averageWeights[_from, _to] += weights[_from, _to] / denominator;
+					}
+
 				}
 			}
 		}
+		previousAverageFCMs[(int)s] = averageWeights;
 		return averageWeights;
 	}
 
@@ -136,9 +149,13 @@ public class TraitLogger : MonoBehaviour
 	}
 
 	// draw and or log current averages;
-	private static void Save()
+	private static void SaveTraitAndFCMGraphData()
 	{
-		StringBuilder row = new StringBuilder("");
+		StringBuilder traitRow = new StringBuilder("");
+		StringBuilder[] fcmRows = new StringBuilder[Species.GetValues(typeof(Species)).Length];
+		for (int i = 0; i < fcmRows.Length; i++)
+			fcmRows[i] = new StringBuilder("");
+
 		// save traits
 		if (firstSave)
 		{
@@ -147,18 +164,41 @@ public class TraitLogger : MonoBehaviour
 			{
 				if (loggableSpecies[i] == 1)
 				{
-					previousAverages[i] = new double[currentTraitTotals[i].Length];
+					previousAveragTraits[i] = new double[currentTraitTotals[i].Length];
+
+					int size = Enum.GetNames(typeof(EntityField)).Length;
+					previousAverageFCMs[i] = new double[size,size];
+					fcmRows[i] = FCMHandler.ToCsvRow(GenerateAverageFCM((Species)i), true);
+					fcmRows[i].Append('\n');
 				}
 			}
 			// make header
-			row = MakeRow(true).Append("\n");
+			traitRow = MakeRow(true).Append("\n");
 			firstSave = false;
 		}
-		row.Append(MakeRow(false));
+		traitRow.Append(MakeRow(false));
+
+		for (int i = 0; i < fcmRows.Length; i++)
+		{
+			if (loggableSpecies[i] == 1)
+				fcmRows[i].Append(FCMHandler.ToCsvRow(GenerateAverageFCM((Species)i), false));
+		}
+
 		//File.WriteAllText(filename, row.ToString());
 		using (StreamWriter writeText = new StreamWriter(folder + '/' + "Traits" + ".txt", true))
 		{
-			writeText.WriteLine(row.ToString());
+			writeText.WriteLine(traitRow.ToString());
+		}
+
+		for (int i = 0; i < fcmRows.Length; i++)
+		{
+			if (loggableSpecies[i] == 1)
+			{
+				using (StreamWriter writeText = new StreamWriter(folder + '/' + ((Species)i) + "_fcmGraph.txt", true))
+				{
+					writeText.WriteLine(fcmRows[i].ToString());
+				}
+			}
 		}
 	}
 
@@ -206,9 +246,9 @@ public class TraitLogger : MonoBehaviour
 						if (nAnimals[i] != 0)
 						{
 							double average = currentTraitTotals[i][j].Item1 / nAnimals[i];
-							previousAverages[i][j] = average;
+							previousAveragTraits[i][j] = average;
 						}
-						row.Append(previousAverages[i][j].ToString(System.Globalization.CultureInfo.InvariantCulture));
+						row.Append(previousAveragTraits[i][j].ToString(System.Globalization.CultureInfo.InvariantCulture));
 					}
 					row.Append(",");
 				}
@@ -226,9 +266,12 @@ public class TraitLogger : MonoBehaviour
 		animals.Add(a.GetHashCode(), a);
 	}
 
-	public static void Unregister(Animal a)
+	public static void Unregister(Animal a, CauseOfDeath cause)
 	{
 		animals.Remove(a.GetHashCode());
+		deaths++;
+		if (cause == CauseOfDeath.Age)
+			ageDeaths++;
 	}
 
 	public static void LogAndSave()
@@ -237,7 +280,7 @@ public class TraitLogger : MonoBehaviour
 		{
 			Log(((Animal)e.Value).GetTraits());
 		}
-		Save();
+		SaveTraitAndFCMGraphData();
 	}
 
 	public static void StartNewRound()
@@ -247,6 +290,9 @@ public class TraitLogger : MonoBehaviour
 		logFirst = true;
 		bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
 		WriteFCMsToFile();
+		round++;
+		deaths = 0;
+		ageDeaths = 0;
 	}
 
 	public static void RegisterBirth(Species s)
@@ -265,6 +311,36 @@ public class TraitLogger : MonoBehaviour
 				SaveFCM(s.ToString(), folder  + "/round " + round + " " + ((Species)i).ToString() + "_fcm");
 			}
 		}
-		round++;
+	}
+
+	public static void LogRound(int fitness, int time, int maxCreatures)
+	{
+		string logRow = "";
+
+		if (round != 0)
+		{
+			// normal row
+			string deathRatio = "-1";
+			if (deaths != 0)
+			{
+				deathRatio = (ageDeaths / (double)deaths).ToString(System.Globalization.CultureInfo.InvariantCulture);
+			}
+			int bornAnimals = 0;
+			for (int i = 0; i < TraitLogger.bornAnimals.Length; i++)
+			{
+				bornAnimals += TraitLogger.bornAnimals[i];
+			}
+			logRow = fitness + "," + time + "," + maxCreatures + "," + deathRatio + "," + bornAnimals;
+		}
+		else
+		{
+			// header row
+			logRow = "Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals";
+		}
+
+		using (StreamWriter writeText = new StreamWriter(folder + '/' + "RoundSummary" + ".txt", true))
+		{
+			writeText.WriteLine(logRow);
+		}
 	}
 }
