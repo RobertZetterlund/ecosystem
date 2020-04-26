@@ -194,7 +194,7 @@ public class TraitLogger : MonoBehaviour
 		{
 			if (loggableSpecies[i] == 1)
 			{
-				using (StreamWriter writeText = new StreamWriter(folder + '/' + ((Species)i) + ".txt", true))
+				using (StreamWriter writeText = new StreamWriter(folder + '/' + ((Species)i) + "_fcmGraph.txt", true))
 				{
 					writeText.WriteLine(fcmRows[i].ToString());
 				}
