@@ -74,25 +74,10 @@ public static class FCMFactory
 
 
 			// FEAR AND ESCAPING
-			/*fcm.SetWeight(EntityField.FoeClose, EntityField.Fear, 0.5);
-			fcm.SetWeight(EntityField.FoeFar, EntityField.Fear, -0.5);
-			fcm.SetWeight(EntityField.FoePresenceHigh, EntityField.Fear, 0.15);
-			fcm.SetWeight(EntityField.FoePresenceLow, EntityField.Fear, -0.05);
-
-			fcm.SetWeight(EntityField.Fear, EntityField.Fear, -0.07);
-
-			fcm.SetWeight(EntityField.Fear, EntityField.Hungry, -0.1);
-			fcm.SetWeight(EntityField.Fear, EntityField.NotHungry, 0.1);
-			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);
-
-			fcm.SetWeight(EntityField.Fear, EntityField.SearchingForMate, -0.05);
-			fcm.SetWeight(EntityField.Fear, EntityField.GoingToWater, -0.05);
-			fcm.SetWeight(EntityField.Fear, EntityField.GoingToFood, -0.05);
-			fcm.SetWeight(EntityField.Fear, EntityField.Escaping, 0.5);
-
+			
 			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToWater, -0.15);
 			fcm.SetWeight(EntityField.Escaping, EntityField.SearchingForMate, -0.15);
-			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);*/
+			fcm.SetWeight(EntityField.Escaping, EntityField.GoingToFood, -0.15);
 
 
 		}
