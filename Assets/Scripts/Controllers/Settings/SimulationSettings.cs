@@ -54,6 +54,9 @@ public class SimulationSettings
     public float topPerformersPercentage = 0.05f;
     public int roundTime = 100000;
 
+    public double std_dev = 0.5;
+    public double mutation_chance = 0.05;
+
     [HideInInspector]
     public bool EvovleMaxSize = false, EvolveDietFactor = false, EvolveNChildren = false, EvolveInfantFactor = false,
     EvolveSpeed = false, EvolveHeatTimer = false, EvolveSightLength = false, EvovleSmellRadius = false;

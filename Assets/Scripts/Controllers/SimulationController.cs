@@ -152,7 +152,7 @@ public abstract class SimulationController : MonoBehaviour
 
     protected void SpawnPlant(Vector3 spawnPoint)
     {
-        OrganismFactory.CreatePlant(1, spawnPoint);
+        OrganismFactory.CreatePlant(3, spawnPoint);
     }
 
 
