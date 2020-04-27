@@ -1,4 +1,4 @@
-﻿#define show_gizmos
+﻿//#define show_gizmos
 
 using System;
 using System.Collections;
