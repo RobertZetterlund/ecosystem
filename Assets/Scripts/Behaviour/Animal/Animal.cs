@@ -1,4 +1,4 @@
-﻿#define show_gizmos
+﻿//#define show_gizmos
 
 using System;
 using System.Collections;
@@ -176,10 +176,10 @@ public abstract class Animal : Entity, IConsumable
 		thirst.Add(cdt / timeToDeathByThirst);
 
 		//Punishment for overeating
-		/*if(size.GetValue() / maxSize.GetValue() > 0.99)
+		if(size.GetValue() / maxSize.GetValue() > 0.98 || thirst.GetValue() < 0.02)
 		{
 			energy -= cdt / lifespan;
-		}*/
+		}
 		energy -= cdt / lifespan;
 
 		if (immobalized)

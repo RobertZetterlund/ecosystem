@@ -4,13 +4,13 @@
 class GaussianMutation : SingletonBase<GaussianMutation>, IMutation
 {
 
-	private static double STD_DEVIATION_FACTOR = 0.5;
-	private static double MUTATION_CHANCE = 0.05;
+	//private static double STD_DEVIATION_FACTOR = 0.5;
+	//private static double MUTATION_CHANCE = 0.05;
 	private Random r = new Random();
 
 	public RangedDouble Mutate(RangedDouble gene)
 	{
-		if (r.NextDouble() >= MUTATION_CHANCE)
+		if (r.NextDouble() >= SimulationController.Instance().settings.mutation_chance)
 		{
 			return gene.Duplicate();
 		}
@@ -23,7 +23,7 @@ class GaussianMutation : SingletonBase<GaussianMutation>, IMutation
 		do // randomize new value until it is within the allowed range
 		{
 			double deviation = Math.Min(Math.Abs(value - lower), Math.Abs(value - upper))
-				* STD_DEVIATION_FACTOR;
+				* SimulationController.Instance().settings.std_dev; ;
 			mutation = MathUtility.RandomGaussian(value, deviation);
 			difference = mutation - gene.GetValue();
 			amountInsideRange = gene.Add(difference);

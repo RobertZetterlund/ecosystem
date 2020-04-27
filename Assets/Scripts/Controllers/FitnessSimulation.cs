@@ -156,7 +156,6 @@ class FitnessSimulation : SimulationController
         AnimalTraits[] parents;
         AnimalTraits[] children;
         AnimalTraits[] topPerformers;
-        int topPerformersPerRound = 0;
 
         if (finishedRounds % roundsPerGen != 0)
         {
@@ -182,20 +181,21 @@ class FitnessSimulation : SimulationController
             {
                 //Minimum 2 parents
                 int parentsPerRound = Math.Max(2, (int)(parentPercentage * roundsPerGen * nAnimals[s]));
-                parents = SELECTION_OPERATOR.Select(population.ToArray(), adjustedFitness, parentsPerRound);
+                AnimalTraits[] best_parent = BestSelection.Instance.Select(population.ToArray(), adjustedFitness, 1);
+                parents = SELECTION_OPERATOR.Select(population.ToArray(), adjustedFitness, parentsPerRound - 1);
+                parents = parents.Concat(best_parent).ToArray();
             }
 
             //How many we want to copy with elitism
 
-            topPerformersPerRound = Math.Max(1, (int)(topPerformerPerctange * roundsPerGen * nAnimals[s]));
+            int topPerformersPerRound = Math.Max(1, (int)(topPerformerPerctange * nAnimals[s]));
             topPerformers = BestSelection.Instance.Select(population.ToArray(), adjustedFitness, topPerformersPerRound);
 
             genParents[s] = parents;
             genTopPerformers[s] = topPerformers;
         }
         
-
-        children = BreedChildren(parents, nAnimals[s] - topPerformersPerRound);
+        children = BreedChildren(parents, nAnimals[s] - topPerformers.Length);
 
         return children.Concat(topPerformers).ToArray();
     }
