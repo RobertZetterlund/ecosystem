@@ -1,0 +1,3 @@
+Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals
+10109,122,40,0.05,0
+11918,200,40,0.0916666666666667,0
