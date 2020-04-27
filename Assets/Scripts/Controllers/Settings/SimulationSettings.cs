@@ -13,7 +13,7 @@ public class SimulationSettings
     public float gameSpeed = 1;
     public bool animalsCanDie = true;
     public float cdt = 0.1f;
-    public int plantSize = 1;
+    public int plantSize = 3;
 
     public AnimalSettings rabbit = new RabbitSettings();
     public AnimalSettings fox = new FoxSettings();

@@ -178,7 +178,7 @@ public abstract class Animal : Entity, IConsumable
 		//Punishment for overeating
 		if(size.GetValue() / maxSize.GetValue() > 0.98 || thirst.GetValue() < 0.02)
 		{
-			energy -= cdt / lifespan;
+			//energy -= cdt / lifespan;
 		}
 		energy -= cdt / lifespan;
 

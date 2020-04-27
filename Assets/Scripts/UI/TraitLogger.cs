@@ -248,7 +248,7 @@ public class TraitLogger : MonoBehaviour
 							double average = currentTraitTotals[i][j].Item1 / nAnimals[i];
 							previousAveragTraits[i][j] = average;
 						}
-						row.Append(previousAveragTraits[i][j].ToString(System.Globalization.CultureInfo.InvariantCulture));
+						row.Append(previousAveragTraits[i][j].ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture));
 					}
 					row.Append(",");
 				}
@@ -323,7 +323,7 @@ public class TraitLogger : MonoBehaviour
 			string deathRatio = "-1";
 			if (deaths != 0)
 			{
-				deathRatio = (ageDeaths / (double)deaths).ToString(System.Globalization.CultureInfo.InvariantCulture);
+				deathRatio = (ageDeaths / (double)deaths).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
 			}
 			int bornAnimals = 0;
 			for (int i = 0; i < TraitLogger.bornAnimals.Length; i++)

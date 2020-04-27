@@ -196,7 +196,7 @@ public abstract class FCMHandler
 			}
 			else
 			{
-				csv.Append(output[i].Item3.ToString(System.Globalization.CultureInfo.InvariantCulture));
+				csv.Append(output[i].Item3.ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture));
 			}
 			csv.Append(',');
 		}

@@ -15,7 +15,7 @@ public class AnimalSettings
 	public double nChildren = 2;
 	public double speed;
 	public double heatTimer = 13;
-	public double sightLength = 30;
+	public double sightLength = 40;
 	public double smellRadius = 20;
 }
 
