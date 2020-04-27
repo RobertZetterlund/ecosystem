@@ -38,6 +38,7 @@ public class EscapeAction : AbstractAction
 		else
 		{
 			state = ActionState.Idle;
+			IsDone();
 		}
 
 	}
@@ -53,15 +54,15 @@ public class EscapeAction : AbstractAction
 		Vector3 myPos = animal.gameObject.transform.position;
 		Vector3 dir = myPos - targetPos;
 		float base_angle = Vector3.SignedAngle(dir, Vector3.forward, Vector3.up);
-		float left_angle = base_angle - 100;
-		float right_angle = base_angle + 100;
+		float left_angle = base_angle - 100f;
+		float right_angle = base_angle + 100f;
 		Vector3 base_direction = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * base_angle), 0, Mathf.Cos(Mathf.Deg2Rad * base_angle));
 		Vector3 left_direction = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * left_angle), 0, Mathf.Cos(Mathf.Deg2Rad * left_angle));
 		Vector3 right_direction = new Vector3(-Mathf.Sin(Mathf.Deg2Rad * right_angle), 0, Mathf.Cos(Mathf.Deg2Rad * right_angle));
 
 		Vector3 base_pos = myPos + base_direction * 10;
-		Vector3 left_pos = myPos + left_direction * 5;
-		Vector3 right_pos = myPos + right_direction * 5;
+		Vector3 left_pos = myPos + left_direction * 9;
+		Vector3 right_pos = myPos + right_direction * 9;
 
 		NavMesh.SamplePosition(base_pos, out NavMeshHit base_hit, 100, NavMesh.AllAreas);
 		NavMesh.SamplePosition(left_pos, out NavMeshHit left_hit, 100, NavMesh.AllAreas);
