@@ -180,9 +180,10 @@ public static class FCMFactory
 
         foreach(string line in fcmWeightArray)
         {
+
 			string[] lineValues = line.Split(',');
-			Enum.TryParse<EntityField>(lineValues[0], out EntityField _to);
-			Enum.TryParse<EntityField>(lineValues[1], out EntityField _from);
+			Enum.TryParse(lineValues[0], out EntityField _to);
+			Enum.TryParse(lineValues[1], out EntityField _from);
 			double weight = Convert.ToDouble(lineValues[2]);
 			fcm.SetWeight(_to, _from, weight);
         }
