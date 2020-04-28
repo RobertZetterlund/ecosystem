@@ -6,13 +6,13 @@ public class EscapeAction : AbstractAction
 {
 	protected TickTimer escapeTimer;
 	protected Vector3 targetPos = new Vector3(0, 0, 0);
-	private double distanceToForget;
+	private double distanceToNotRun;
 
 	public EscapeAction(Animal animal) : base(animal)
 	{
 		escapeTimer = new TickTimer(1);
 
-		distanceToForget = animal.GetTraits().smellRadius.GetValue() + 10;
+		distanceToNotRun = animal.GetTraits().smellRadius.GetValue() + 10;
 	}
 
 	public override void Execute()
@@ -25,16 +25,15 @@ public class EscapeAction : AbstractAction
 		escapeTimer.Tick();
 
 
-
 		if (escapeTimer.IsDone() && animal.targetGameObject != null) // roam if nothing to escape from
 		{
 		    float distanceToFoe = Vector3.Distance(targetPos, animal.transform.position);
-            if(distanceToFoe > distanceToForget)
+            if(distanceToFoe > distanceToNotRun)
             {
-				state = ActionState.Idle;
-				IsDone();
-				return;
-            }
+				// stay still
+				targetPos = animal.transform.position;
+				animal.GoToStationaryPosition(animal.targetGameObject.transform.position);
+			}
 			escapeTimer.Reset();
 			state = ActionState.Escaping;
 			try

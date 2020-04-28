@@ -829,11 +829,6 @@ public abstract class Animal : Entity, IConsumable
 
 	}
 
-    public void ForgetFoe()
-    {
-		memory.ForgetFoe();
-    }
-
 	// return true if first call
 	protected virtual bool Immobalize()
 	{
