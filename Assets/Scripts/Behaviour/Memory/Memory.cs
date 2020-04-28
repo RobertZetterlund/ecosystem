@@ -61,6 +61,12 @@ public class Memory
 			this.Food = Food;
 	}
 
+
+    public void ForgetFoe()
+    {
+		WriteFoeToMemory(null);
+    }
+
 	public void AddRejection(int id)
 	{
 		if (rejectedByIDs.Count >= 5)

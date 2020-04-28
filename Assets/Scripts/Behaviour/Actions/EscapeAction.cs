@@ -6,10 +6,13 @@ public class EscapeAction : AbstractAction
 {
 	protected TickTimer escapeTimer;
 	protected Vector3 targetPos = new Vector3(0, 0, 0);
+	private double distanceToForget;
 
 	public EscapeAction(Animal animal) : base(animal)
 	{
 		escapeTimer = new TickTimer(1);
+
+		distanceToForget = animal.GetTraits().smellRadius.GetValue() + 10;
 	}
 
 	public override void Execute()
@@ -20,8 +23,18 @@ public class EscapeAction : AbstractAction
 	protected virtual void Escape()
 	{
 		escapeTimer.Tick();
+
+
+
 		if (escapeTimer.IsDone() && animal.targetGameObject != null) // roam if nothing to escape from
 		{
+		    float distanceToFoe = Vector3.Distance(targetPos, animal.transform.position);
+            if(distanceToFoe > distanceToForget)
+            {
+				state = ActionState.Idle;
+				IsDone();
+				return;
+            }
 			escapeTimer.Reset();
 			state = ActionState.Escaping;
 			try
@@ -49,8 +62,6 @@ public class EscapeAction : AbstractAction
         // creates three "good" positions, sampling all of them, the path hit that is the furthest away from the animal is
         // currently the best option, hence selected. That means that rabbit will not run into wall.
         //animal.navMeshAgent.SamplePathPosition
-
-
 		Vector3 myPos = animal.gameObject.transform.position;
 		Vector3 dir = myPos - targetPos;
 		float base_angle = Vector3.SignedAngle(dir, Vector3.forward, Vector3.up);
