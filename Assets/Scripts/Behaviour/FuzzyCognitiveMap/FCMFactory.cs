@@ -1,5 +1,9 @@
 ﻿
 using System;
+using System.Collections;
+using System.IO;
+
+
 
 public static class FCMFactory
 {
@@ -142,6 +146,52 @@ public static class FCMFactory
 
 		return fcm;
 	}
+
+
+    // given a filepath, creates a single fcm of that log
+    public static FCM ParseFCMFilePath(string filepath)
+    {
+
+		ArrayList fcmWeightLines = new ArrayList();
+
+		using (var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read))
+        {
+			using (StreamReader sr = new StreamReader(fileStream))
+			{
+                // skip the first categorization line.
+				sr.ReadLine();
+				while (!sr.EndOfStream)
+				{
+					fcmWeightLines.Add(sr.ReadLine());
+				}
+			}
+		}
+
+
+        string[] arr = (string[]) fcmWeightLines.ToArray(typeof(string));
+
+			return ParseFCMStringArray(arr);
+    }
+
+
+    public static FCM ParseFCMStringArray(string[] fcmWeightArray)
+    {
+		FCM fcm = GetBaseFCM();
+
+        foreach(string line in fcmWeightArray)
+        {
+			string[] lineValues = line.Replace(" ", "").Split(',');
+			string _to = lineValues[0];
+			string _from = lineValues[1];
+			double weight = Convert.ToDouble(lineValues[2]);
+			fcm.SetWeight(EntityField(_to), EntityField(_from), weight);
+
+        }
+
+
+
+		return fcm;
+    }
 
 
 
