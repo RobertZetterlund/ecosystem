@@ -188,6 +188,10 @@ public abstract class SimulationController : MonoBehaviour
 
         AnimalTraits rabbitTraits = InitTraitsFromSettings(settings.rabbit);
         rabbitTraits.species = Species.Rabbit;
+
+        // IF U WANT TO PARSE FROM A FILE AND GET OTHER BASE-TRAITS, USE FOLLOWING FUNCTION WITH YOUR FILEPATH
+        //rabbitTraits.fcmHandler = new RabbitFCMHandler(FCMFactory.ParseFCMFilePath("/Users/robertzetterlund/Downloads/round_78_fcm.txt"));
+
         rabbitTraits.fcmHandler = new RabbitFCMHandler(FCMFactory.RabbitFCM());
         rabbitTraits.diet = plantArr;
         rabbitTraits.foes = foxArr;
