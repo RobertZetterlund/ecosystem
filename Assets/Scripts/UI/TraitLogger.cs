@@ -13,6 +13,7 @@ public class TraitLogger : MonoBehaviour
 	private static (double, string)[][] currentTraitTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
 	private static double[][] previousAveragTraits = new double[Species.GetValues(typeof(Species)).Length][];
 	private static int[][] actionStats = new int[Species.GetValues(typeof(Species)).Length][];
+	private static int[][] actionStatsRound = new int[Species.GetValues(typeof(Species)).Length][];
 	private static double[][,] previousAverageFCMs = new double[Species.GetValues(typeof(Species)).Length][,];
 	private static List<FCMHandler>[] recentFCMs = new List<FCMHandler>[Species.GetValues(typeof(Species)).Length];
 	private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
@@ -141,10 +142,9 @@ public class TraitLogger : MonoBehaviour
 			currentTraitTotals[(int)traits.species] = traitValues;
 			recentFCMs[(int)traits.species] = new List<FCMHandler>() { traits.fcmHandler };
 
-			for (int i = 0; i < actionStats.Length; i++)
-			{
-				actionStats[i] = new int[EntityField.GetValues(typeof(EntityField)).Length];
-			}
+
+			actionStats[(int)traits.species] = (int[])animal.actionTicks.Clone();
+
 		}
 		else
 		{
@@ -157,8 +157,10 @@ public class TraitLogger : MonoBehaviour
 			foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
 			{
 				actionStats[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
+				//actionStatsRound[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
 			}
 		}
+		animal.resetActionLog();
 
 	}
 

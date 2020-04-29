@@ -17,16 +17,9 @@ class GaussianMutation : SingletonBase<GaussianMutation>, IMutation
 		double value = gene.GetValue();
 		double lower = gene.GetLower();
 		double upper = gene.GetUpper();
-		double mutation;
-		double difference;
-		double amountInsideRange;
-		do // randomize new value until it is within the allowed range
-		{
-			double deviation = SimulationController.Instance().settings.std_dev; ;
-			mutation = MathUtility.RandomGaussian(value, deviation);
-			difference = mutation - gene.GetValue();
-			amountInsideRange = gene.Add(difference);
-		} while (amountInsideRange != difference);
+		double deviation = 0.5*SimulationController.Instance().settings.std_dev; ;
+		double mutation = MathUtility.RandomGaussian(value, deviation);
+
 
 		mutation = MathUtility.Clamp(mutation, lower, upper);
 		return new RangedDouble(mutation, lower, upper);

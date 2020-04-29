@@ -866,4 +866,9 @@ public abstract class Animal : Entity, IConsumable
 		navMeshAgent.speed = (float)(speed.GetValue() * simulation.settings.gameSpeed);
 	}
 
+	public void resetActionLog()
+	{
+		actionTicks = new int[EntityField.GetValues(typeof(EntityField)).Length];
+	}
+
 }
