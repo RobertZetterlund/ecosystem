@@ -7,7 +7,7 @@ class ConstantMutation : SingletonBase<ConstantMutation>, IMutation
 	//private static double STD_DEVIATION_FACTOR = 0.5;
 	//private static double MUTATION_CHANCE = 0.05;
 	private Random r = new Random();
-	private double mutationSize = 0.05;
+	private double mutationSize = 0.2;
 
 	public RangedDouble Mutate(RangedDouble gene)
 	{
