@@ -86,6 +86,9 @@ public abstract class Animal : Entity, IConsumable
 	private AbstractAction goToFoodAction, goToWaterAction, goToMateAction, idleAction, action, escapeAction;
 	protected SimulationController simulation = SimulationController.Instance();
 
+	// logging stats
+	public int[] actionTicks = new int[EntityField.GetValues(typeof(EntityField)).Length];
+
 	public virtual void Init(AnimalTraits traits, double size, double thirst)
 	{
 		this.species = traits.species;
@@ -208,6 +211,7 @@ public abstract class Animal : Entity, IConsumable
 			fcmHandler.CalculateFCM();
 			fcmTimer.Reset();
 		}
+		actionTicks[(int)currentAction]++;
 
 		ChooseNextAction();
 		if (currentAction != EntityAction.Idle)
@@ -860,6 +864,11 @@ public abstract class Animal : Entity, IConsumable
 	public void SyncGameSpeed()
 	{
 		navMeshAgent.speed = (float)(speed.GetValue() * simulation.settings.gameSpeed);
+	}
+
+	public void resetActionLog()
+	{
+		actionTicks = new int[EntityField.GetValues(typeof(EntityField)).Length];
 	}
 
 }

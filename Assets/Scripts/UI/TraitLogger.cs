@@ -12,6 +12,8 @@ public class TraitLogger : MonoBehaviour
 
 	private static (double, string)[][] currentTraitTotals = new (double, string)[Species.GetValues(typeof(Species)).Length][];
 	private static double[][] previousAveragTraits = new double[Species.GetValues(typeof(Species)).Length][];
+	private static int[][] actionStats = new int[Species.GetValues(typeof(Species)).Length][];
+	private static int[][] actionStatsRound = new int[Species.GetValues(typeof(Species)).Length][];
 	private static double[][,] previousAverageFCMs = new double[Species.GetValues(typeof(Species)).Length][,];
 	private static List<FCMHandler>[] recentFCMs = new List<FCMHandler>[Species.GetValues(typeof(Species)).Length];
 	private static int[] nAnimals = new int[Species.GetValues(typeof(Species)).Length];
@@ -20,7 +22,7 @@ public class TraitLogger : MonoBehaviour
 	private static int[] bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
 	private static int deaths = 0;
 	private static int ageDeaths = 0;
-	private static int logInterval = 5; // seconds
+	private static int logInterval = 20; // seconds
 	private static bool firstSave = true;
 	private static string folder;
 	//private static string fcmFolder;
@@ -33,6 +35,7 @@ public class TraitLogger : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
+
 		timer = new Timer(logInterval);
 		timer.Start();
 		if (enable)
@@ -125,26 +128,39 @@ public class TraitLogger : MonoBehaviour
 #endif
 	}
 
-	public static void Log(AnimalTraits traits)
+	public static void Log(Animal animal)
 	{
+		AnimalTraits traits = animal.GetTraits();
+
 		nAnimals[(int)traits.species]++;
 		loggableSpecies[(int)traits.species] = 1;
 		(double, string)[] traitValues = traits.GetNumericalTraits();
 
 		if (nAnimals[(int)traits.species] == 1)
 		{
-			// refresh list
+			// refresh lists
 			currentTraitTotals[(int)traits.species] = traitValues;
 			recentFCMs[(int)traits.species] = new List<FCMHandler>() { traits.fcmHandler };
+
+
+			actionStats[(int)traits.species] = (int[])animal.actionTicks.Clone();
+
 		}
 		else
 		{
+			// update lists
 			for (int i = 0; i < traitValues.Length; i++)
 			{
 				currentTraitTotals[(int)traits.species][i].Item1 += traitValues[i].Item1;
 			}
 			recentFCMs[(int)traits.species].Add(traits.fcmHandler);
+			foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+			{
+				actionStats[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
+				//actionStatsRound[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
+			}
 		}
+		animal.resetActionLog();
 
 	}
 
@@ -210,16 +226,32 @@ public class TraitLogger : MonoBehaviour
 			// make 1 column or each trait and species
 			if (loggableSpecies[i] == 1)
 			{
-				// make entry for each population and born children
+				double totalActionTicks = 0;
+				for (int j = 0; j < actionStats[i].Length; j++)
+				{
+					totalActionTicks += actionStats[i][j];
+				}
+				// make entry for each population, born children and action stats
 				if (isHeader)
 				{
+					// add population
 					row.Append(((Species)i).ToString());
 					row.Append('-');
 					row.Append("population,");
 
+					// add born children
 					row.Append(((Species)i).ToString());
 					row.Append('-');
 					row.Append("born children,");
+
+					// add action stats
+					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+					{
+						row.Append(((Species)i).ToString());
+						row.Append('-');
+						row.Append(action.ToString());
+						row.Append(',');
+					}
 				}
 				else
 				{
@@ -229,6 +261,13 @@ public class TraitLogger : MonoBehaviour
 					row.Append(bornAnimals[i]);
 					row.Append(",");
 
+					
+					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+					{
+						string quotient = (totalActionTicks == 0) ? "0" : (actionStats[i][(int)action] / totalActionTicks).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
+						row.Append(quotient);
+						row.Append(',');
+					}
 				}
 				// make an entry for each trait
 				for (int j = 0; j < currentTraitTotals[i].Length; j++)
@@ -278,13 +317,18 @@ public class TraitLogger : MonoBehaviour
 	{
 		foreach (DictionaryEntry e in animals)
 		{
-			Log(((Animal)e.Value).GetTraits());
+			Log(((Animal)e.Value));
 		}
 		SaveTraitAndFCMGraphData();
 	}
 
 	public static void StartNewRound()
 	{
+		// make population = 0 point
+		nAnimals = new int[Species.GetValues(typeof(Species)).Length];
+		SaveTraitAndFCMGraphData();
+
+		// reset
 		timer.Reset();
 		timer.Start();
 		logFirst = true;

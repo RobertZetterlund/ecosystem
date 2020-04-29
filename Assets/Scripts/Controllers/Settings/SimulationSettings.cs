@@ -55,7 +55,7 @@ public class SimulationSettings
     public float topPerformersPercentage = 0.05f;
     public int roundTime = 100000;
 
-    public double std_dev = 0.5;
+    public double std_dev = 0.2;
     public double mutation_chance = 0.05;
 
     [HideInInspector]
