@@ -37,7 +37,7 @@ public abstract class SimulationController : MonoBehaviour
     //public static IMutation MUTATION_OPERATOR = NoMutation.Instance;
 
     public static ICrossover CROSSOVER_OPERATOR = AlwaysSameCrossover.Instance;
-    public static IMutation MUTATION_OPERATOR = ConstantMutation.Instance;
+    public static IMutation MUTATION_OPERATOR = GaussianMutation.Instance;
 
     // start values
     double maxSize = 3;
