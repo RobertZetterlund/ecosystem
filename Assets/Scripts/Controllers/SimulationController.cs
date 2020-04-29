@@ -265,4 +265,6 @@ public abstract class SimulationController : MonoBehaviour
     {
         TraitLogger.RegisterBirth(s);
     }
+
+
 }

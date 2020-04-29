@@ -348,5 +348,10 @@ class FitnessSimulation : SimulationController
         return Math.Pow(roundTimer.TimeSinceStart(), 2);
     }
 
+    void OnApplicationQuit()
+    {
+        EndRound();
+    }
+
 }
 
