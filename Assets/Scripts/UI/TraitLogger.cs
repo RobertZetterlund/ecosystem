@@ -45,6 +45,12 @@ public class TraitLogger : MonoBehaviour
 			Directory.CreateDirectory(folder);
 			//Directory.CreateDirectory(fcmFolder);
 		}
+
+		// assign initial value to round action stats
+		for (int i = 0; i < actionStatsRound.Length; i++)
+		{
+			actionStatsRound[i] = new int[EntityField.GetValues(typeof(EntityField)).Length];
+		}
 	}
 
 	// Update is called once per frame
@@ -60,7 +66,7 @@ public class TraitLogger : MonoBehaviour
 			{
 				nAnimals[i] = 0; // refresh 
 			}
-			LogAndSave();
+			ContinuousLogAndSave();
 			timer.Reset();
 			timer.Start();
 			logFirst = false;
@@ -71,7 +77,7 @@ public class TraitLogger : MonoBehaviour
 	{
 		if (enable)
 		{
-			WriteFCMsToFile();
+			SaveRoundFCMs();
 		}
 	}
 
@@ -145,6 +151,8 @@ public class TraitLogger : MonoBehaviour
 
 			actionStats[(int)traits.species] = (int[])animal.actionTicks.Clone();
 
+
+
 		}
 		else
 		{
@@ -157,8 +165,11 @@ public class TraitLogger : MonoBehaviour
 			foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
 			{
 				actionStats[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
-				//actionStatsRound[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
 			}
+		}
+		foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+		{
+			actionStatsRound[(int)traits.species][(int)action] += animal.actionTicks[(int)action];
 		}
 		animal.resetActionLog();
 
@@ -189,10 +200,10 @@ public class TraitLogger : MonoBehaviour
 				}
 			}
 			// make header
-			traitRow = MakeRow(true).Append("\n");
+			traitRow = MakeTraitCsvRow(true).Append("\n");
 			firstSave = false;
 		}
-		traitRow.Append(MakeRow(false));
+		traitRow.Append(MakeTraitCsvRow(false));
 
 		for (int i = 0; i < fcmRows.Length; i++)
 		{
@@ -218,7 +229,7 @@ public class TraitLogger : MonoBehaviour
 		}
 	}
 
-	private static StringBuilder MakeRow(bool isHeader)
+	private static StringBuilder MakeTraitCsvRow(bool isHeader)
 	{
 		StringBuilder row = new StringBuilder("");
 		for (int i = 0; i < loggableSpecies.Length; i++)
@@ -313,7 +324,7 @@ public class TraitLogger : MonoBehaviour
 			ageDeaths++;
 	}
 
-	public static void LogAndSave()
+	public static void ContinuousLogAndSave()
 	{
 		foreach (DictionaryEntry e in animals)
 		{
@@ -333,7 +344,7 @@ public class TraitLogger : MonoBehaviour
 		timer.Start();
 		logFirst = true;
 		bornAnimals = new int[Species.GetValues(typeof(Species)).Length];
-		WriteFCMsToFile();
+		SaveRoundFCMs();
 		round++;
 		deaths = 0;
 		ageDeaths = 0;
@@ -344,7 +355,7 @@ public class TraitLogger : MonoBehaviour
 		bornAnimals[(int)s]++;
 	}
 
-	private static void WriteFCMsToFile()
+	private static void SaveRoundFCMs()
 	{
 		// save fcm
 		for (int i = 0; i < recentFCMs.Length; i++)
@@ -359,11 +370,38 @@ public class TraitLogger : MonoBehaviour
 
 	public static void LogRound(int fitness, int time, int maxCreatures)
 	{
-		string logRow = "";
+		StringBuilder summarylogRow = new StringBuilder("");
+		StringBuilder actionLogRow = new StringBuilder("");
 
 		if (round != 0)
 		{
 			// normal row
+
+			// print action stats
+			StringBuilder actions = new StringBuilder("");
+			double[] totalActionCount = new double[Species.GetValues(typeof(Species)).Length];
+			foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
+			{
+				if (loggableSpecies[(int)s] == 1)
+				{
+					// calculate total action
+					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+					{
+						totalActionCount[(int)s] += actionStatsRound[(int)s][(int)action];
+					}
+					// print ratio
+					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+					{
+						actionLogRow.Append((actionStatsRound[(int)s][(int)action] / totalActionCount[(int)s]).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture));
+						actionLogRow.Append(',');
+					}
+				}
+				
+			}
+			// remove last ,
+			actionLogRow.Length--;
+
+			// print other summary stats
 			string deathRatio = "-1";
 			if (deaths != 0)
 			{
@@ -374,17 +412,49 @@ public class TraitLogger : MonoBehaviour
 			{
 				bornAnimals += TraitLogger.bornAnimals[i];
 			}
-			logRow = fitness + "," + time + "," + maxCreatures + "," + deathRatio + "," + bornAnimals;
+			summarylogRow.Append(fitness + "," + time + "," + maxCreatures + "," + deathRatio + "," + bornAnimals);
 		}
 		else
 		{
 			// header row
-			logRow = "Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals";
+			// actions
+			foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
+			{
+				if (loggableSpecies[(int)s] == 1)
+				{
+					// print ratio
+					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+					{
+						actionLogRow.Append(s.ToString());
+						actionLogRow.Append('-');
+						actionLogRow.Append(action.ToString());
+						actionLogRow.Append(',');
+					}
+				}
+			}
+			// remove last ,
+			actionLogRow.Length--;
+
+			// summary
+			summarylogRow.Append("Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals");
 		}
 
+		// write summary to file
 		using (StreamWriter writeText = new StreamWriter(folder + '/' + "RoundSummary" + ".txt", true))
 		{
-			writeText.WriteLine(logRow);
+			writeText.WriteLine(summarylogRow.ToString());
+		}
+
+		// write actions to file
+		using (StreamWriter writeText = new StreamWriter(folder + '/' + "ActionSummary" + ".txt", true))
+		{
+			writeText.WriteLine(actionLogRow.ToString());
+		}
+
+		// reset round action stats
+		foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
+		{
+			actionStatsRound[(int)s] = new int[EntityField.GetValues(typeof(EntityField)).Length];
 		}
 	}
 }
