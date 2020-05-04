@@ -371,50 +371,17 @@ public class TraitLogger : MonoBehaviour
 	public static void LogRound(int fitness, int time, int maxCreatures)
 	{
 		StringBuilder summarylogRow = new StringBuilder("");
-		StringBuilder actionLogRow = new StringBuilder("");
-
-		if (round != 0)
+		// assign action log rows
+		StringBuilder[] actionLogRows = new StringBuilder[Species.GetValues(typeof(Species)).Length];
+		foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
 		{
-			// normal row
-
-			// print action stats
-			StringBuilder actions = new StringBuilder("");
-			double[] totalActionCount = new double[Species.GetValues(typeof(Species)).Length];
-			foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
+			if (loggableSpecies[(int)s] == 1)
 			{
-				if (loggableSpecies[(int)s] == 1)
-				{
-					// calculate total action
-					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
-					{
-						totalActionCount[(int)s] += actionStatsRound[(int)s][(int)action];
-					}
-					// print ratio
-					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
-					{
-						actionLogRow.Append((actionStatsRound[(int)s][(int)action] / totalActionCount[(int)s]).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture));
-						actionLogRow.Append(',');
-					}
-				}
-				
+				actionLogRows[(int)s] = new StringBuilder("");
 			}
-			// remove last ,
-			actionLogRow.Length--;
-
-			// print other summary stats
-			string deathRatio = "-1";
-			if (deaths != 0)
-			{
-				deathRatio = (ageDeaths / (double)deaths).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
-			}
-			int bornAnimals = 0;
-			for (int i = 0; i < TraitLogger.bornAnimals.Length; i++)
-			{
-				bornAnimals += TraitLogger.bornAnimals[i];
-			}
-			summarylogRow.Append(fitness + "," + time + "," + maxCreatures + "," + deathRatio + "," + bornAnimals);
 		}
-		else
+
+		if (round == 0)
 		{
 			// header row
 			// actions
@@ -425,19 +392,57 @@ public class TraitLogger : MonoBehaviour
 					// print ratio
 					foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
 					{
-						actionLogRow.Append(s.ToString());
-						actionLogRow.Append('-');
-						actionLogRow.Append(action.ToString());
-						actionLogRow.Append(',');
+						actionLogRows[(int)s].Append(action.ToString());
+						actionLogRows[(int)s].Append(',');
 					}
+					// remove last ,
+					actionLogRows[(int)s].Length--;
+					actionLogRows[(int)s].Append('\n');
 				}
 			}
-			// remove last ,
-			actionLogRow.Length--;
 
 			// summary
-			summarylogRow.Append("Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals");
+			summarylogRow.Append("Fitness,Round duration,Maximum alive animals,Age death ratio,Born animals" + '\n');
 		}
+
+		// normal row
+
+		// print action stats
+		StringBuilder actions = new StringBuilder("");
+		double[] totalActionCount = new double[Species.GetValues(typeof(Species)).Length];
+		foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
+		{
+			if (loggableSpecies[(int)s] == 1)
+			{
+				// calculate total action
+				foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+				{
+					totalActionCount[(int)s] += actionStatsRound[(int)s][(int)action];
+				}
+				// print ratio
+				foreach (EntityAction action in (EntityAction[])Enum.GetValues(typeof(EntityAction)))
+				{
+					actionLogRows[(int)s].Append((actionStatsRound[(int)s][(int)action] / totalActionCount[(int)s]).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture));
+					actionLogRows[(int)s].Append(',');
+				}
+				actionLogRows[(int)s].Length--;
+			}
+
+		}
+		// remove last ,
+
+		// print other summary stats
+		string deathRatio = "-1";
+		if (deaths != 0)
+		{
+			deathRatio = (ageDeaths / (double)deaths).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
+		}
+		int bornAnimals = 0;
+		for (int i = 0; i < TraitLogger.bornAnimals.Length; i++)
+		{
+			bornAnimals += TraitLogger.bornAnimals[i];
+		}
+		summarylogRow.Append(fitness + "," + time + "," + maxCreatures + "," + deathRatio + "," + bornAnimals);
 
 		// write summary to file
 		using (StreamWriter writeText = new StreamWriter(folder + '/' + "RoundSummary" + ".txt", true))
@@ -446,10 +451,17 @@ public class TraitLogger : MonoBehaviour
 		}
 
 		// write actions to file
-		using (StreamWriter writeText = new StreamWriter(folder + '/' + "ActionSummary" + ".txt", true))
+		foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
 		{
-			writeText.WriteLine(actionLogRow.ToString());
+			if (loggableSpecies[(int)s] == 1)
+			{
+				using (StreamWriter writeText = new StreamWriter(folder + '/' + s.ToString() + '_' + "ActionSummary" + ".txt", true))
+				{
+					writeText.WriteLine(actionLogRows[(int)s].ToString());
+				}
+			}
 		}
+
 
 		// reset round action stats
 		foreach (Species s in (Species[])Enum.GetValues(typeof(Species)))
