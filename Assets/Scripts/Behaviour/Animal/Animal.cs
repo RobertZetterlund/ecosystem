@@ -1,4 +1,4 @@
-﻿//#define show_gizmos
+﻿#define show_gizmos
 
 using System;
 using System.Collections;
@@ -345,6 +345,7 @@ public abstract class Animal : Entity, IConsumable
 		EntityAction newAction = fcmHandler.GetAction();
 		if (currentAction != newAction)
 		{
+			ResetSpeed();
 			currentAction = newAction;
 			//This has to reset somewhere
 			targetGameObject = null;
@@ -363,6 +364,7 @@ public abstract class Animal : Entity, IConsumable
 					action = goToMateAction;
 					break;
 				case EntityAction.Escaping:
+					UpSpeed();
 					targetGameObject = memory.ReadFoeFromMemory();
 					action = escapeAction;
 					break;
@@ -863,7 +865,22 @@ public abstract class Animal : Entity, IConsumable
 
 	public void SyncGameSpeed()
 	{
-		navMeshAgent.speed = (float)(speed.GetValue() * simulation.settings.gameSpeed);
+		SyncGameSpeed(speed.GetValue());
+	}
+
+	public void SyncGameSpeed(double speed)
+	{
+		navMeshAgent.speed = (float)(speed * simulation.settings.gameSpeed);
+	}
+
+	public void ResetSpeed()
+	{
+		SyncGameSpeed();
+	}
+
+	public void UpSpeed()
+	{
+		SyncGameSpeed(speed.GetValue() * 1.5);
 	}
 
 	public void resetActionLog()

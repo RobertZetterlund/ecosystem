@@ -335,7 +335,7 @@ public class FCM
 				EntityField _to = (EntityField)Enum.Parse(typeof(EntityField), ea.ToString());
 
 				// randomise weights
-				SetWeight(_from, _to, MathUtility.RandomUniform(-0.05, 0.05));
+				SetWeight(_from, _to, MathUtility.RandomUniform(-1, 1));
 			}
 		}
 	}

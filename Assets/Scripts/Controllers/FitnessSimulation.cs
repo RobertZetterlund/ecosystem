@@ -15,7 +15,7 @@ class FitnessSimulation : SimulationController
     private double roundTime;
     private int finishedRounds = 0;
     private int evolvingAnimalsAlive = 0;
-    private int roundsPerGen = 2;
+    private int roundsPerGen = 5;
     private int generation = 0;
 
 
