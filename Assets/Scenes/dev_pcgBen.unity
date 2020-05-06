@@ -2466,7 +2466,7 @@ MonoBehaviour:
   settings:
     nPlants: 40
     nRabbits: 20
-    nFoxes: 2
+    nFoxes: 0
     gameSpeed: 5
     animalsCanDie: 1
     cdt: 0.1
@@ -2495,18 +2495,18 @@ MonoBehaviour:
       maxSize: 3
       dietFactor: 1
       nChildren: 2
-      speed: 12
+      speed: 3
       heatTimer: 13
       sightLength: 40
       smellRadius: 20
     mutationSettings: 0
     evolveRabbit: 1
     evolveFox: 0
-    parentsPercentage: 0.2
+    parentsPercentage: 0.1
     topPerformersPercentage: 0.125
     roundTime: 100000
     std_dev: 0.2
-    mutation_chance: 0.05
+    mutation_chance: 0.01
     EvovleMaxSize: 0
     EvolveDietFactor: 0
     EvolveNChildren: 0

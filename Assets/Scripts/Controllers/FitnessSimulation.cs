@@ -15,7 +15,7 @@ class FitnessSimulation : SimulationController
     private double roundTime;
     private int finishedRounds = 0;
     private int evolvingAnimalsAlive = 0;
-    private int roundsPerGen = 5;
+    private int roundsPerGen = 1;
     private int generation = 0;
 
 
@@ -283,7 +283,25 @@ class FitnessSimulation : SimulationController
         if (parents.Length < 2)
             throw new Exception("Can't breed with less than 2 parents");
 
+        
+
         int i = 0;
+        while (true)
+        {
+            AnimalTraits[] parents_shuffled = parents.OrderBy(x => random.Next()).ToArray();
+            for (int j = 0; j < parents_shuffled.Length - 1; j++, i++)
+            {
+                if (i == amount)
+                    return children;
+
+                AnimalTraits parent1 = parents[j];
+                AnimalTraits parent2 = parents[j+1];
+
+                children[i] = ReproductionUtility.ReproduceAnimal(parent1, parent2);
+            }
+        }
+        /*
+            int i = 0;
         while(true)
         {
             for (int parent1Index = 0; parent1Index < parents.Length; parent1Index++, i++)
@@ -307,7 +325,7 @@ class FitnessSimulation : SimulationController
 
                 children[i] = ReproductionUtility.ReproduceAnimal(parent1, parent2);
             }
-        }
+        }*/
     }
 
     // Called when an animal dies
