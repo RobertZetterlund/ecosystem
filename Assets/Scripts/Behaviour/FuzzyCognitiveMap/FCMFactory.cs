@@ -7,6 +7,9 @@ using System.IO;
 
 public static class FCMFactory
 {
+
+	public static FCM parsedFCM = null;
+
 	public static FCM GetBaseFCM()
 	{
 		EntityInput[] inputs = (EntityInput[])Enum.GetValues(typeof(EntityInput));
@@ -152,6 +155,12 @@ public static class FCMFactory
     public static FCM ParseFCMFilePath(string filepath)
     {
 
+
+        if(!(parsedFCM is null))
+        {
+			return parsedFCM;
+        }
+
 		ArrayList fcmWeightLines = new ArrayList();
 
 		using (var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read))
@@ -187,6 +196,9 @@ public static class FCMFactory
 			double weight = Convert.ToDouble(lineValues[2]);
 			fcm.SetWeight(_to, _from, weight);
         }
+
+		parsedFCM = fcm;
+
 		return fcm;
     }
 
